@@ -34,6 +34,16 @@ for c in classes:
     if len(rows) not in (1,5): errors.append(f'{c}: expected 5 abilities for production content (or 1 in early slice), got {len(rows)}')
     thresholds=[a.get('unlock_mastery',0) for a in rows]
     if thresholds!=sorted(thresholds): errors.append(f'{c}: mastery thresholds are not monotonic')
+allowed_classes={'class.knight','class.ranger','class.thief','class.wizard'}
+allowed_threats={'none','adjacent','cross_two','orthogonal_line','aura_two'}
+allowed_intents={'attack','heavy_attack','steal_gold','poison','guard','summon','hazard'}
+if classes!=allowed_classes: errors.append(f'classes.json class ids must be exactly {sorted(allowed_classes)}, found {sorted(classes)}')
+for row in list(data.get('monsters.json',{}).get('monsters',[]))+list(data.get('bosses.json',{}).get('bosses',[])):
+    if row.get('threat') not in allowed_threats: errors.append(f"{row.get('id')} has unsupported threat {row.get('threat')}")
+    if row.get('intent') not in allowed_intents: errors.append(f"{row.get('id')} has unsupported intent {row.get('intent')}")
+    if row.get('intent_power',0)<=0: errors.append(f"{row.get('id')} has invalid intent_power")
+    if not row.get('decision'): errors.append(f"{row.get('id')} missing decision rationale")
+
 for m in data.get('monsters.json',{}).get('monsters',[]):
     for b in m.get('biomes',[]):
         if b not in biomes: errors.append(f"monster {m.get('id')} references missing biome {b}")

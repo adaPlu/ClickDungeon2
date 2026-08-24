@@ -64,7 +64,7 @@ namespace ClickDungeon.Application.Content
             foreach(var row in Read(path)["bosses"] as JArray ?? new JArray())
             {
                 string id=row.Value<string>("id");
-                c.Add(new MonsterDefinition{Id=id,DisplayName=row.Value<string>("display_name")??HumanizeId(id),Decision=row.Value<string>("decision")??string.Empty,Hp=row.Value<int>("hp"),Attack=row.Value<int>("attack"),Defense=row.Value<int>("defense"),ThreatPattern=BossThreat(id),PrimaryIntent=BossIntent(id),IntentPower=row.Value<int>("attack"),BehaviorId=row.Value<string>("identity")??"boss",BiomeIds=new string[0]});
+                c.Add(new MonsterDefinition{Id=id,DisplayName=row.Value<string>("display_name")??HumanizeId(id),Decision=row.Value<string>("decision")??string.Empty,Hp=row.Value<int>("hp"),Attack=row.Value<int>("attack"),Defense=row.Value<int>("defense"),ThreatPattern=ParseThreat(row.Value<string>("threat")),PrimaryIntent=ParseIntent(row.Value<string>("intent")),IntentPower=row.Value<int>("intent_power"),BehaviorId=row.Value<string>("identity")??throw new InvalidDataException($"Boss {id} missing identity."),BiomeIds=new string[0]});
                 c.Add(new BossDefinition{Id=id,Floor=row.Value<int>("floor")});
             }
         }
@@ -169,10 +169,8 @@ namespace ClickDungeon.Application.Content
         }
 
         private static string HumanizeId(string id){if(string.IsNullOrEmpty(id))return string.Empty;int dot=id.LastIndexOf('.');string value=(dot>=0?id.Substring(dot+1):id).Replace('_',' ');return System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(value);}
-        private static HeroClassId ParseClass(string id){switch(id){case "class.ranger":return HeroClassId.Ranger;case "class.thief":return HeroClassId.Thief;case "class.wizard":return HeroClassId.Wizard;default:return HeroClassId.Knight;}}
-        private static ThreatPattern ParseThreat(string id){switch(id){case "cross_two":return ThreatPattern.CrossTwo;case "orthogonal_line":return ThreatPattern.OrthogonalLine;case "aura_two":return ThreatPattern.AuraTwo;case "adjacent":return ThreatPattern.Adjacent;default:return ThreatPattern.None;}}
-        private static MonsterIntentKind ParseIntent(string id){switch(id){case "heavy_attack":return MonsterIntentKind.HeavyAttack;case "steal_gold":return MonsterIntentKind.StealGold;case "poison":return MonsterIntentKind.ApplyPoison;case "guard":return MonsterIntentKind.Guard;case "summon":return MonsterIntentKind.Summon;case "hazard":return MonsterIntentKind.Hazard;default:return MonsterIntentKind.Attack;}}
-        private static ThreatPattern BossThreat(string id)=>id.Contains("wyrm")?ThreatPattern.OrthogonalLine:id.Contains("lich")?ThreatPattern.AuraTwo:ThreatPattern.CrossTwo;
-        private static MonsterIntentKind BossIntent(string id)=>id.Contains("lich")?MonsterIntentKind.Summon:id.Contains("wyrm")?MonsterIntentKind.HeavyAttack:MonsterIntentKind.Hazard;
+        private static HeroClassId ParseClass(string id){switch(id){case "class.knight":return HeroClassId.Knight;case "class.ranger":return HeroClassId.Ranger;case "class.thief":return HeroClassId.Thief;case "class.wizard":return HeroClassId.Wizard;default:throw new InvalidDataException($"Unknown hero class id {id}.");}}
+        private static ThreatPattern ParseThreat(string id){switch(id){case "none":return ThreatPattern.None;case "cross_two":return ThreatPattern.CrossTwo;case "orthogonal_line":return ThreatPattern.OrthogonalLine;case "aura_two":return ThreatPattern.AuraTwo;case "adjacent":return ThreatPattern.Adjacent;default:throw new InvalidDataException($"Unknown threat pattern {id}.");}}
+        private static MonsterIntentKind ParseIntent(string id){switch(id){case "attack":return MonsterIntentKind.Attack;case "heavy_attack":return MonsterIntentKind.HeavyAttack;case "steal_gold":return MonsterIntentKind.StealGold;case "poison":return MonsterIntentKind.ApplyPoison;case "guard":return MonsterIntentKind.Guard;case "summon":return MonsterIntentKind.Summon;case "hazard":return MonsterIntentKind.Hazard;default:throw new InvalidDataException($"Unknown monster intent {id}.");}}
     }
 }
