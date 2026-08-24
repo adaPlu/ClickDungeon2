@@ -1,0 +1,13 @@
+ClickDungeon2 static/adversarial validation
+commit=9da116d9740dfbcdbadb72d978a5aa45b743c5a5
+
+compileall_exit=0
+CONTENT VALIDATION PASSED: 17 JSON files
+content_exit=0
+REPLAY CONTRACT VALIDATION PASSED
+replay_exit=0
+STATIC AUDIT: 0 errors, 0 warnings
+static_audit_exit=0
+m_EditorVersion: 6000.5.9f1
+unity_pin_exit=0
+PASSED
