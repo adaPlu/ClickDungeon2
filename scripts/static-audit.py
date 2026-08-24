@@ -56,11 +56,35 @@ for token in ['CampaignFloorLimit','ItemInstances','AbilityStates','AbyssDepth']
     if token not in run:errors.append(f'RunState missing {token}')
 for token in ['entitlement.full_game_required','LivingMonstersAdjacentTo','DefeatMonster(chained','tile.not_adjacent']:
     if token not in session:errors.append(f'GameSession integration contract missing {token}')
-build=(ROOT/'Assets/ClickDungeon/Editor/BuildAutomation.cs').read_text()
-for token in ['ContentAssetGenerator.Generate','PresentationAssetGenerator.Generate','SceneScaffolder.EnsureCoreScenes']:
+
+build_path=ROOT/'Assets/ClickDungeon/Editor/BuildAutomation.cs';build=build_path.read_text()
+for token in ['TextMeshProResourceBootstrap.Ensure','ContentAssetGenerator.Generate','PresentationAssetGenerator.Generate','SceneScaffolder.EnsureCoreScenes','AssetDatabase.SaveAssets','ImportAssetOptions.ForceUpdate']:
     if token not in build:errors.append(f'BuildAutomation missing {token}')
-release=(ROOT/'scripts/release-check.py').read_text()
+tmp_bootstrap=ROOT/'Assets/ClickDungeon/Editor/TextMeshProResourceBootstrap.cs'
+if not tmp_bootstrap.exists():errors.append('TextMeshProResourceBootstrap.cs is missing')
+else:
+    tmp=tmp_bootstrap.read_text()
+    for token in ['TMP Settings.asset','TMPro.TMP_PackageUtilities','ImportProjectResourcesMenu']:
+        if token not in tmp:errors.append(f'TMP resource bootstrap missing {token}')
+
+manifest_path=ROOT/'Packages/manifest.json'
+try:
+    packages=json.loads(manifest_path.read_text()).get('dependencies',{})
+    expected={
+        'com.unity.nuget.newtonsoft-json':'3.2.2',
+        'com.unity.render-pipelines.universal':'17.5.0',
+        'com.unity.test-framework':'1.7.0',
+        'com.unity.ugui':'2.0.0'
+    }
+    for package,version in expected.items():
+        if packages.get(package)!=version:errors.append(f'Packages/manifest.json expected {package} {version}, found {packages.get(package)}')
+except Exception as e:errors.append(f'Packages/manifest.json could not be validated: {e}')
+
+release_path=ROOT/'scripts/release-check.py';release=release_path.read_text()
 if "store_root=ROOT/'Store'" not in release:errors.append('release-check.py does not gate store placeholders')
+if 'validate-assets.py' not in release:errors.append('release-check.py does not run validate-assets.py')
+if not (ROOT/'scripts/validate-assets.py').exists():errors.append('scripts/validate-assets.py is missing')
+
 pres=(ROOT/'Assets/ClickDungeon/Presentation/UI/RuntimeGameUI.cs').read_text()
 for token in ['Abyss Depth','ShowInventory','ClickDungeonPresentationAssets','RefreshIntent']:
     if token not in pres:errors.append(f'Runtime presentation contract missing {token}')
