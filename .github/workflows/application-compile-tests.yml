@@ -40,6 +40,12 @@ jobs:
                   public static void SetInt(string key,int value) { }
                   public static void Save() { }
               }
+              public static class Debug
+              {
+                  public static void Log(object message) { }
+                  public static void LogWarning(object message) { }
+                  public static void LogError(object message) { }
+              }
           }
           EOF
           cat > .ci/application/ApplicationCompileTests.csproj <<'EOF'
