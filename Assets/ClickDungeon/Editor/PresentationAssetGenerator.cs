@@ -21,20 +21,35 @@ namespace ClickDungeon.EditorTools
 
         public static PresentationAssetDatabase Generate(bool log)
         {
-            PixelAssetImporter.ConfigureAll();AnimationClipGenerator.GenerateAll();Directory.CreateDirectory(OutputDirectory);
+            bool hasRuntimeArt=AssetDatabase.IsValidFolder(RuntimeArt);
+            bool hasRuntimeAudio=AssetDatabase.IsValidFolder(RuntimeAudio);
+            if(hasRuntimeArt){PixelAssetImporter.ConfigureAll();AnimationClipGenerator.GenerateAll();}
+            Directory.CreateDirectory(OutputDirectory);
+
             var sprites=new List<PresentationAssetDatabase.SpriteEntry>();
-            foreach(string guid in AssetDatabase.FindAssets("t:Texture2D",new[]{RuntimeArt}))
+            if(hasRuntimeArt)
             {
-                string path=AssetDatabase.GUIDToAssetPath(guid);string id=SpriteId(Path.GetFileNameWithoutExtension(path));if(string.IsNullOrEmpty(id))continue;
-                Sprite sprite=ChooseSprite(path);if(sprite!=null&&!sprites.Any(x=>x.Id==id))sprites.Add(new PresentationAssetDatabase.SpriteEntry{Id=id,Sprite=sprite});
+                foreach(string guid in AssetDatabase.FindAssets("t:Texture2D",new[]{RuntimeArt}))
+                {
+                    string path=AssetDatabase.GUIDToAssetPath(guid);string id=SpriteId(Path.GetFileNameWithoutExtension(path));if(string.IsNullOrEmpty(id))continue;
+                    Sprite sprite=ChooseSprite(path);if(sprite!=null&&!sprites.Any(x=>x.Id==id))sprites.Add(new PresentationAssetDatabase.SpriteEntry{Id=id,Sprite=sprite});
+                }
             }
+
             var audio=new List<PresentationAssetDatabase.AudioEntry>();
-            foreach(string guid in AssetDatabase.FindAssets("t:AudioClip",new[]{RuntimeAudio}))
+            if(hasRuntimeAudio)
             {
-                string path=AssetDatabase.GUIDToAssetPath(guid);string id=AudioId(Path.GetFileNameWithoutExtension(path));if(string.IsNullOrEmpty(id))continue;var clip=AssetDatabase.LoadAssetAtPath<AudioClip>(path);if(clip!=null&&!audio.Any(x=>x.Id==id))audio.Add(new PresentationAssetDatabase.AudioEntry{Id=id,Clip=clip});
+                foreach(string guid in AssetDatabase.FindAssets("t:AudioClip",new[]{RuntimeAudio}))
+                {
+                    string path=AssetDatabase.GUIDToAssetPath(guid);string id=AudioId(Path.GetFileNameWithoutExtension(path));if(string.IsNullOrEmpty(id))continue;var clip=AssetDatabase.LoadAssetAtPath<AudioClip>(path);if(clip!=null&&!audio.Any(x=>x.Id==id))audio.Add(new PresentationAssetDatabase.AudioEntry{Id=id,Clip=clip});
+                }
             }
+
             sprites.Sort((a,b)=>string.CompareOrdinal(a.Id,b.Id));audio.Sort((a,b)=>string.CompareOrdinal(a.Id,b.Id));
             var db=AssetDatabase.LoadAssetAtPath<PresentationAssetDatabase>(AssetPath);if(db==null){db=ScriptableObject.CreateInstance<PresentationAssetDatabase>();AssetDatabase.CreateAsset(db,AssetPath);}db.Replace(sprites.ToArray(),audio.ToArray());EditorUtility.SetDirty(db);AssetDatabase.SaveAssets();AssetDatabase.ImportAsset(AssetPath,ImportAssetOptions.ForceUpdate);
+
+            if(!hasRuntimeArt||sprites.Count==0)Debug.LogWarning("ClickDungeon prototype presentation mode: runtime art is unavailable, so UI will use text/color fallbacks. Release validation must remain blocked until runtime art and provenance are restored.");
+            if(!hasRuntimeAudio||audio.Count==0)Debug.LogWarning("ClickDungeon prototype presentation mode: runtime audio is unavailable. Release validation must remain blocked until runtime audio and provenance are restored.");
             if(log)Debug.Log($"Generated ClickDungeon presentation database: {sprites.Count} sprites, {audio.Count} audio mappings.");return db;
         }
 
