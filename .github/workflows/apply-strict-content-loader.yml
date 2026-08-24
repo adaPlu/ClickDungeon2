@@ -1,0 +1,68 @@
+name: Apply Strict Canonical Content Loader
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - '.github/workflows/apply-strict-content-loader.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: develop
+          fetch-depth: 0
+      - name: Remove silent parser fallbacks and ID-derived boss combat data
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path('Assets/ClickDungeon/Application/Content/JsonContentCatalogLoader.cs')
+          s=p.read_text()
+          old='c.Add(new MonsterDefinition{Id=id,DisplayName=row.Value<string>("display_name")??HumanizeId(id),Decision=row.Value<string>("decision")??string.Empty,Hp=row.Value<int>("hp"),Attack=row.Value<int>("attack"),Defense=row.Value<int>("defense"),ThreatPattern=BossThreat(id),PrimaryIntent=BossIntent(id),IntentPower=row.Value<int>("attack"),BehaviorId=row.Value<string>("identity")??"boss",BiomeIds=new string[0]});'
+          new='c.Add(new MonsterDefinition{Id=id,DisplayName=row.Value<string>("display_name")??HumanizeId(id),Decision=row.Value<string>("decision")??string.Empty,Hp=row.Value<int>("hp"),Attack=row.Value<int>("attack"),Defense=row.Value<int>("defense"),ThreatPattern=ParseThreat(row.Value<string>("threat")),PrimaryIntent=ParseIntent(row.Value<string>("intent")),IntentPower=row.Value<int>("intent_power"),BehaviorId=row.Value<string>("identity")??throw new InvalidDataException($"Boss {id} missing identity."),BiomeIds=new string[0]});'
+          if old in s:s=s.replace(old,new,1)
+          elif new not in s:raise SystemExit('LoadBosses contract changed')
+
+          old='private static HeroClassId ParseClass(string id){switch(id){case "class.ranger":return HeroClassId.Ranger;case "class.thief":return HeroClassId.Thief;case "class.wizard":return HeroClassId.Wizard;default:return HeroClassId.Knight;}}'
+          new='private static HeroClassId ParseClass(string id){switch(id){case "class.knight":return HeroClassId.Knight;case "class.ranger":return HeroClassId.Ranger;case "class.thief":return HeroClassId.Thief;case "class.wizard":return HeroClassId.Wizard;default:throw new InvalidDataException($"Unknown hero class id {id}.");}}'
+          if old in s:s=s.replace(old,new,1)
+          elif new not in s:raise SystemExit('ParseClass contract changed')
+
+          old='private static ThreatPattern ParseThreat(string id){switch(id){case "cross_two":return ThreatPattern.CrossTwo;case "orthogonal_line":return ThreatPattern.OrthogonalLine;case "aura_two":return ThreatPattern.AuraTwo;case "adjacent":return ThreatPattern.Adjacent;default:return ThreatPattern.None;}}'
+          new='private static ThreatPattern ParseThreat(string id){switch(id){case "none":return ThreatPattern.None;case "cross_two":return ThreatPattern.CrossTwo;case "orthogonal_line":return ThreatPattern.OrthogonalLine;case "aura_two":return ThreatPattern.AuraTwo;case "adjacent":return ThreatPattern.Adjacent;default:throw new InvalidDataException($"Unknown threat pattern {id}.");}}'
+          if old in s:s=s.replace(old,new,1)
+          elif new not in s:raise SystemExit('ParseThreat contract changed')
+
+          old='private static MonsterIntentKind ParseIntent(string id){switch(id){case "heavy_attack":return MonsterIntentKind.HeavyAttack;case "steal_gold":return MonsterIntentKind.StealGold;case "poison":return MonsterIntentKind.ApplyPoison;case "guard":return MonsterIntentKind.Guard;case "summon":return MonsterIntentKind.Summon;case "hazard":return MonsterIntentKind.Hazard;default:return MonsterIntentKind.Attack;}}'
+          new='private static MonsterIntentKind ParseIntent(string id){switch(id){case "attack":return MonsterIntentKind.Attack;case "heavy_attack":return MonsterIntentKind.HeavyAttack;case "steal_gold":return MonsterIntentKind.StealGold;case "poison":return MonsterIntentKind.ApplyPoison;case "guard":return MonsterIntentKind.Guard;case "summon":return MonsterIntentKind.Summon;case "hazard":return MonsterIntentKind.Hazard;default:throw new InvalidDataException($"Unknown monster intent {id}.");}}'
+          if old in s:s=s.replace(old,new,1)
+          elif new not in s:raise SystemExit('ParseIntent contract changed')
+
+          s=s.replace('\n        private static ThreatPattern BossThreat(string id)=>id.Contains("wyrm")?ThreatPattern.OrthogonalLine:id.Contains("lich")?ThreatPattern.AuraTwo:ThreatPattern.CrossTwo;\n        private static MonsterIntentKind BossIntent(string id)=>id.Contains("lich")?MonsterIntentKind.Summon:id.Contains("wyrm")?MonsterIntentKind.HeavyAttack:MonsterIntentKind.Hazard;','')
+          p.write_text(s)
+
+          p=Path('scripts/validate-content.py');s=p.read_text()
+          marker='for m in data.get(\'monsters.json\',{}).get(\'monsters\',[]):\n'
+          block="allowed_classes={'class.knight','class.ranger','class.thief','class.wizard'}\nallowed_threats={'none','adjacent','cross_two','orthogonal_line','aura_two'}\nallowed_intents={'attack','heavy_attack','steal_gold','poison','guard','summon','hazard'}\nif classes!=allowed_classes: errors.append(f'classes.json class ids must be exactly {sorted(allowed_classes)}, found {sorted(classes)}')\nfor row in list(data.get('monsters.json',{}).get('monsters',[]))+list(data.get('bosses.json',{}).get('bosses',[])):\n    if row.get('threat') not in allowed_threats: errors.append(f\"{row.get('id')} has unsupported threat {row.get('threat')}\")\n    if row.get('intent') not in allowed_intents: errors.append(f\"{row.get('id')} has unsupported intent {row.get('intent')}\")\n    if row.get('intent_power',0)<=0: errors.append(f\"{row.get('id')} has invalid intent_power\")\n    if not row.get('decision'): errors.append(f\"{row.get('id')} missing decision rationale\")\n\n"
+          if block not in s:
+              if marker not in s:raise SystemExit('validator insertion point changed')
+              s=s.replace(marker,block+marker,1)
+          p.write_text(s)
+      - name: Validate, retire workflow, and commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/validate-content.py
+          grep -F 'Unknown hero class id' Assets/ClickDungeon/Application/Content/JsonContentCatalogLoader.cs
+          grep -F 'ThreatPattern=ParseThreat(row.Value<string>("threat"))' Assets/ClickDungeon/Application/Content/JsonContentCatalogLoader.cs
+          git config user.name 'ClickDungeon CI'
+          git config user.email 'actions@users.noreply.github.com'
+          git rm .github/workflows/apply-strict-content-loader.yml
+          git add Assets/ClickDungeon/Application/Content/JsonContentCatalogLoader.cs scripts/validate-content.py
+          git commit -m 'fix(content): reject unknown semantics and make boss combat data canonical'
+          git push origin HEAD:develop
