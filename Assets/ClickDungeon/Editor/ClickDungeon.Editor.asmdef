@@ -1,0 +1,6 @@
+{
+  "name": "ClickDungeon.Editor",
+  "references": ["ClickDungeon.Simulation", "ClickDungeon.Application", "ClickDungeon.Presentation", "Unity.Newtonsoft.Json"],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": true
+}

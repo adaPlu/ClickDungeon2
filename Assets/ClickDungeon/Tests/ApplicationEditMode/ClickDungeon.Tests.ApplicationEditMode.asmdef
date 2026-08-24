@@ -1,0 +1,7 @@
+{
+  "name": "ClickDungeon.Tests.ApplicationEditMode",
+  "references": ["ClickDungeon.Simulation", "ClickDungeon.Application", "Unity.Newtonsoft.Json"],
+  "optionalUnityReferences": ["TestAssemblies"],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": false
+}

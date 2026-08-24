@@ -1,0 +1,11 @@
+{
+  "revision": 1,
+  "variants": [
+    {"id":"variant.frost","affinity":"frost","hp_multiplier_bp":11000,"attack_multiplier_bp":10000,"behavior_add":"intent_delay","palette":"cold_blue"},
+    {"id":"variant.storm","affinity":"lightning","hp_multiplier_bp":10000,"attack_multiplier_bp":11000,"behavior_add":"chain_threat","palette":"electric_violet"},
+    {"id":"variant.venomous","affinity":"poison","hp_multiplier_bp":10000,"attack_multiplier_bp":10000,"behavior_add":"poison","palette":"acid_green"},
+    {"id":"variant.ember","affinity":"fire","hp_multiplier_bp":10000,"attack_multiplier_bp":11000,"behavior_add":"burn","palette":"ember_orange"},
+    {"id":"variant.shadow","affinity":"shadow","hp_multiplier_bp":10500,"attack_multiplier_bp":10500,"behavior_add":"threat_extension","palette":"black_violet"},
+    {"id":"variant.arcane","affinity":"arcane","hp_multiplier_bp":10000,"attack_multiplier_bp":11000,"behavior_add":"ability_disruption","palette":"cyan_magenta"}
+  ]
+}

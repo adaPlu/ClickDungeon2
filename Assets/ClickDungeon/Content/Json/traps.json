@@ -1,0 +1,73 @@
+{
+  "revision": 1,
+  "traps": [
+    {
+      "id": "trap.fire",
+      "display_name": "Fire Trap",
+      "damage": 2,
+      "status": "status.burn",
+      "clue": "danger",
+      "counterplay": [
+        "identify",
+        "disarm",
+        "shield"
+      ],
+      "min_floor": 1,
+      "status_duration": 3
+    },
+    {
+      "id": "trap.poison",
+      "display_name": "Poison Trap",
+      "damage": 1,
+      "status": "status.poison",
+      "clue": "danger",
+      "counterplay": [
+        "identify",
+        "disarm",
+        "resistance"
+      ],
+      "min_floor": 1,
+      "status_duration": 3
+    },
+    {
+      "id": "trap.acid",
+      "display_name": "Acid Trap",
+      "damage": 2,
+      "status": "status.vulnerable",
+      "clue": "danger",
+      "counterplay": [
+        "identify",
+        "disarm"
+      ],
+      "min_floor": 11,
+      "status_duration": 3
+    },
+    {
+      "id": "trap.freeze",
+      "display_name": "Freeze Trap",
+      "damage": 1,
+      "status": "status.root",
+      "clue": "danger",
+      "counterplay": [
+        "identify",
+        "disarm"
+      ],
+      "min_floor": 21,
+      "status_duration": 1
+    },
+    {
+      "id": "trap.pitfall",
+      "display_name": "Pitfall",
+      "damage": 3,
+      "status": null,
+      "clue": "danger",
+      "counterplay": [
+        "identify",
+        "disarm",
+        "mobility"
+      ],
+      "min_floor": 31,
+      "status_duration": 0
+    }
+  ]
+}

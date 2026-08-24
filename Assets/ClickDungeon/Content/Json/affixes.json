@@ -1,0 +1,10 @@
+{
+  "revision": 2,
+  "affixes": [
+    {"id":"affix.flaming","display_name":"Flaming","effect":"first_damaging_hit_applies_burn","rarity":"uncommon"},
+    {"id":"affix.frost","display_name":"Frost","effect":"first_damaging_hit_delays_intent","rarity":"uncommon"},
+    {"id":"affix.storm","display_name":"Storm","effect":"first_damaging_hit_chains_one_damage","rarity":"rare"},
+    {"id":"affix.vital","display_name":"Vital","effect":"increase_max_hp_or_potion_value","rarity":"uncommon"},
+    {"id":"affix.keen","display_name":"Keen","effect":"conditional_bonus_offense","rarity":"rare"}
+  ]
+}

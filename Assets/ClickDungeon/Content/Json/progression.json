@@ -1,0 +1,23 @@
+{
+  "revision": 1,
+  "class_mastery": {
+    "philosophy": "horizontal_unlocks_first",
+    "boss_mastery_rewards": [
+      10,
+      18,
+      28,
+      40,
+      60
+    ],
+    "forbidden_floor_mastery_bonus": 2,
+    "monster_defeat_reward": 1,
+    "campaign_completion_bonus": 25,
+    "abyss_depth_reward": 1,
+    "abyss_milestone_interval": 5,
+    "abyss_milestone_bonus": 2
+  },
+  "campaign": {
+    "endless_unlock_after_completion": true,
+    "prestige_depth": 99
+  }
+}

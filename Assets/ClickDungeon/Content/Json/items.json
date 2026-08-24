@@ -1,0 +1,13 @@
+{
+  "revision": 2,
+  "items": [
+    {"id":"item.healing_potion","display_name":"Healing Potion","type":"consumable","heal":6,"price":12,"rarity":"common"},
+    {"id":"item.trap_disarm_kit","display_name":"Trap Disarm Kit","type":"consumable","effect":"safe_disarm","price":15,"rarity":"common"},
+    {"id":"item.rusty_sword","display_name":"Rusty Sword","type":"weapon","attack":1,"price":25,"rarity":"common"},
+    {"id":"item.iron_sword","display_name":"Iron Sword","type":"weapon","attack":2,"price":45,"rarity":"uncommon"},
+    {"id":"item.steel_blade","display_name":"Steel Blade","type":"weapon","attack":3,"price":75,"rarity":"rare"},
+    {"id":"item.leather_armor","display_name":"Leather Armor","type":"armor","defense":1,"price":25,"rarity":"common"},
+    {"id":"item.chainmail","display_name":"Chainmail","type":"armor","defense":2,"price":50,"rarity":"uncommon"},
+    {"id":"item.plate_mail","display_name":"Plate Mail","type":"armor","defense":3,"price":85,"rarity":"rare"}
+  ]
+}

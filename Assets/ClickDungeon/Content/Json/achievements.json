@@ -1,0 +1,35 @@
+{
+  "revision": 1,
+  "achievements": [
+    {
+      "id": "achievement.first_descent",
+      "display_name": "First Descent",
+      "trigger": "floor.entered",
+      "minimum_value": 2
+    },
+    {
+      "id": "achievement.forbidden_path",
+      "display_name": "Forbidden Path",
+      "trigger": "floor.entered.forbidden",
+      "minimum_value": 0
+    },
+    {
+      "id": "achievement.vault_keeper",
+      "display_name": "Vault Keeper",
+      "trigger": "vault.opened",
+      "minimum_value": 0
+    },
+    {
+      "id": "achievement.campaign_complete",
+      "display_name": "Against the Depths",
+      "trigger": "campaign.completed",
+      "minimum_value": 0
+    },
+    {
+      "id": "achievement.depth_99",
+      "display_name": "Ninety-Nine",
+      "trigger": "abyss.depth.entered",
+      "minimum_value": 99
+    }
+  ]
+}

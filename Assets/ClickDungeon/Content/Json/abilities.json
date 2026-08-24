@@ -1,0 +1,28 @@
+{
+  "revision": 2,
+  "abilities": [
+    {"id":"ability.knight.shield_wall","class_id":"class.knight","display_name":"Shield Wall","max_charges":3,"recharge_progress_required":8,"unlock_mastery":0,"role":"mitigation_position","effect":"gain 4 shield"},
+    {"id":"ability.knight.taunt","class_id":"class.knight","display_name":"Taunt","max_charges":2,"recharge_progress_required":10,"unlock_mastery":24,"role":"intent_control","effect":"force target to basic attack at reduced intent power"},
+    {"id":"ability.knight.fortify","class_id":"class.knight","display_name":"Fortify","max_charges":2,"recharge_progress_required":10,"unlock_mastery":56,"role":"temporary_mitigation","effect":"gain +1 temporary defense for 3 enemy responses"},
+    {"id":"ability.knight.valiant_strike","class_id":"class.knight","display_name":"Valiant Strike","max_charges":2,"recharge_progress_required":9,"unlock_mastery":96,"role":"counter_offense","effect":"heavy adjacent strike"},
+    {"id":"ability.knight.guardians_oath","class_id":"class.knight","display_name":"Guardian's Oath","max_charges":1,"recharge_progress_required":14,"unlock_mastery":150,"role":"ultimate_control","effect":"gain major shield and fortify"},
+
+    {"id":"ability.ranger.piercing_shot","class_id":"class.ranger","display_name":"Piercing Shot","max_charges":3,"recharge_progress_required":8,"unlock_mastery":0,"role":"line_attack","effect":"attack revealed monster in same row or column"},
+    {"id":"ability.ranger.rapid_volley","class_id":"class.ranger","display_name":"Rapid Volley","max_charges":2,"recharge_progress_required":10,"unlock_mastery":24,"role":"multi_hit","effect":"two offensive hits"},
+    {"id":"ability.ranger.camouflage","class_id":"class.ranger","display_name":"Camouflage","max_charges":2,"recharge_progress_required":9,"unlock_mastery":56,"role":"threat_bypass","effect":"ignore threat restrictions for 3 meaningful actions"},
+    {"id":"ability.ranger.net_trap","class_id":"class.ranger","display_name":"Net Trap","max_charges":2,"recharge_progress_required":8,"unlock_mastery":96,"role":"control","effect":"root monster for 2 enemy responses"},
+    {"id":"ability.ranger.eagle_eye","class_id":"class.ranger","display_name":"Eagle Eye","max_charges":3,"recharge_progress_required":7,"unlock_mastery":150,"role":"line_identification","effect":"identify cells in a straight line"},
+
+    {"id":"ability.thief.trap_scan","class_id":"class.thief","display_name":"Trap Scan","max_charges":3,"recharge_progress_required":6,"unlock_mastery":0,"role":"hazard_identification","effect":"identify traps within distance 2"},
+    {"id":"ability.thief.shadowstep","class_id":"class.thief","display_name":"Shadowstep","max_charges":2,"recharge_progress_required":8,"unlock_mastery":24,"role":"mobility","effect":"move up to 2 cells while bypassing threat"},
+    {"id":"ability.thief.disarm_expert","class_id":"class.thief","display_name":"Disarm Expert","max_charges":3,"recharge_progress_required":7,"unlock_mastery":56,"role":"hazard_control","effect":"safely resolve an identified trap"},
+    {"id":"ability.thief.ambush","class_id":"class.thief","display_name":"Ambush","max_charges":2,"recharge_progress_required":8,"unlock_mastery":96,"role":"opportunistic_damage","effect":"bonus damage to newly encountered monster"},
+    {"id":"ability.thief.veil_of_smoke","class_id":"class.thief","display_name":"Veil of Smoke","max_charges":2,"recharge_progress_required":9,"unlock_mastery":150,"role":"threat_bypass","effect":"ignore threat restrictions for 4 meaningful actions"},
+
+    {"id":"ability.wizard.fireball","class_id":"class.wizard","display_name":"Fireball","max_charges":3,"recharge_progress_required":8,"unlock_mastery":0,"role":"area_damage","effect":"damage target cell and radius 1"},
+    {"id":"ability.wizard.frost_nova","class_id":"class.wizard","display_name":"Frost Nova","max_charges":2,"recharge_progress_required":9,"unlock_mastery":24,"role":"area_control","effect":"root revealed monsters within distance 2"},
+    {"id":"ability.wizard.chain_lightning","class_id":"class.wizard","display_name":"Chain Lightning","max_charges":2,"recharge_progress_required":10,"unlock_mastery":56,"role":"multi_target","effect":"damage up to 3 revealed monsters"},
+    {"id":"ability.wizard.arcane_shield","class_id":"class.wizard","display_name":"Arcane Shield","max_charges":2,"recharge_progress_required":8,"unlock_mastery":96,"role":"mitigation","effect":"gain 5 shield"},
+    {"id":"ability.wizard.meteor","class_id":"class.wizard","display_name":"Meteor","max_charges":1,"recharge_progress_required":14,"unlock_mastery":150,"role":"ultimate_area_damage","effect":"damage all revealed monsters"}
+  ]
+}

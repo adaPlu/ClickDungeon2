@@ -1,0 +1,13 @@
+{
+  "revision": 2,
+  "archetypes": [
+    {"id":"archetype.standard","weight":30,"identity":"balanced exploration"},
+    {"id":"archetype.monster_den","weight":15,"identity":"dense combat pressure","monster_delta":3,"gold_delta":-1},
+    {"id":"archetype.treasure_vault","weight":12,"identity":"reward-rich guarded floor","chest_delta":2,"gold_delta":2,"trap_delta":1},
+    {"id":"archetype.trap_gallery","weight":12,"identity":"information and hazard test","trap_delta":3,"chest_delta":1},
+    {"id":"archetype.shrine_crossroads","weight":10,"identity":"build decision floor","shrine_count":2,"monster_delta":-1},
+    {"id":"archetype.merchant_refuge","weight":8,"identity":"recovery and economy pause","monster_count":1,"trap_count":0,"merchant_count":1},
+    {"id":"archetype.cursed_depth","weight":8,"identity":"high danger high reward","monster_delta":2,"trap_delta":2,"gold_delta":1},
+    {"id":"archetype.boss_approach","weight":0,"identity":"major encounter staging","forced_on_boss_floor":true}
+  ]
+}

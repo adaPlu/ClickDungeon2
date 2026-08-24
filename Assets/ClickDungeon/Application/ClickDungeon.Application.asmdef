@@ -1,0 +1,6 @@
+{
+  "name": "ClickDungeon.Application",
+  "rootNamespace": "ClickDungeon.Application",
+  "references": ["ClickDungeon.Simulation", "Unity.Newtonsoft.Json"],
+  "autoReferenced": true
+}

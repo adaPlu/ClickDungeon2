@@ -1,0 +1,6 @@
+{
+  "revision": 1,
+  "shops": [
+    {"id":"shop.standard","stock":["item.healing_potion","item.trap_disarm_kit","item.rusty_sword","item.leather_armor"],"reroll_cost":8,"max_rerolls":1}
+  ]
+}

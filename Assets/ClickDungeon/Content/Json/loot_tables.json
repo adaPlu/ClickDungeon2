@@ -1,0 +1,7 @@
+{
+  "revision": 1,
+  "tables": [
+    {"id":"loot.chest.standard","entries":[{"id":"currency.gold","weight":50},{"id":"item.healing_potion","weight":20},{"id":"item.rusty_sword","weight":15},{"id":"item.leather_armor","weight":15}]},
+    {"id":"loot.vault.sealed","entries":[{"id":"item.iron_sword","weight":30},{"id":"item.chainmail","weight":30},{"id":"item.steel_blade","weight":15},{"id":"item.plate_mail","weight":15},{"id":"currency.gold.large","weight":10}]}
+  ]
+}

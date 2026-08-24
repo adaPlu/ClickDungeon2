@@ -1,0 +1,6 @@
+{
+  "name": "ClickDungeon.Presentation",
+  "rootNamespace": "ClickDungeon.Presentation",
+  "references": ["ClickDungeon.Simulation", "ClickDungeon.Application", "Unity.TextMeshPro", "Unity.ugui"],
+  "autoReferenced": true
+}

@@ -1,0 +1,68 @@
+{
+  "revision": 2,
+  "statuses": [
+    {
+      "id": "status.poison",
+      "category": "persistent",
+      "tick_timing": "meaningful_action",
+      "stack_rule": "stack_to_3",
+      "default_duration": 3,
+      "effect": "damage_per_stack",
+      "max_stacks": 3
+    },
+    {
+      "id": "status.burn",
+      "category": "persistent",
+      "tick_timing": "meaningful_action",
+      "stack_rule": "refresh",
+      "default_duration": 3,
+      "effect": "damage_per_stack",
+      "max_stacks": 1
+    },
+    {
+      "id": "status.root",
+      "category": "tactical",
+      "tick_timing": "enemy_response",
+      "stack_rule": "refresh",
+      "default_duration": 2,
+      "effect": "root",
+      "max_stacks": 1
+    },
+    {
+      "id": "status.vulnerable",
+      "category": "tactical",
+      "tick_timing": "incoming_hit",
+      "stack_rule": "refresh",
+      "default_duration": 2,
+      "effect": "incoming_damage_plus_one",
+      "max_stacks": 1
+    },
+    {
+      "id": "status.stun",
+      "category": "tactical",
+      "tick_timing": "enemy_response",
+      "stack_rule": "refresh",
+      "default_duration": 1,
+      "effect": "stun",
+      "max_stacks": 1
+    },
+    {
+      "id": "status.intent_delay",
+      "category": "tactical",
+      "tick_timing": "enemy_response",
+      "stack_rule": "refresh",
+      "default_duration": 1,
+      "effect": "intent_delay",
+      "max_stacks": 1
+    },
+    {
+      "id": "status.curse",
+      "category": "persistent",
+      "tick_timing": "floor_action",
+      "stack_rule": "unique",
+      "default_duration": 5,
+      "effect": "recharge_drain",
+      "max_stacks": 1
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "revision": 2,
+  "classes": [
+    {"id":"class.knight","display_name":"Knight","base_hp":18,"base_attack":2,"base_defense":2,"identity":"control_danger","signature_ability":"ability.knight.shield_wall","board_passive":"threatened cells are enterable while shielded"},
+    {"id":"class.ranger","display_name":"Ranger","base_hp":14,"base_attack":3,"base_defense":1,"identity":"control_distance","signature_ability":"ability.ranger.piercing_shot","board_passive":"one additional useful clue is exposed at floor start"},
+    {"id":"class.thief","display_name":"Thief","base_hp":13,"base_attack":3,"base_defense":1,"identity":"control_information","signature_ability":"ability.thief.trap_scan","board_passive":"clued traps become identified"},
+    {"id":"class.wizard","display_name":"Wizard","base_hp":12,"base_attack":4,"base_defense":0,"identity":"control_board","signature_ability":"ability.wizard.fireball","board_passive":"area abilities can reshape multiple threats"}
+  ]
+}

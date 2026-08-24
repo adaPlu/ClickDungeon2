@@ -1,0 +1,125 @@
+{
+  "revision": 2,
+  "biomes": [
+    {
+      "id": "biome.cavern",
+      "floors": [
+        1,
+        5
+      ],
+      "mechanic": "intro_clues_and_basic_blocking",
+      "clue_style": "dust_tracks",
+      "reward_bias": "balanced",
+      "ambience_id": "ambience.cavern",
+      "display_name": "Cavern"
+    },
+    {
+      "id": "biome.crypt",
+      "floors": [
+        6,
+        10
+      ],
+      "mechanic": "resurrection_and_curse",
+      "clue_style": "grave_dust_and_whispers",
+      "reward_bias": "keys",
+      "ambience_id": "ambience.crypt",
+      "display_name": "Crypt"
+    },
+    {
+      "id": "biome.sunken_temple",
+      "floors": [
+        11,
+        15
+      ],
+      "mechanic": "flooded_cells_modify_movement_and_elements",
+      "clue_style": "ripples_and_reflections",
+      "reward_bias": "consumables",
+      "ambience_id": "ambience.sunken_temple",
+      "display_name": "Sunken Temple"
+    },
+    {
+      "id": "biome.thorn_wilds",
+      "floors": [
+        16,
+        20
+      ],
+      "mechanic": "overgrowth_and_thorn_routes",
+      "clue_style": "broken_vines_and_tracks",
+      "reward_bias": "equipment",
+      "ambience_id": "ambience.thorn_wilds",
+      "display_name": "Thorn Wilds"
+    },
+    {
+      "id": "biome.mire",
+      "floors": [
+        21,
+        25
+      ],
+      "mechanic": "poison_pools_and_persistent_hazards",
+      "clue_style": "bubbles_and_fumes",
+      "reward_bias": "status_tools",
+      "ambience_id": "ambience.mire",
+      "display_name": "Mire"
+    },
+    {
+      "id": "biome.frozen_ruins",
+      "floors": [
+        26,
+        30
+      ],
+      "mechanic": "sliding_and_freeze",
+      "clue_style": "frost_cracks_and_breath",
+      "reward_bias": "defense",
+      "ambience_id": "ambience.frozen_ruins",
+      "display_name": "Frozen Ruins"
+    },
+    {
+      "id": "biome.storm_plateau",
+      "floors": [
+        31,
+        35
+      ],
+      "mechanic": "charged_cells_and_lightning_chains",
+      "clue_style": "static_and_glow",
+      "reward_bias": "abilities",
+      "ambience_id": "ambience.storm_plateau",
+      "display_name": "Storm Plateau"
+    },
+    {
+      "id": "biome.lava_field",
+      "floors": [
+        36,
+        40
+      ],
+      "mechanic": "heat_and_burning_cells",
+      "clue_style": "heat_shimmer_and_embers",
+      "reward_bias": "offense",
+      "ambience_id": "ambience.lava_field",
+      "display_name": "Lava Field"
+    },
+    {
+      "id": "biome.arcane_nexus",
+      "floors": [
+        41,
+        45
+      ],
+      "mechanic": "ability_anomalies_and_teleports",
+      "clue_style": "runes_and_distortion",
+      "reward_bias": "rare_affixes",
+      "ambience_id": "ambience.arcane_nexus",
+      "display_name": "Arcane Nexus"
+    },
+    {
+      "id": "biome.ash_wastes",
+      "floors": [
+        46,
+        50
+      ],
+      "mechanic": "elite_layered_mastery_test",
+      "clue_style": "ash_currents_and_red_glow",
+      "reward_bias": "endgame",
+      "ambience_id": "ambience.ash_wastes",
+      "display_name": "Ash Wastes"
+    }
+  ]
+}

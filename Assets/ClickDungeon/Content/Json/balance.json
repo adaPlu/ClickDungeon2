@@ -1,0 +1,18 @@
+{
+  "revision": 2,
+  "campaign_floors": 50,
+  "board_size": 5,
+  "big_key_max_carry": 2,
+  "target_floor_seconds": [45,90],
+  "target_campaign_minutes": [60,90],
+  "encounter_decisions": {"normal":[2,4],"elite":[3,6],"boss":[6,12]},
+  "forbidden_route": {"monster_delta":2,"trap_delta":1,"elite_chance_bp":2500,"gold_multiplier_bp":15000,"rare_reward_multiplier_bp":16000},
+  "power_envelopes": [
+    {"floor":1,"hp":18,"attack":2,"defense":2,"item_tier":0},
+    {"floor":10,"hp":23,"attack":5,"defense":4,"item_tier":1},
+    {"floor":20,"hp":28,"attack":7,"defense":6,"item_tier":2},
+    {"floor":30,"hp":33,"attack":9,"defense":7,"item_tier":3},
+    {"floor":40,"hp":38,"attack":11,"defense":8,"item_tier":4},
+    {"floor":50,"hp":44,"attack":13,"defense":10,"item_tier":5}
+  ]
+}
