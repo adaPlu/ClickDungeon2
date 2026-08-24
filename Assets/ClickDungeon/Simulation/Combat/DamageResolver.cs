@@ -33,7 +33,7 @@ namespace ClickDungeon.Simulation.Combat
                 damage -= absorbed;
             }
             if (damage > 0) state.Hp = Math.Max(0, state.Hp - damage);
-            if(vulnerable)StatusResolver.Consume(state,content,"status.vulnerable");
+            if(vulnerable)StatusResolver.Remove(state,"status.vulnerable");
             state.Defending = false;
             if (state.FortifyActions > 0) state.FortifyActions--;
             if (state.Hp <= 0) state.GameOver = true;
