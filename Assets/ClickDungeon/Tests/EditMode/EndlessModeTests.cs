@@ -35,6 +35,9 @@ namespace ClickDungeon.Tests.EditMode
         {
             var content=GameContent.CreateDevelopmentFallback();var gen=new FloorGenerator(content);var state=gen.CreateAbyssRun(7,HeroClassId.Knight);
             var exit=state.Tiles.First(t=>t.Content==TileContentKind.SafeExit);exit.Visibility=TileVisibility.Revealed;
+            var exitPosition=new GridPosition(exit.Index/RunState.BoardSize,exit.Index%RunState.BoardSize);
+            if(exitPosition.Col>0)state.PlayerPosition=new GridPosition(exitPosition.Row,exitPosition.Col-1);
+            else state.PlayerPosition=new GridPosition(exitPosition.Row,exitPosition.Col+1);
             var session=new GameSession(state,gen,content);var result=session.Apply(new TakeSafeExitCommand(exit.Index));
             Assert.IsTrue(result.Accepted);Assert.AreEqual(2,state.AbyssDepth);Assert.IsFalse(state.CampaignCompleted);
         }
