@@ -103,14 +103,39 @@ try:
         if packages.get(package)!=version:errors.append(f'Packages/manifest.json expected {package} {version}, found {packages.get(package)}')
 except Exception as e:errors.append(f'Packages/manifest.json could not be validated: {e}')
 
+# WebGL persistence bridge must stay symbol-compatible across C# and JavaScript.
+sync_cs=ROOT/'Assets/ClickDungeon/Application/Platform/PersistentDataSync.cs'
+sync_js=ROOT/'Assets/Plugins/WebGL/ClickDungeonPersistence.jslib'
+if not sync_cs.exists():errors.append('PersistentDataSync.cs is missing')
+if not sync_js.exists():errors.append('ClickDungeonPersistence.jslib is missing')
+if sync_cs.exists() and 'ClickDungeonSyncPersistentData' not in sync_cs.read_text():errors.append('PersistentDataSync C# extern name changed')
+if sync_js.exists():
+    js=sync_js.read_text()
+    if 'ClickDungeonSyncPersistentData' not in js:errors.append('WebGL persistence export name changed')
+    if 'FS.syncfs(false' not in js:errors.append('WebGL persistence bridge no longer flushes to IndexedDB')
+
+# Generated Resources names are runtime contracts.
+content_gen=(ROOT/'Assets/ClickDungeon/Editor/ContentAssetGenerator.cs').read_text()
+presentation_gen=(ROOT/'Assets/ClickDungeon/Editor/PresentationAssetGenerator.cs').read_text()
+game_boot=(ROOT/'Assets/ClickDungeon/Presentation/GameBootstrap.cs').read_text()
+menu=(ROOT/'Assets/ClickDungeon/Presentation/Menu/MainMenuUI.cs').read_text()
+runtime_ui=(ROOT/'Assets/ClickDungeon/Presentation/UI/RuntimeGameUI.cs').read_text()
+for token in ['ClickDungeonGeneratedContent.asset']:
+    if token not in content_gen:errors.append(f'Content generator missing resource {token}')
+for token in ['ClickDungeonPresentationAssets.asset']:
+    if token not in presentation_gen:errors.append(f'Presentation generator missing resource {token}')
+for token in ['Resources.Load<GeneratedContentDatabase>("ClickDungeonGeneratedContent")']:
+    if token not in game_boot or token not in menu:errors.append('Runtime generated-content Resources name does not match generator')
+for token in ['Resources.Load<PresentationAssetDatabase>("ClickDungeonPresentationAssets")']:
+    if token not in runtime_ui:errors.append('Runtime presentation Resources name does not match generator')
+
 release_path=ROOT/'scripts/release-check.py';release=release_path.read_text()
 if "store_root=ROOT/'Store'" not in release:errors.append('release-check.py does not gate store placeholders')
 if 'validate-assets.py' not in release:errors.append('release-check.py does not run validate-assets.py')
 if not (ROOT/'scripts/validate-assets.py').exists():errors.append('scripts/validate-assets.py is missing')
 
-pres=(ROOT/'Assets/ClickDungeon/Presentation/UI/RuntimeGameUI.cs').read_text()
 for token in ['Abyss Depth','ShowInventory','ClickDungeonPresentationAssets','RefreshIntent']:
-    if token not in pres:errors.append(f'Runtime presentation contract missing {token}')
+    if token not in runtime_ui:errors.append(f'Runtime presentation contract missing {token}')
 
 for p in (ROOT/'Assets/ClickDungeon/Application').rglob('*.cs'):
     text=p.read_text()
