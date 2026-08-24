@@ -16,7 +16,7 @@ namespace ClickDungeon.Application.Replay
             if(command is AttackCommand attack)return $"attack|{attack.TileIndex}";
             if(command is DefendCommand)return "defend";
             if(command is UseAbilityCommand ability)return $"ability|{Escape(ability.AbilityId)}|{ability.TargetTileIndex}";
-            if(command is UseItemCommand item)return $"item|{Escape(item.ItemId)}";
+            if(command is UseItemCommand item)return $"item|{Escape(item.ItemId)}|{item.TargetTileIndex}";
             if(command is ChooseShrineCommand shrine)return $"shrine|{shrine.TileIndex}|{(int)shrine.Choice}";
             if(command is BuyItemCommand buy)return $"buy|{buy.MerchantTileIndex}|{Escape(buy.ItemId)}";
             if(command is EquipItemCommand equip)return $"equip|{Escape(equip.ItemId)}|{Escape(equip.InstanceId)}";
@@ -38,9 +38,8 @@ namespace ClickDungeon.Application.Replay
                 case "attack":Require(parts,2);return new AttackCommand(Int(parts[1]));
                 case "defend":Require(parts,1);return new DefendCommand();
                 case "ability":Require(parts,3);return new UseAbilityCommand(Unescape(parts[1]),Int(parts[2]));
-                case "item":Require(parts,2);return new UseItemCommand(Unescape(parts[1]));
-                case "shrine":
-                    Require(parts,3);int choice=Int(parts[2]);if(!Enum.IsDefined(typeof(ShrineChoice),choice))throw new FormatException($"Unknown shrine choice {choice}.");return new ChooseShrineCommand(Int(parts[1]),(ShrineChoice)choice);
+                case "item":Require(parts,3);return new UseItemCommand(Unescape(parts[1]),Int(parts[2]));
+                case "shrine":Require(parts,3);int choice=Int(parts[2]);if(!Enum.IsDefined(typeof(ShrineChoice),choice))throw new FormatException($"Unknown shrine choice {choice}.");return new ChooseShrineCommand(Int(parts[1]),(ShrineChoice)choice);
                 case "buy":Require(parts,3);return new BuyItemCommand(Int(parts[1]),Unescape(parts[2]));
                 case "equip":Require(parts,3);return new EquipItemCommand(Unescape(parts[1]),Unescape(parts[2]));
                 case "safe_exit":Require(parts,2);return new TakeSafeExitCommand(Int(parts[1]));
