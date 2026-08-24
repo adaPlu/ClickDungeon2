@@ -40,6 +40,7 @@ namespace ClickDungeon.Presentation.UI
         private PresentationAssetDatabase _assets;
         private GridLayoutGroup _boardGrid;
         private string _pendingAbilityId;
+        private string _pendingItemId;
         private bool _lastLandscape;
         private Rect _lastSafeArea;
 
@@ -157,6 +158,7 @@ namespace ClickDungeon.Presentation.UI
         }
         private void OnTilePressed(int index)
         {
+            if(!string.IsNullOrEmpty(_pendingItemId)){string id=_pendingItemId;_pendingItemId=null;Apply(new UseItemCommand(id,index));return;}
             if(!string.IsNullOrEmpty(_pendingAbilityId)){string id=_pendingAbilityId;_pendingAbilityId=null;Apply(new UseAbilityCommand(id,index));return;}
             var tile=_session.State.Tiles[index];GameCommand command;
             if(tile.Visibility!=TileVisibility.Revealed)command=new RevealTileCommand(index);else if(tile.Content==TileContentKind.Monster||tile.Content==TileContentKind.Boss)command=new AttackCommand(index);else if(tile.Content==TileContentKind.SafeExit)command=new TakeSafeExitCommand(index);else if(tile.Content==TileContentKind.ForbiddenExit)command=new TakeForbiddenExitCommand(index);else if(tile.Content==TileContentKind.SealedVault)command=new UnlockVaultCommand(index);else if(tile.Content==TileContentKind.Shrine){ShowShrineChoices(index);return;}else if(tile.Content==TileContentKind.Merchant){ShowMerchant(index);return;}else if(tile.Resolution==TileResolution.Available&&tile.Content!=TileContentKind.Empty)command=new InteractCommand(index);else command=new MoveCommand(index);Apply(command);
@@ -166,7 +168,14 @@ namespace ClickDungeon.Presentation.UI
         {
             foreach(Transform child in _abilityBar)Destroy(child.gameObject);
             foreach(var state in _session.State.AbilityStates){var def=_content.Ability(state.AbilityId);string shortName=string.IsNullOrEmpty(def.DisplayName)?ShortAbility(state.AbilityId):def.DisplayName;var button=CreateButton(shortName,_abilityBar,$"{shortName}\n{state.Charges}/{def.MaxCharges}",16);string id=state.AbilityId;button.interactable=state.Charges>0;button.onClick.AddListener(()=>BeginAbility(id));}
-            var defend=CreateButton("Defend",_abilityBar,"Defend",16);defend.onClick.AddListener(()=>Apply(new DefendCommand()));var potion=CreateButton("Potion",_abilityBar,"Potion",16);potion.interactable=_session.State.InventoryItemIds.Contains("item.healing_potion");potion.onClick.AddListener(()=>Apply(new UseItemCommand("item.healing_potion")));var gear=CreateButton("Gear",_abilityBar,"Gear",16);gear.onClick.AddListener(ShowInventory);
+            var defend=CreateButton("Defend",_abilityBar,"Defend",16);defend.onClick.AddListener(()=>Apply(new DefendCommand()));var potion=CreateButton("Potion",_abilityBar,"Potion",16);potion.interactable=_session.State.InventoryItemIds.Contains("item.healing_potion");potion.onClick.AddListener(()=>Apply(new UseItemCommand("item.healing_potion")));var trapKit=CreateButton("Trap Kit",_abilityBar,"Trap Kit",16);trapKit.interactable=_session.State.InventoryItemIds.Contains("item.trap_disarm_kit");trapKit.onClick.AddListener(()=>BeginItem("item.trap_disarm_kit"));var gear=CreateButton("Gear",_abilityBar,"Gear",16);gear.onClick.AddListener(ShowInventory);
+        }
+
+        private void BeginItem(string id)
+        {
+            _pendingItemId=id;
+            _pendingAbilityId=null;
+            _status.text=id=="item.trap_disarm_kit"?"Select an adjacent identified or revealed trap to disarm.":"Select a target.";
         }
 
         private void BeginAbility(string id)
@@ -189,7 +198,12 @@ namespace ClickDungeon.Presentation.UI
             if(_session.State.ItemInstances.Count==0)AddChoice("No equipment yet",()=>_choicePanel.gameObject.SetActive(false));
         }
         private void ShowShrineChoices(int tileIndex){ClearChoicePanel();_choicePanel.gameObject.SetActive(true);AddChoice("Blood +HP",()=>ApplyAndClose(new ChooseShrineCommand(tileIndex,ShrineChoice.MaxHp)));AddChoice("Steel +ATK",()=>ApplyAndClose(new ChooseShrineCommand(tileIndex,ShrineChoice.Attack)));AddChoice("Stone +DEF",()=>ApplyAndClose(new ChooseShrineCommand(tileIndex,ShrineChoice.Defense)));}
-        private void ShowMerchant(int tileIndex){ClearChoicePanel();_choicePanel.gameObject.SetActive(true);AddChoice("Potion 12g",()=>ApplyAndClose(new BuyItemCommand(tileIndex,"item.healing_potion")));AddChoice("Sword 25g",()=>ApplyAndClose(new BuyItemCommand(tileIndex,"item.rusty_sword")));AddChoice("Armor 25g",()=>ApplyAndClose(new BuyItemCommand(tileIndex,"item.leather_armor")));}
+        private void ShowMerchant(int tileIndex)
+        {
+            ClearChoicePanel();_choicePanel.gameObject.SetActive(true);
+            var tile=_session.State.Tiles[tileIndex];string shopId=tile.ContentId=="merchant.standard"?"shop.standard":tile.ContentId.Replace("merchant.","shop.");var shop=_content.Shop(shopId);
+            foreach(var stockId in shop.StockItemIds){var def=_content.Item(stockId);string id=stockId;string display=string.IsNullOrEmpty(def.DisplayName)?ShortId(stockId):def.DisplayName;AddChoice($"{display} {def.Price}g",()=>ApplyAndClose(new BuyItemCommand(tileIndex,id)));}
+        }
         private void AddChoice(string text,UnityEngine.Events.UnityAction action){var b=CreateButton(text,_choicePanel,text,16);b.onClick.AddListener(action);}private void ApplyAndClose(GameCommand command){Apply(command);_choicePanel.gameObject.SetActive(false);}private void ClearChoicePanel(){foreach(Transform child in _choicePanel)Destroy(child.gameObject);}
 
         private void Apply(GameCommand command)
@@ -214,6 +228,8 @@ namespace ClickDungeon.Presentation.UI
                 case "combat.no_adjacent_enemy":return "There is no adjacent enemy to defend against.";
                 case "gold.insufficient":return "You do not have enough Gold.";
                 case "item.not_owned":return "That item is not in this run's inventory.";
+                case "item.target_required":return "Select a valid target for that item.";
+                case "trap.not_disarmable":return "The Trap Disarm Kit only works on an adjacent identified or revealed unresolved trap.";
                 case "monster.not_attackable":return "That monster cannot be attacked from the current state.";
                 case "exit.not_available":return "That exit is not available yet.";
                 case "vault.not_available":return "That vault cannot be opened from here.";
@@ -225,7 +241,7 @@ namespace ClickDungeon.Presentation.UI
 
         private static string Describe(GameEvent evt)
         {
-            switch(evt.Type){case "entitlement.full_game_required":return "The free introduction ends at Floor 5. Unlock the full game to descend farther.";case "tile.revealed":return $"Revealed {ShortId(evt.Id)}.";case "monster.encountered":return $"{ShortId(evt.Id)} blocks the path.";case "boss.encountered":return $"Boss: {ShortId(evt.Id)}.";case "monster.defeated":return $"Defeated {ShortId(evt.Id)}.";case "boss.defeated":return "Boss defeated. The descent is open.";case "trap.triggered":return $"Trap! Lost {evt.Amount} HP.";case "gold.collected":return $"Collected {evt.Amount} gold.";case "key.big.collected":return "Big Key acquired: vault or Forbidden Descent?";case "vault.opened":return "Sealed Vault opened.";case "floor.entered.forbidden":return "Forbidden route entered. Danger and rewards increased.";case "campaign.completed":return "You survived the campaign.";default:return evt.Type.Replace('.',' ');}
+            switch(evt.Type){case "entitlement.full_game_required":return "The free introduction ends at Floor 5. Unlock the full game to descend farther.";case "tile.revealed":return $"Revealed {ShortId(evt.Id)}.";case "monster.encountered":return $"{ShortId(evt.Id)} blocks the path.";case "boss.encountered":return $"Boss: {ShortId(evt.Id)}.";case "monster.defeated":return $"Defeated {ShortId(evt.Id)}.";case "boss.defeated":return "Boss defeated. The descent is open.";case "trap.triggered":return $"Trap! Lost {evt.Amount} HP.";case "trap.disarmed":return "Trap safely disarmed.";case "gold.collected":return $"Collected {evt.Amount} gold.";case "key.big.collected":return "Big Key acquired: vault or Forbidden Descent?";case "vault.opened":return "Sealed Vault opened.";case "floor.entered.forbidden":return "Forbidden route entered. Danger and rewards increased.";case "campaign.completed":return "You survived the campaign.";default:return evt.Type.Replace('.',' ');}
         }
 
         private static string ClueText(ClueFamily clue){switch(clue){case ClueFamily.Danger:return "!\nDanger";case ClueFamily.Opportunity:return "✦\nOpportunity";case ClueFamily.PassageArcane:return "◇\nPassage";default:return "?";}}
