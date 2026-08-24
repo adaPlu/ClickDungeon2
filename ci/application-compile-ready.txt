@@ -1,0 +1,1 @@
+license-independent application compile and persistence tests enabled
