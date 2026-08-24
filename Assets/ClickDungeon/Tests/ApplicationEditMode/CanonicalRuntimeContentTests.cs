@@ -25,6 +25,12 @@ namespace ClickDungeon.Tests.ApplicationEditMode
                 Assert.AreEqual(5,content.AbilitiesForClass(cls).Count(),$"{cls} loaded ability count");
             }
 
+            AssertBoss(content,"boss.lich_sovereign",ThreatPattern.AuraTwo,MonsterIntentKind.Summon,6);
+            AssertBoss(content,"boss.rootbound_leviathan",ThreatPattern.CrossTwo,MonsterIntentKind.Hazard,7);
+            AssertBoss(content,"boss.frostbog_colossus",ThreatPattern.CrossTwo,MonsterIntentKind.Hazard,8);
+            AssertBoss(content,"boss.archdemon_overlord",ThreatPattern.CrossTwo,MonsterIntentKind.Hazard,9);
+            AssertBoss(content,"boss.primal_ancient_wyrm",ThreatPattern.OrthogonalLine,MonsterIntentKind.HeavyAttack,10);
+
             var generator=new FloorGenerator(content);
             var state=generator.CreateNewRun(0xC1C1D00Du,HeroClassId.Knight);
             for(int floor=1;floor<=content.Balance.CampaignFloors;floor++)
@@ -40,6 +46,11 @@ namespace ClickDungeon.Tests.ApplicationEditMode
                     Assert.IsTrue(state.Tiles.Any(t=>t.Content==TileContentKind.Boss&&t.ContentId==bossId),$"Floor {floor} boss tile");
                 }
             }
+        }
+
+        private static void AssertBoss(GameContent content,string id,ThreatPattern threat,MonsterIntentKind intent,int intentPower)
+        {
+            var boss=content.Monster(id);Assert.AreEqual(threat,boss.ThreatPattern,id+" threat");Assert.AreEqual(intent,boss.PrimaryIntent,id+" intent");Assert.AreEqual(intentPower,boss.IntentPower,id+" intent power");Assert.IsFalse(string.IsNullOrWhiteSpace(boss.Decision),id+" decision rationale");
         }
 
         private static string FindContentDirectory()
