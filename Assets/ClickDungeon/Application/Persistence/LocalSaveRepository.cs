@@ -4,6 +4,7 @@ using System.Text;
 using Newtonsoft.Json;
 using UnityEngine;
 using ClickDungeon.Application.State;
+using ClickDungeon.Application.Versioning;
 using ClickDungeon.Simulation.Model;
 using ClickDungeon.Application.Platform;
 
@@ -53,7 +54,6 @@ namespace ClickDungeon.Application.Persistence
             PersistentDataSync.RequestSync();
         }
 
-        // Compatibility helpers for early callers. New code should use SlotSavePayload.
         public void Save(int slot, RunState state, long revision)
         {
             var now=DateTimeOffset.UtcNow.ToString("O");
@@ -73,7 +73,9 @@ namespace ClickDungeon.Application.Persistence
         private static void Validate(SaveDocument doc)
         {
             if(doc==null||doc.payload==null) throw new InvalidDataException("Save payload missing.");
-            if(doc.schema_version!=2) throw new InvalidDataException($"Unsupported schema {doc.schema_version}.");
+            if(doc.schema_version!=GameVersionInfo.SaveSchemaVersion) throw new InvalidDataException($"Unsupported schema {doc.schema_version}.");
+            if(doc.simulation_version>GameVersionInfo.SimulationVersion) throw new InvalidDataException($"Save requires newer simulation version {doc.simulation_version}.");
+            if(doc.content_revision>GameVersionInfo.ContentRevision) throw new InvalidDataException($"Save requires newer content revision {doc.content_revision}.");
             string expected=ChecksumUtility.Sha256(JsonConvert.SerializeObject(doc.payload,Settings));
             if(!string.Equals(expected,doc.checksum,StringComparison.OrdinalIgnoreCase)) throw new InvalidDataException("Checksum mismatch.");
         }
