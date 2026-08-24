@@ -7,7 +7,9 @@ using ClickDungeon.Application.Content;
 using ClickDungeon.Application.Persistence;
 using ClickDungeon.Application.State;
 using ClickDungeon.Application.Services;
+using ClickDungeon.Application.Replay;
 using ClickDungeon.Simulation;
+using ClickDungeon.Simulation.Commands;
 using ClickDungeon.Simulation.Content;
 using ClickDungeon.Simulation.Generation;
 using ClickDungeon.Simulation.Model;
@@ -33,13 +35,15 @@ namespace ClickDungeon.Presentation
         private MusicAndAmbienceController _musicAndAmbience;
         private float _playStartedAt;
         private long _playSecondsBase;
+        private ReplayRecorder _replayRecorder;
+        private ReplayRepository _replayRepository;
         private const int FreeIntroLastFloor = 5;
         public GameSession Session { get; private set; }
         public GameContent Content { get; private set; }
 
         private void Awake()
         {
-            Content=LoadContent();_services=new ServiceRegistry();_services.Store.RefreshEntitlements();_saves=new LocalSaveRepository();_accounts=new AccountRepository();_account=_accounts.Load();_slot=Mathf.Clamp(PlayerPrefs.GetInt("cd2.slot",1),1,4);bool shouldContinue=PlayerPrefs.GetInt("cd2.continue",0)==1;bool startAbyss=PlayerPrefs.GetInt("cd2.abyss",0)==1;
+            Content=LoadContent();_services=new ServiceRegistry();_services.Store.RefreshEntitlements();_saves=new LocalSaveRepository();_accounts=new AccountRepository();_account=_accounts.Load();_slot=Mathf.Clamp(PlayerPrefs.GetInt("cd2.slot",1),1,4);bool shouldContinue=PlayerPrefs.GetInt("cd2.continue",0)==1;bool startAbyss=PlayerPrefs.GetInt("cd2.abyss",0)==1;bool startedFresh=false;
             var generator=new FloorGenerator(Content);
             if(shouldContinue&&TryLoadExisting(out var loaded))
             {
@@ -47,12 +51,14 @@ namespace ClickDungeon.Presentation
             }
             else
             {
+                startedFresh=true;
                 var cls=(HeroClassId)PlayerPrefs.GetInt("cd2.class",(int)editorHeroClass);uint seed=ParseSeed(PlayerPrefs.GetString("cd2.seed",editorSeed.ToString()),editorSeed);
                 _meta=LoadMetaOrCreate(cls);_meta.HeroClassId=cls.ToString();var unlocked=unlockAllAbilitiesForDevelopment?Content.Hero(cls).AbilityIds:UnlockedForMeta(cls,_meta);
                 var state=startAbyss&&_meta.CampaignCompleted&&_services.Store.FullGameUnlocked?generator.CreateAbyssRun(seed,cls,unlocked):generator.CreateNewRun(seed,cls,unlocked);ApplyEntitlementLimit(state);Session=new GameSession(state,generator,Content);_account.TotalRuns++;_accounts.Save(_account);SaveCurrent();
             }
             _playStartedAt=Time.realtimeSinceStartup;_playSecondsBase=_meta.PlaySeconds;
-            var audio=gameObject.AddComponent<GameEventAudioRouter>();audio.Initialize();_musicAndAmbience=gameObject.AddComponent<MusicAndAmbienceController>();_musicAndAmbience.Initialize(Content,Session.State);var ui=gameObject.AddComponent<RuntimeGameUI>();ui.Initialize(Session,Content);ui.CommandResolved+=OnCommandResolved;ui.CommandResolved+=r=>audio.Present(r.Events);ui.StateChanged+=OnStateChanged;ui.ReturnToMenuRequested+=()=>SceneManager.LoadScene("Main");
+            if(startedFresh){_replayRecorder=new ReplayRecorder(Session.State);_replayRepository=new ReplayRepository();}
+            var audio=gameObject.AddComponent<GameEventAudioRouter>();audio.Initialize();_musicAndAmbience=gameObject.AddComponent<MusicAndAmbienceController>();_musicAndAmbience.Initialize(Content,Session.State);var ui=gameObject.AddComponent<RuntimeGameUI>();ui.Initialize(Session,Content);ui.CommandExecuted+=OnCommandExecuted;ui.CommandResolved+=OnCommandResolved;ui.CommandResolved+=r=>audio.Present(r.Events);ui.StateChanged+=OnStateChanged;ui.ReturnToMenuRequested+=()=>SceneManager.LoadScene("Main");
             Debug.Log($"ClickDungeon2 slot={_slot} seed={Session.State.RootSeed} class={Session.State.HeroClass} floor={Session.State.Floor}");
         }
 
@@ -62,7 +68,22 @@ namespace ClickDungeon.Presentation
             state.CampaignFloorLimit=_services.Store.FullGameUnlocked?Content.Balance.CampaignFloors:Math.Min(FreeIntroLastFloor,Content.Balance.CampaignFloors);
         }
 
-        private void OnCommandResolved(ClickDungeon.Simulation.Commands.CommandResult result)
+        private void OnCommandExecuted(GameCommand command,CommandResult result)
+        {
+            if(_replayRecorder==null||_replayRepository==null)return;
+            try
+            {
+                _replayRecorder.Record(command);
+                _replayRepository.SaveLast(_replayRecorder.Finish(Session.State));
+            }
+            catch(Exception ex)
+            {
+                Debug.LogError($"Replay recording disabled after failure: {ex}");
+                _replayRecorder=null;
+            }
+        }
+
+        private void OnCommandResolved(CommandResult result)
         {
             int gained=0;
             foreach(var evt in result.Events)
@@ -85,7 +106,6 @@ namespace ClickDungeon.Presentation
             {
                 if(_meta.ClassMastery<def.UnlockMastery||_meta.UnlockedAbilityIds.Contains(def.Id))continue;
                 _meta.UnlockedAbilityIds.Add(def.Id);
-                if(!Session.State.AbilityStates.Any(a=>a.AbilityId==def.Id))Session.State.AbilityStates.Add(new AbilityChargeState{AbilityId=def.Id,Charges=def.MaxCharges});
             }
         }
 
