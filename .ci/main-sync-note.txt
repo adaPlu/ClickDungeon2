@@ -1,1 +1,0 @@
-Temporary ancestry sync marker; remove after main->develop reconciliation.
