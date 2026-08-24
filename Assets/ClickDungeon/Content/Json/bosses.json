@@ -9,10 +9,11 @@
       "defense": 4,
       "phases": 2,
       "identity": "resurrection_curse",
-      "phase_rules": [
-        "summon pressure",
-        "curse hidden cells at half health"
-      ],
+      "decision": "contain summon pressure before curse zones consume safe exploration space",
+      "threat": "aura_two",
+      "intent": "summon",
+      "intent_power": 6,
+      "phase_rules": ["summon pressure", "curse hidden cells at half health"],
       "reward": "boss_reward.lich",
       "display_name": "Lich Sovereign"
     },
@@ -24,10 +25,11 @@
       "defense": 5,
       "phases": 2,
       "identity": "root_terrain",
-      "phase_rules": [
-        "root frontier cells",
-        "expand thorn obstacles"
-      ],
+      "decision": "preserve routes before root and thorn control closes the board",
+      "threat": "cross_two",
+      "intent": "hazard",
+      "intent_power": 7,
+      "phase_rules": ["root frontier cells", "expand thorn obstacles"],
       "reward": "boss_reward.leviathan",
       "display_name": "Rootbound Leviathan"
     },
@@ -39,11 +41,11 @@
       "defense": 6,
       "phases": 3,
       "identity": "ice_mire_control",
-      "phase_rules": [
-        "freeze zones",
-        "alternate slippery and mire cells",
-        "heavy smash"
-      ],
+      "decision": "plan movement around alternating slippery and slowing terrain before committing damage",
+      "threat": "cross_two",
+      "intent": "hazard",
+      "intent_power": 8,
+      "phase_rules": ["freeze zones", "alternate slippery and mire cells", "heavy smash"],
       "reward": "boss_reward.colossus",
       "display_name": "Frostbog Colossus"
     },
@@ -55,11 +57,11 @@
       "defense": 7,
       "phases": 3,
       "identity": "fire_shrinking_safe_zone",
-      "phase_rules": [
-        "mark burning cells",
-        "summon hellhound",
-        "shrink safe region"
-      ],
+      "decision": "finish the fight before burning cells and summons collapse the remaining safe region",
+      "threat": "cross_two",
+      "intent": "hazard",
+      "intent_power": 9,
+      "phase_rules": ["mark burning cells", "summon hellhound", "shrink safe region"],
       "reward": "boss_reward.archdemon",
       "display_name": "Archdemon Overlord"
     },
@@ -71,12 +73,11 @@
       "defense": 8,
       "phases": 4,
       "identity": "multi_biome_spatial_mastery",
-      "phase_rules": [
-        "row sweep",
-        "column sweep",
-        "breath zones",
-        "multi-biome final pattern"
-      ],
+      "decision": "read row and column telegraphs while preserving safe cells through the final multi-biome patterns",
+      "threat": "orthogonal_line",
+      "intent": "heavy_attack",
+      "intent_power": 10,
+      "phase_rules": ["row sweep", "column sweep", "breath zones", "multi-biome final pattern"],
       "reward": "boss_reward.wyrm",
       "display_name": "Primal Ancient Wyrm"
     }
