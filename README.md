@@ -11,52 +11,72 @@ ClickDungeon is a deterministic tactical tile-reveal roguelite built around a 5�
 ## Stack
 
 - Unity 6.5 / **6000.5.9f1** (`b57deb96f08d`)
-- URP 2D
+- URP 2D / URP 17.5
 - C#
 - deterministic discrete-action simulation
 - canonical JSON content → validated generated runtime data
 - Newtonsoft.Json versioned saves
-- GitHub Actions + GameCI scaffolding
+- deterministic command recording/replay with final-state hashing
+- GitHub Actions + GameCI v4
 - PowerShell/Python validation and build tooling
 
 ## Current integrated scope
 
-The local `develop` branch contains the repaired graph integration rather than only the original vertical-slice scaffold:
+The `develop` branch contains the repaired graph integration:
 
 - 50-floor / 10-biome campaign plus Endless Abyss
 - Knight, Ranger, Thief and Wizard with 20 abilities
 - 23 base monsters, deterministic biome variants and five bosses
 - clues, spatial threat zones, traps, terrain, shrines, merchant, equipment/affixes and deterministic loot
 - Safe Exit / Forbidden Descent / Sealed Vault Big-Key economy
-- deterministic RNG, saves, replay contracts and content migrations
+- Trap Disarm Kit with targeted safe-disarm behavior and combat-turn reaction rules
+- deterministic RNG, atomic saves, replay record/playback, state hashing and content migrations
 - account / slot-meta / run-state ownership
 - four save slots, class mastery and achievement persistence
-- portrait + landscape runtime UI, canonical names, intent/status feedback and menu/game audio routing
+- portrait + landscape runtime UI, canonical shop prices/stock, intent/status feedback and menu/game audio routing
 - generated content and presentation databases
-- editor tooling, animation slicing, content/asset validators, balance harness and release gates
-- placeholder production footprint for 4 heroes, 23 monster sheets, 5 boss sheets, 10 biome masters, object art, store art and 37 audio files
+- editor tooling, animation slicing, content/asset validators, multi-policy balance harness and release gates
 
 ## Architecture rule
 
 `ClickDungeon.Simulation` has no dependency on `UnityEngine`. Presentation submits commands and renders returned game events; it never owns gameplay outcomes.
 
-Canonical gameplay/configuration data lives under `Assets/ClickDungeon/Content/Json`. `scripts/static-audit.py` fails when a canonical JSON document is not wired into the runtime loader.
+Canonical gameplay/configuration data lives under `Assets/ClickDungeon/Content/Json`. Unknown hero-class, threat-pattern, and monster-intent values fail loading instead of silently coercing to fallback gameplay. Boss threat/intent data is canonical JSON rather than inferred from boss IDs.
 
-## Verification status
+## Automated verification status
 
-Locally verified in the current execution environment:
+Current engine-free evidence includes:
 
+- Simulation assembly: real .NET/Roslyn compilation **PASS**
+- Simulation tests: **40/40 PASS**, including 500-seed generation fuzzing, trap-kit economy/turn contracts and deterministic multi-policy balance cohorts
+- Application assembly + persistence/replay layer: real .NET/Roslyn compilation **PASS**
+- Application tests: **15/15 PASS**, including canonical JSON → complete 50-floor generation, save migration/recovery, replay record/playback/hash and future-version rejection
 - canonical content validation: **PASS**
-- art/audio structural + semantic coverage validation: **PASS**
+- replay contract validation: **PASS**
 - static architecture/integration audit: **PASS (0 errors, 0 warnings)**
-- Python tooling compilation: **PASS**
-- Git diff/conflict/whitespace check: **PASS**
 
-Expected blockers:
+Unity-specific EditMode execution and player builds remain gated on GitHub Unity licensing secrets.
 
-- `scripts/release-check.py` intentionally blocks release while procedural/store placeholders remain.
-- Unity batch compilation, EditMode tests and player builds require an installed Unity 6000.5.9f1 editor. Run `python scripts/verify-unity.py --build windows` (or another target) with `UNITY_PATH` set.
-- The first verified Unity import must generate and stabilize Unity `.meta` files and the broader editor-generated `ProjectSettings` set; commit that Unity-generated diff after it passes verification.
-- Production Apple/Google purchase adapters still require platform SDK/account integration; the authoritative one-time full-game entitlement boundary is implemented with a local development adapter.
+## Prototype presentation
 
-See `docs/INTEGRATION_AUDIT_2026-08-23.md` and `docs/BUILD_RELEASE.md` for the exact release/verification contract.
+Clean CI checkouts can generate deterministic DEVELOPMENT-only `_placeholder` runtime PNG/WAV media when binary assets are absent. This allows sprite slicing, animation generation, audio routing and player-build verification without weakening the commercial release gate. Existing runtime media is never overwritten.
+
+Production release still requires final art/audio/store assets and provenance. Placeholder media is not considered shippable.
+
+## Unity CI licensing
+
+For Unity Personal, configure GitHub Actions repository secrets according to current GameCI guidance:
+
+- `UNITY_LICENSE` — full contents of the locally activated Unity `.ulf` file
+- `UNITY_EMAIL`
+- `UNITY_PASSWORD`
+
+Never commit or paste license files or credentials into chat. Unity Pro uses GameCI's serial-based configuration instead.
+
+The build graph is:
+
+`preflight → Unity EditMode → Windows → { Android AAB, WebGL }`
+
+## Commercial release rule
+
+Passing deterministic/unit/static CI does **not** mean the game is commercially ready. Release still requires licensed Unity import/player-build verification, stabilized Unity-generated `.meta`/ProjectSettings, production asset replacement/provenance, platform validation, human playtesting, balance review, store assets and the manual release gate.
