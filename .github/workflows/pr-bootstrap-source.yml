@@ -25,7 +25,11 @@ jobs:
           set -euo pipefail
           : > /tmp/compile.b64
           for n in $(seq -w 0 36); do
-            if [ -f "bootstrap2/repair/part${n}.0" ]; then
+            if [ -f "bootstrap2/repair/part${n}.q0" ]; then
+              for q in 0 1 2 3; do test -s "bootstrap2/repair/part${n}.q${q}"; done
+              cat "bootstrap2/repair/part${n}.q0" "bootstrap2/repair/part${n}.q1" "bootstrap2/repair/part${n}.q2" "bootstrap2/repair/part${n}.q3" > "/tmp/part${n}"
+              echo "part${n}: quarter-repaired"
+            elif [ -f "bootstrap2/repair/part${n}.0" ]; then
               test -s "bootstrap2/repair/part${n}.0"
               test -s "bootstrap2/repair/part${n}.1"
               cat "bootstrap2/repair/part${n}.0" "bootstrap2/repair/part${n}.1" > "/tmp/part${n}"
