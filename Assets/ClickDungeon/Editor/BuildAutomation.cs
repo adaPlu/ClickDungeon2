@@ -15,6 +15,7 @@ namespace ClickDungeon.EditorTools
         public static void ExportIos()=>Build(BuildTarget.iOS,"Builds/iOS");
         private static void Build(BuildTarget target,string path)
         {
+            BuildPlayerSettings.Apply(target);
             TextMeshProResourceBootstrap.Ensure();
             SceneScaffolder.EnsureCoreScenes();
             ContentAssetGenerator.Generate(false);
