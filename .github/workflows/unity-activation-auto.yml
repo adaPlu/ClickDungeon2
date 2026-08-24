@@ -1,0 +1,29 @@
+name: Unity Activation Bootstrap
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - '.github/workflows/unity-activation-auto.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  activation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Request Unity activation file
+        id: activation
+        uses: game-ci/unity-request-activation-file@v2
+        with:
+          unityVersion: 6000.5.9f1
+
+      - name: Upload Unity activation request
+        uses: actions/upload-artifact@v4
+        with:
+          name: Unity_v6000.5.9f1_Activation_Request
+          path: ${{ steps.activation.outputs.filePath }}
+          if-no-files-found: error
