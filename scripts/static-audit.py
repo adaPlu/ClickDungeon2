@@ -130,8 +130,10 @@ for token in ['Resources.Load<PresentationAssetDatabase>("ClickDungeonPresentati
     if token not in runtime_ui:errors.append('Runtime presentation Resources name does not match generator')
 
 release_path=ROOT/'scripts/release-check.py';release=release_path.read_text()
-if "store_root=ROOT/'Store'" not in release:errors.append('release-check.py does not gate store placeholders')
+store_gate=re.search(r"store_root\s*=\s*ROOT\s*/\s*['\"]Store['\"]",release)
+if not store_gate or 'placeholder' not in release.lower():errors.append('release-check.py does not gate store placeholders')
 if 'validate-assets.py' not in release:errors.append('release-check.py does not run validate-assets.py')
+if 'validate-unity-metadata.py' not in release or '--strict' not in release:errors.append('release-check.py does not strictly gate Unity metadata reproducibility')
 if not (ROOT/'scripts/validate-assets.py').exists():errors.append('scripts/validate-assets.py is missing')
 
 for token in ['Abyss Depth','ShowInventory','ClickDungeonPresentationAssets','RefreshIntent']:
