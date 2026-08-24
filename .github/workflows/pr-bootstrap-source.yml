@@ -25,9 +25,18 @@ jobs:
           set -euo pipefail
           : > /tmp/compile.b64
           for n in $(seq -w 0 36); do
-            test -s "bootstrap2/part${n}"
-            sha256sum "bootstrap2/part${n}"
-            cat "bootstrap2/part${n}" >> /tmp/compile.b64
+            if [ -f "bootstrap2/repair/part${n}.0" ]; then
+              test -s "bootstrap2/repair/part${n}.0"
+              test -s "bootstrap2/repair/part${n}.1"
+              cat "bootstrap2/repair/part${n}.0" "bootstrap2/repair/part${n}.1" > "/tmp/part${n}"
+              echo "part${n}: repaired"
+            else
+              test -s "bootstrap2/part${n}"
+              cp "bootstrap2/part${n}" "/tmp/part${n}"
+              echo "part${n}: original"
+            fi
+            sha256sum "/tmp/part${n}"
+            cat "/tmp/part${n}" >> /tmp/compile.b64
           done
           base64 -d /tmp/compile.b64 > /tmp/compile.zip
           echo "3e0277519d6b8c7510a3434118ac8b6f17e014e0c243feeb8b537ff874e4c7ee  /tmp/compile.zip" | sha256sum -c -
