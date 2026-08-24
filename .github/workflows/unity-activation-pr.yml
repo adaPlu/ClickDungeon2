@@ -1,0 +1,32 @@
+name: Unity Activation Request PR
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  activation-request:
+    runs-on: ubuntu-latest
+    env:
+      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: License already configured
+        if: ${{ env.UNITY_LICENSE != '' }}
+        run: echo 'UNITY_LICENSE is already configured; activation request not needed.'
+      - name: Request Unity activation file
+        if: ${{ env.UNITY_LICENSE == '' }}
+        id: activation
+        uses: game-ci/unity-request-activation-file@v2
+        with:
+          unityVersion: 6000.5.9f1
+      - name: Upload activation request
+        if: ${{ env.UNITY_LICENSE == '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Unity-6000.5.9f1-Activation-Request
+          path: ${{ steps.activation.outputs.filePath }}
+          if-no-files-found: error
