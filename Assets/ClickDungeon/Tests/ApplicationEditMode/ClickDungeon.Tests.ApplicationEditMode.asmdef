@@ -1,7 +1,9 @@
 {
   "name": "ClickDungeon.Tests.ApplicationEditMode",
-  "references": ["ClickDungeon.Simulation", "ClickDungeon.Application", "Unity.Newtonsoft.Json"],
+  "references": ["ClickDungeon.Simulation", "ClickDungeon.Application"],
   "optionalUnityReferences": ["TestAssemblies"],
   "includePlatforms": ["Editor"],
+  "overrideReferences": true,
+  "precompiledReferences": ["Newtonsoft.Json.dll"],
   "autoReferenced": false
 }
