@@ -65,8 +65,23 @@ player_settings=ROOT/'Assets/ClickDungeon/Editor/BuildPlayerSettings.cs'
 if not player_settings.exists():errors.append('BuildPlayerSettings.cs is missing')
 else:
     settings=player_settings.read_text()
-    for token in ['com.adaplu.clickdungeon','AndroidApiLevel23','AndroidApiLevel36','AndroidArchitecture.ARMv7|AndroidArchitecture.ARM64','targetOSVersionString="13.0"','UIOrientation.Portrait']:
+    for token in ['GameVersionInfo.GameVersion','com.adaplu.clickdungeon','AndroidApiLevel23','AndroidApiLevel36','AndroidArchitecture.ARMv7|AndroidArchitecture.ARM64','targetOSVersionString="13.0"','UIOrientation.Portrait']:
         if token not in settings:errors.append(f'BuildPlayerSettings missing {token}')
+
+version_info=ROOT/'Assets/ClickDungeon/Application/Versioning/GameVersionInfo.cs'
+if not version_info.exists():errors.append('GameVersionInfo.cs is missing')
+else:
+    version_text=version_info.read_text()
+    for token in ['GameVersion="0.2.0"','SaveSchemaVersion=2','SimulationVersion=2','ContentRevision=2']:
+        if token not in version_text:errors.append(f'GameVersionInfo missing {token}')
+
+save_doc=(ROOT/'Assets/ClickDungeon/Application/Persistence/SaveDocument.cs').read_text()
+for token in ['GameVersionInfo.SaveSchemaVersion','GameVersionInfo.GameVersion','GameVersionInfo.SimulationVersion','GameVersionInfo.ContentRevision']:
+    if token not in save_doc:errors.append(f'SaveDocument version contract missing {token}')
+replay=(ROOT/'Assets/ClickDungeon/Application/Replay/ReplayEnvelope.cs').read_text()
+for token in ['GameVersionInfo.SimulationVersion','GameVersionInfo.ContentRevision']:
+    if token not in replay:errors.append(f'ReplayEnvelope version contract missing {token}')
+if (ROOT/'Assets/ClickDungeon/Simulation/Replay/ReplayRecord.cs').exists():errors.append('Legacy duplicate ReplayRecord.cs still exists')
 
 tmp_bootstrap=ROOT/'Assets/ClickDungeon/Editor/TextMeshProResourceBootstrap.cs'
 if not tmp_bootstrap.exists():errors.append('TextMeshProResourceBootstrap.cs is missing')
@@ -97,7 +112,6 @@ pres=(ROOT/'Assets/ClickDungeon/Presentation/UI/RuntimeGameUI.cs').read_text()
 for token in ['Abyss Depth','ShowInventory','ClickDungeonPresentationAssets','RefreshIntent']:
     if token not in pres:errors.append(f'Runtime presentation contract missing {token}')
 
-# In ClickDungeon.Application.* namespaces, Unity's Application type must be fully qualified to avoid namespace shadowing.
 for p in (ROOT/'Assets/ClickDungeon/Application').rglob('*.cs'):
     text=p.read_text()
     for m in re.finditer(r'(?<!UnityEngine\.)\bApplication\.(persistentDataPath|platform|isEditor|isMobilePlatform)',text):errors.append(f'{p.relative_to(ROOT)}: unqualified Unity Application API may resolve to ClickDungeon.Application namespace')
