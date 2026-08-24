@@ -1,0 +1,72 @@
+name: Remote Source Validation
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [develop]
+    paths-ignore:
+      - 'bootstrap/**'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: develop
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify required project files
+        shell: bash
+        run: |
+          set -euo pipefail
+          required=(
+            Assets/ClickDungeon/Simulation/GameSession.cs
+            Assets/ClickDungeon/Simulation/Content/GameContent.cs
+            Assets/ClickDungeon/Presentation/UI/RuntimeGameUI.cs
+            Assets/ClickDungeon/Editor/ContentValidator.cs
+            Packages/manifest.json
+            ProjectSettings/ProjectVersion.txt
+            scripts/validate-content.py
+            scripts/static-audit.py
+          )
+          for file in "${required[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "::error file=$file::Required recovered project file is missing"
+              exit 1
+            fi
+          done
+
+      - name: Compile Python tooling
+        run: python -m compileall -q scripts
+
+      - name: Validate canonical content
+        run: python scripts/validate-content.py
+
+      - name: Run adversarial static audit
+        run: python scripts/static-audit.py
+
+      - name: Confirm Unity version
+        shell: bash
+        run: |
+          grep -F 'm_EditorVersion: 6000.5.9f1' ProjectSettings/ProjectVersion.txt
+
+      - name: Write validation summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo '## ClickDungeon2 remote source validation'
+            echo
+            echo '- Branch: develop'
+            echo '- Unity target: 6000.5.9f1'
+            echo '- Python tooling compilation attempted'
+            echo '- Canonical content validation attempted'
+            echo '- Static adversarial audit attempted'
+          } >> "$GITHUB_STEP_SUMMARY"
