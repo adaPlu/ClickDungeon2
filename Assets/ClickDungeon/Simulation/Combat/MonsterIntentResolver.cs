@@ -21,8 +21,8 @@ namespace ClickDungeon.Simulation.Combat
             {
                 monster.MonsterRootActions--;
                 events.Add(new GameEvent("monster.intent.delayed", monster.Index, monster.ContentId));
-                if(monster.ContentId=="monster.troll"&&monster.MonsterHp>0){int before=monster.MonsterHp;monster.MonsterHp=Math.Min(monster.MonsterMaxHp,monster.MonsterHp+1);if(monster.MonsterHp>before)events.Add(new GameEvent("monster.regenerated",monster.Index,monster.ContentId,1));}
-            AdvanceIntent(monster);
+                ApplyPostIntentBehavior(monster,events);
+                AdvanceIntent(monster);
                 return;
             }
 
@@ -64,6 +64,7 @@ namespace ClickDungeon.Simulation.Combat
                     break;
             }
             ApplyVariantBehavior(state,monster,content,events);
+            ApplyPostIntentBehavior(monster,events);
             AdvanceIntent(monster);
         }
 
@@ -78,6 +79,14 @@ namespace ClickDungeon.Simulation.Combat
             }
         }
 
+        private static void ApplyPostIntentBehavior(TileState monster,List<GameEvent> events)
+        {
+            if(monster.ContentId!="monster.troll"||monster.MonsterHp<=0)return;
+            int before=monster.MonsterHp;
+            monster.MonsterHp=Math.Min(monster.MonsterMaxHp,monster.MonsterHp+1);
+            if(monster.MonsterHp>before)events.Add(new GameEvent("monster.regenerated",monster.Index,monster.ContentId,monster.MonsterHp-before));
+        }
+
         private static int DealDamage(RunState state, TileState monster, GameContent content, List<GameEvent> events, int raw)
         {
             if(monster.ContentId=="monster.wolf")raw+=CountOtherWolves(state,monster)>0?1:0;
@@ -87,7 +96,6 @@ namespace ClickDungeon.Simulation.Combat
             if (state.GameOver) events.Add(new GameEvent("run.game_over"));
             return applied;
         }
-
 
         private static int CountOtherWolves(RunState state,TileState monster)
         {
@@ -116,6 +124,5 @@ namespace ClickDungeon.Simulation.Combat
             else if (monster.ContentId == "monster.slime") monster.IntentKind = monster.MonsterTurn % 2 == 0 ? MonsterIntentKind.ApplyPoison : MonsterIntentKind.Attack;
             else if (monster.ContentId == "monster.golem") monster.IntentKind = monster.MonsterTurn % 2 == 0 ? MonsterIntentKind.HeavyAttack : MonsterIntentKind.Guard;
         }
-
     }
 }
