@@ -1,0 +1,49 @@
+name: Run Static Audit Once
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - '.github/workflows/run-static-audit-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: develop
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run complete static gate and capture evidence
+        shell: bash
+        run: |
+          set +e
+          mkdir -p .ci
+          {
+            echo 'ClickDungeon2 static/adversarial validation'
+            echo "commit=$(git rev-parse HEAD)"
+            echo
+            python -m compileall -q scripts; echo "compileall_exit=$?"
+            python scripts/validate-content.py; echo "content_exit=$?"
+            python scripts/validate-replay.py; echo "replay_exit=$?"
+            python scripts/static-audit.py; echo "static_audit_exit=$?"
+            grep -F 'm_EditorVersion: 6000.5.9f1' ProjectSettings/ProjectVersion.txt; echo "unity_pin_exit=$?"
+          } > .ci/static-audit-latest.txt 2>&1
+          cat .ci/static-audit-latest.txt
+          if grep -Eq '_exit=[1-9]' .ci/static-audit-latest.txt; then echo 'FAILED' >> .ci/static-audit-latest.txt; else echo 'PASSED' >> .ci/static-audit-latest.txt; fi
+      - name: Commit evidence and retire one-shot workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'ClickDungeon CI'
+          git config user.email 'actions@users.noreply.github.com'
+          git rm .github/workflows/run-static-audit-once.yml
+          git add .ci/static-audit-latest.txt
+          git commit -m 'test(audit): record full static validation evidence'
+          git push origin HEAD:develop
