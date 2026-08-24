@@ -45,6 +45,7 @@ namespace ClickDungeon.Presentation.UI
 
         public event Action StateChanged;
         public event Action<CommandResult> CommandResolved;
+        public event Action<GameCommand,CommandResult> CommandExecuted;
         public event Action ReturnToMenuRequested;
 
         public void Initialize(GameSession session,GameContent content)
@@ -193,7 +194,7 @@ namespace ClickDungeon.Presentation.UI
 
         private void Apply(GameCommand command)
         {
-            var result=_session.Apply(command);if(!result.Accepted){_status.text=RejectionMessage(result.RejectionReason);Refresh();return;}_status.text=result.Events.Count==0?"Action resolved.":Describe(result.Events[result.Events.Count-1]);CommandResolved?.Invoke(result);StateChanged?.Invoke();Refresh();
+            var result=_session.Apply(command);CommandExecuted?.Invoke(command,result);if(!result.Accepted){_status.text=RejectionMessage(result.RejectionReason);Refresh();return;}_status.text=result.Events.Count==0?"Action resolved.":Describe(result.Events[result.Events.Count-1]);CommandResolved?.Invoke(result);StateChanged?.Invoke();Refresh();
         }
 
         private static string RejectionMessage(string reason)
