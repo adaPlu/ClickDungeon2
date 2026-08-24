@@ -23,7 +23,7 @@ jobs:
         run: |
           source_ready=false
           license_ready=false
-          if [ -f Packages/manifest.json ] && [ -f ProjectSettings/ProjectVersion.txt ] && [ -f Assets/ClickDungeon/Simulation/GameSession.cs ]; then
+          if [ -f Packages/manifest.json ] && [ -f ProjectSettings/ProjectVersion.txt ] && [ -f Assets/ClickDungeon/Simulation/GameSession.cs ] && [ -f Assets/ClickDungeon/Editor/BuildAutomation.cs ]; then
             source_ready=true
           fi
           if [ -n "$UNITY_LICENSE" ] && [ -n "$UNITY_EMAIL" ] && [ -n "$UNITY_PASSWORD" ]; then
@@ -51,6 +51,7 @@ jobs:
         with:
           testMode: EditMode
           artifactsPath: test-artifacts
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -65,7 +66,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Build Windows
+      - name: Build Windows through ClickDungeon BuildAutomation
         uses: game-ci/unity-builder@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
@@ -73,12 +74,12 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           targetPlatform: StandaloneWindows64
-          buildsPath: build
-          buildName: ClickDungeon2
+          buildMethod: ClickDungeon.EditorTools.BuildAutomation.BuildWindows
+          allowDirtyBuild: true
       - uses: actions/upload-artifact@v4
         with:
           name: ClickDungeon2-Windows
-          path: build/StandaloneWindows64
+          path: Builds/Windows
 
   android:
     needs: windows
@@ -87,7 +88,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Build Android development APK
+      - name: Build Android AAB through ClickDungeon BuildAutomation
         uses: game-ci/unity-builder@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
@@ -95,12 +96,12 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           targetPlatform: Android
-          buildsPath: build
-          buildName: ClickDungeon2
+          buildMethod: ClickDungeon.EditorTools.BuildAutomation.BuildAndroid
+          allowDirtyBuild: true
       - uses: actions/upload-artifact@v4
         with:
-          name: ClickDungeon2-Android
-          path: build/Android
+          name: ClickDungeon2-Android-AAB
+          path: Builds/Android
 
   webgl:
     needs: windows
@@ -109,7 +110,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Build WebGL
+      - name: Build WebGL through ClickDungeon BuildAutomation
         uses: game-ci/unity-builder@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
@@ -117,9 +118,9 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           targetPlatform: WebGL
-          buildsPath: build
-          buildName: ClickDungeon2
+          buildMethod: ClickDungeon.EditorTools.BuildAutomation.BuildWeb
+          allowDirtyBuild: true
       - uses: actions/upload-artifact@v4
         with:
           name: ClickDungeon2-WebGL
-          path: build/WebGL
+          path: Builds/Web
