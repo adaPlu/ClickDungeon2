@@ -36,6 +36,20 @@ namespace ClickDungeon.Tests.EditMode
         }
 
         [Test]
+        public void TrapDisarmKitStillAllowsAdjacentMonsterIntentToResolve()
+        {
+            var gen=new FloorGenerator();var state=gen.CreateNewRun(504,HeroClassId.Thief);ClearBoard(state);
+            state.PlayerPosition=new GridPosition(2,2);state.Tiles[12].Occupancy=OccupancyKind.Player;
+            var trap=state.Tiles[13];trap.Content=TileContentKind.Trap;trap.ContentId="trap.fire";trap.Visibility=TileVisibility.Identified;trap.Resolution=TileResolution.Available;trap.Occupancy=OccupancyKind.Hazard;
+            var monster=state.Tiles[7];monster.Content=TileContentKind.Monster;monster.ContentId="monster.rat";monster.Visibility=TileVisibility.Revealed;monster.Resolution=TileResolution.Available;monster.Occupancy=OccupancyKind.Monster;monster.MonsterHp=3;monster.MonsterMaxHp=3;monster.MonsterAttack=2;monster.MonsterDefense=0;monster.IntentKind=MonsterIntentKind.Attack;monster.IntentPower=2;
+            state.InventoryItemIds.Add("item.trap_disarm_kit");
+
+            var result=new GameSession(state,gen).Apply(new UseItemCommand("item.trap_disarm_kit",13));
+
+            Assert.IsTrue(result.Accepted);Assert.IsTrue(result.Events.Any(e=>e.Type=="player.damaged"&&e.Id=="monster.rat"));Assert.AreEqual(1,monster.MonsterTurn);
+        }
+
+        [Test]
         public void StandardMerchantCanSellTrapDisarmKitAtCanonicalPrice()
         {
             var gen=new FloorGenerator();var state=gen.CreateNewRun(503,HeroClassId.Knight);ClearBoard(state);
