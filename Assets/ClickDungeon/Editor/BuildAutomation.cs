@@ -15,9 +15,18 @@ namespace ClickDungeon.EditorTools
         public static void ExportIos()=>Build(BuildTarget.iOS,"Builds/iOS");
         private static void Build(BuildTarget target,string path)
         {
+            TextMeshProResourceBootstrap.Ensure();
             SceneScaffolder.EnsureCoreScenes();
-            ContentAssetGenerator.Generate(false);PresentationAssetGenerator.Generate(false);
-            Directory.CreateDirectory(Path.GetDirectoryName(path)??path);var options=new BuildPlayerOptions{scenes=Scenes,locationPathName=path,target=target,options=BuildOptions.None};if(target==BuildTarget.Android)EditorUserBuildSettings.buildAppBundle=true;BuildReport report=BuildPipeline.BuildPlayer(options);if(report.summary.result!=BuildResult.Succeeded)throw new System.Exception($"Build failed: {report.summary.result}");Debug.Log($"Build succeeded {target}: {path}");
+            ContentAssetGenerator.Generate(false);
+            PresentationAssetGenerator.Generate(false);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+            Directory.CreateDirectory(Path.GetDirectoryName(path)??path);
+            var options=new BuildPlayerOptions{scenes=Scenes,locationPathName=path,target=target,options=BuildOptions.None};
+            if(target==BuildTarget.Android)EditorUserBuildSettings.buildAppBundle=true;
+            BuildReport report=BuildPipeline.BuildPlayer(options);
+            if(report.summary.result!=BuildResult.Succeeded)throw new System.Exception($"Build failed: {report.summary.result}");
+            Debug.Log($"Build succeeded {target}: {path}");
         }
     }
 }
