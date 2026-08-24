@@ -2,6 +2,7 @@
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEngine;
+using ClickDungeon.Application.Versioning;
 
 namespace ClickDungeon.EditorTools
 {
@@ -9,14 +10,13 @@ namespace ClickDungeon.EditorTools
     {
         public const string CompanyName="adaPlu";
         public const string ProductName="ClickDungeon";
-        public const string BundleVersion="0.1.0";
         public const string ApplicationIdentifier="com.adaplu.clickdungeon";
 
         public static void Apply(BuildTarget target)
         {
             PlayerSettings.companyName=CompanyName;
             PlayerSettings.productName=ProductName;
-            PlayerSettings.bundleVersion=BundleVersion;
+            PlayerSettings.bundleVersion=GameVersionInfo.GameVersion;
             PlayerSettings.defaultInterfaceOrientation=UIOrientation.Portrait;
 
             switch(target)
