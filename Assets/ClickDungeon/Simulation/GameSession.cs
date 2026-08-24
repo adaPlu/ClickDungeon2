@@ -140,7 +140,7 @@ namespace ClickDungeon.Simulation
                 if(!TryTile(targetTileIndex,out var trapTile))return CommandResult.Reject("tile.out_of_range");
                 if(!IsAdjacent(targetTileIndex)&&targetTileIndex!=Index(State.PlayerPosition))return CommandResult.Reject("tile.not_adjacent");
                 if(trapTile.Content!=TileContentKind.Trap||trapTile.Resolution!=TileResolution.Available||(trapTile.Visibility!=TileVisibility.Identified&&trapTile.Visibility!=TileVisibility.Revealed))return CommandResult.Reject("trap.not_disarmable");
-                State.InventoryItemIds.RemoveAt(inventoryIndex);ResolveTile(trapTile);events.Add(new GameEvent("trap.disarmed",targetTileIndex,trapTile.ContentId));GainRecharge(1,events);return CommandResult.Accept(events);
+                State.InventoryItemIds.RemoveAt(inventoryIndex);ResolveTile(trapTile);events.Add(new GameEvent("trap.disarmed",targetTileIndex,trapTile.ContentId));GainRecharge(1,events);var enemy=FirstAdjacentMonster();if(enemy>=0)MonsterIntentResolver.Resolve(State,State.Tiles[enemy],_content,events);return CommandResult.Accept(events);
             }
             if(item.Heal<=0)return CommandResult.Reject("item.effect_not_implemented");
             State.InventoryItemIds.RemoveAt(inventoryIndex);int before=State.Hp;int heal=item.Heal+(State.EquippedArmorAffixId=="affix.vital"?2:0);State.Hp=Math.Min(State.MaxHp,State.Hp+heal);events.Add(new GameEvent("item.healed",-1,itemId,State.Hp-before));
