@@ -26,6 +26,7 @@ jobs:
           : > /tmp/compile.b64
           for n in $(seq -w 0 36); do
             test -s "bootstrap2/part${n}"
+            sha256sum "bootstrap2/part${n}"
             cat "bootstrap2/part${n}" >> /tmp/compile.b64
           done
           base64 -d /tmp/compile.b64 > /tmp/compile.zip
