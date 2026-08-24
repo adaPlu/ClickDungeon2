@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using ClickDungeon.Application.Content;
 using ClickDungeon.Simulation;
 using ClickDungeon.Simulation.Commands;
 using ClickDungeon.Simulation.Generation;
@@ -35,6 +36,7 @@ namespace ClickDungeon.EditorTools
         {
             const int seedsPerCombination=100;
             const int maxCommandsPerRun=6000;
+            string root=Directory.GetCurrentDirectory();string contentDir=Path.Combine(root,"Assets","ClickDungeon","Content","Json");var content=new JsonContentCatalogLoader().LoadFromDirectory(contentDir);
             var lines=new List<string>{"ClickDungeon2 deterministic balance smoke","NOTE: automated agents expose balance/pathing defects; they do not prove fun."};
             foreach(HeroClassId hero in Enum.GetValues(typeof(HeroClassId)))
             foreach(AgentProfile profile in Enum.GetValues(typeof(AgentProfile)))
@@ -43,11 +45,11 @@ namespace ClickDungeon.EditorTools
                 for(uint seed=1;seed<=seedsPerCombination;seed++)
                 {
                     uint runSeed=seed+(uint)((int)hero*10000)+((uint)(int)profile*100000);
-                    var generator=new FloorGenerator();var state=generator.CreateNewRun(runSeed,hero);var session=new GameSession(state,generator);var rng=new XorShift32(runSeed^0x9E3779B9u);
+                    var generator=new FloorGenerator(content);var state=generator.CreateNewRun(runSeed,hero);state.CampaignFloorLimit=content.Balance.CampaignFloors;var session=new GameSession(state,generator,content);var rng=new XorShift32(runSeed^0x9E3779B9u);
                     int commands=0,rejected=0,forbidden=0;bool stalled=false;
                     while(commands<maxCommandsPerRun&&!state.GameOver&&!state.CampaignCompleted)
                     {
-                        var candidates=BuildCandidates(state,profile,rng);bool accepted=false;
+                        var candidates=BuildCandidates(state,profile,rng,content);bool accepted=false;
                         foreach(var command in candidates)
                         {
                             var result=session.Apply(command);if(!result.Accepted){rejected++;continue;}accepted=true;commands++;if(command is TakeForbiddenExitCommand)forbidden++;break;
@@ -59,10 +61,10 @@ namespace ClickDungeon.EditorTools
                 }
                 string line=metrics.Summary(hero,profile);lines.Add(line);Debug.Log(line);
             }
-            string dir=Path.Combine(Directory.GetCurrentDirectory(),"balance");Directory.CreateDirectory(dir);File.WriteAllLines(Path.Combine(dir,"campaign_agent_metrics.txt"),lines);
+            string dir=Path.Combine(root,"balance");Directory.CreateDirectory(dir);File.WriteAllLines(Path.Combine(dir,"campaign_agent_metrics.txt"),lines);
         }
 
-        private static List<GameCommand> BuildCandidates(RunState state,AgentProfile profile,IRandomSource rng)
+        private static List<GameCommand> BuildCandidates(RunState state,AgentProfile profile,IRandomSource rng,ClickDungeon.Simulation.Content.GameContent content)
         {
             var attacks=new List<GameCommand>();var survival=new List<GameCommand>();var rewards=new List<GameCommand>();var exits=new List<GameCommand>();var reveal=new List<GameCommand>();var movement=new List<GameCommand>();
             int hpPct=state.MaxHp<=0?0:(state.Hp*100/state.MaxHp);
@@ -76,14 +78,14 @@ namespace ClickDungeon.EditorTools
                 if(t.Visibility!=TileVisibility.Revealed)continue;
                 if(t.Content==TileContentKind.Gold&&t.Resolution==TileResolution.Available)rewards.Add(new InteractCommand(i));
                 else if(t.Content==TileContentKind.SmallKey&&t.Resolution==TileResolution.Available)rewards.Add(new InteractCommand(i));
-                else if(t.Content==TileContentKind.BigKey&&t.Resolution==TileResolution.Available&&state.BigKeys<2)rewards.Add(new InteractCommand(i));
+                else if(t.Content==TileContentKind.BigKey&&t.Resolution==TileResolution.Available&&state.BigKeys<content.Balance.BigKeyMaxCarry)rewards.Add(new InteractCommand(i));
                 else if(t.Content==TileContentKind.Chest&&t.Resolution==TileResolution.Available&&state.SmallKeys>0)rewards.Add(new InteractCommand(i));
                 else if(t.Content==TileContentKind.Shrine&&t.Resolution==TileResolution.Available)rewards.Add(new ChooseShrineCommand(i,hpPct<60?ShrineChoice.MaxHp:ShrineChoice.Attack));
                 else if(t.Content==TileContentKind.SealedVault&&t.Resolution==TileResolution.Available&&state.BigKeys>0&&profile==AgentProfile.GreedyLoot)rewards.Add(new UnlockVaultCommand(i));
-                else if(t.Content==TileContentKind.Merchant&&t.Resolution==TileResolution.Available&&state.Gold>=12&&!state.InventoryItemIds.Contains("item.healing_potion"))rewards.Add(new BuyItemCommand(i,"item.healing_potion"));
-                else if(t.Content==TileContentKind.SafeExit&&!state.BossRequired||t.Content==TileContentKind.SafeExit&&state.BossDefeated)exits.Add(new TakeSafeExitCommand(i));
+                else if(t.Content==TileContentKind.Merchant&&t.Resolution==TileResolution.Available&&state.Gold>=content.Item("item.healing_potion").Price&&!state.InventoryItemIds.Contains("item.healing_potion"))rewards.Add(new BuyItemCommand(i,"item.healing_potion"));
+                else if(t.Content==TileContentKind.SafeExit&&(!state.BossRequired||state.BossDefeated))exits.Add(new TakeSafeExitCommand(i));
                 else if(t.Content==TileContentKind.ForbiddenExit&&state.BigKeys>0&&(!state.BossRequired||state.BossDefeated))exits.Add(new TakeForbiddenExitCommand(i));
-                else if(t.Occupancy!=OccupancyKind.Monster&&t.Resolution==TileResolution.Resolved&&!ThreatResolver.IsThreatened(state,i))movement.Add(new MoveCommand(i));
+                else if(t.Occupancy!=OccupancyKind.Monster&&t.Visibility==TileVisibility.Revealed&&!ThreatResolver.IsThreatened(state,i))movement.Add(new MoveCommand(i));
             }
             if(attacks.Count>0)return Ordered(attacks,rng);
             if(survival.Count>0)return Ordered(survival,rng);
