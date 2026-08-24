@@ -1,5 +1,7 @@
+using System.IO;
 using NUnit.Framework;
 using ClickDungeon.Application.Replay;
+using ClickDungeon.Application.Versioning;
 using ClickDungeon.Simulation.Content;
 using ClickDungeon.Simulation.Generation;
 using ClickDungeon.Simulation.Model;
@@ -13,8 +15,8 @@ namespace ClickDungeon.Tests.ApplicationEditMode
         {
             var replay=new ReplayEnvelope
             {
-                SimulationVersion=2,
-                ContentRevision=7,
+                SimulationVersion=GameVersionInfo.SimulationVersion,
+                ContentRevision=GameVersionInfo.ContentRevision,
                 RootSeed=0xDEADBEEFu,
                 HeroClassId="Thief",
                 UnlockedAbilityIds={"ability.thief.camouflage","ability.thief.trap_scan"},
@@ -33,6 +35,23 @@ namespace ClickDungeon.Tests.ApplicationEditMode
             Assert.AreEqual(replay.HeroClassId,decoded.HeroClassId);
             CollectionAssert.AreEqual(replay.UnlockedAbilityIds,decoded.UnlockedAbilityIds);
             CollectionAssert.AreEqual(replay.Commands,decoded.Commands);
+        }
+
+        [Test]
+        public void ReplayEnvelopeDefaultsToCurrentVersions()
+        {
+            var replay=new ReplayEnvelope();
+            Assert.AreEqual(GameVersionInfo.SimulationVersion,replay.SimulationVersion);
+            Assert.AreEqual(GameVersionInfo.ContentRevision,replay.ContentRevision);
+        }
+
+        [Test]
+        public void ReplayCodecRejectsUnsupportedVersions()
+        {
+            var oldSimulation=new ReplayEnvelope{SimulationVersion=GameVersionInfo.SimulationVersion-1,ContentRevision=GameVersionInfo.ContentRevision};
+            var futureContent=new ReplayEnvelope{SimulationVersion=GameVersionInfo.SimulationVersion,ContentRevision=GameVersionInfo.ContentRevision+1};
+            Assert.Throws<InvalidDataException>(()=>ReplayCodec.Encode(oldSimulation));
+            Assert.Throws<InvalidDataException>(()=>ReplayCodec.Encode(futureContent));
         }
 
         [Test]
