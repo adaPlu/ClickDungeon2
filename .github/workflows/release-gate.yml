@@ -1,0 +1,44 @@
+name: Release Readiness Gate
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  release-readiness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate canonical content
+        run: python scripts/validate-content.py
+
+      - name: Run static architecture audit
+        run: python scripts/static-audit.py
+
+      - name: Validate runtime art, audio, and provenance
+        run: python scripts/validate-assets.py
+
+      - name: Run complete release gate
+        run: python scripts/release-check.py
+
+      - name: Release summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo '## ClickDungeon2 release readiness'
+            echo
+            echo '- Canonical content validation attempted'
+            echo '- Static architecture audit attempted'
+            echo '- Runtime art/audio/provenance validation attempted'
+            echo '- Placeholder/store release gate attempted'
+            echo
+            echo 'This workflow is intentionally manual and may remain blocked during vertical-slice development.'
+          } >> "$GITHUB_STEP_SUMMARY"
