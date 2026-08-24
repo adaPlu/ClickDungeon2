@@ -29,7 +29,32 @@ namespace ClickDungeon.Presentation.Menu
 
         private void Start()
         {
-            _saves=new LocalSaveRepository();_accounts=new AccountRepository();_account=_accounts.Load();_services=new ServiceRegistry();_services.Store.RefreshEntitlements();var generated=Resources.Load<GeneratedContentDatabase>("ClickDungeonGeneratedContent");_content=generated!=null?generated.CreateCatalog():GameContent.CreateDevelopmentFallback();EnsureEventSystem();Build();ApplySafeArea();StartMenuMusic();
+            _saves=new LocalSaveRepository();
+            _accounts=new AccountRepository();
+            _account=_accounts.Load();
+            _services=new ServiceRegistry();
+            _services.Store.RefreshEntitlements();
+            _content=LoadContent();
+            EnsureEventSystem();
+            Build();
+            ApplySafeArea();
+            StartMenuMusic();
+        }
+
+        private static GameContent LoadContent()
+        {
+            var generated=Resources.Load<GeneratedContentDatabase>("ClickDungeonGeneratedContent");
+            if(generated==null)
+            {
+                Debug.LogWarning("Generated content database is missing on the main menu. Development fallback definitions will be used; release validation must reject this state.");
+                return GameContent.CreateDevelopmentFallback();
+            }
+            try{return generated.CreateCatalog();}
+            catch(Exception ex)
+            {
+                Debug.LogError($"Generated content database failed validation on the main menu. Development fallback definitions will be used. {ex}");
+                return GameContent.CreateDevelopmentFallback();
+            }
         }
 
         private void Update(){if(Screen.safeArea!=_lastSafeArea)ApplySafeArea();}
@@ -37,7 +62,7 @@ namespace ClickDungeon.Presentation.Menu
         private void Build()
         {
             var canvasGo=new GameObject("MainMenuCanvas",typeof(Canvas),typeof(CanvasScaler),typeof(GraphicRaycaster));canvasGo.transform.SetParent(transform,false);canvasGo.GetComponent<Canvas>().renderMode=RenderMode.ScreenSpaceOverlay;var scaler=canvasGo.GetComponent<CanvasScaler>();scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;scaler.referenceResolution=new Vector2(1080,1920);scaler.matchWidthOrHeight=.5f;
-            _viewport=CreateRect("SafeViewport",canvasGo.transform);Stretch(_viewport);var viewportImage=_viewport.gameObject.AddComponent<Image>();viewportImage.color=new Color(.035f,.03f,.055f,1f);var mask=_viewport.gameObject.AddComponent<RectMask2D>();
+            _viewport=CreateRect("SafeViewport",canvasGo.transform);Stretch(_viewport);var viewportImage=_viewport.gameObject.AddComponent<Image>();viewportImage.color=new Color(.035f,.03f,.055f,1f);_viewport.gameObject.AddComponent<RectMask2D>();
             _root=CreateRect("Content",_viewport);_root.anchorMin=new Vector2(0,1);_root.anchorMax=new Vector2(1,1);_root.pivot=new Vector2(.5f,1);_root.offsetMin=Vector2.zero;_root.offsetMax=Vector2.zero;var layout=_root.gameObject.AddComponent<VerticalLayoutGroup>();layout.padding=new RectOffset(80,80,80,100);layout.spacing=22;layout.childAlignment=TextAnchor.UpperCenter;layout.childControlHeight=true;layout.childForceExpandHeight=false;var fitter=_root.gameObject.AddComponent<ContentSizeFitter>();fitter.verticalFit=ContentSizeFitter.FitMode.PreferredSize;var scroll=_viewport.gameObject.AddComponent<ScrollRect>();scroll.viewport=_viewport;scroll.content=_root;scroll.horizontal=false;scroll.vertical=true;scroll.movementType=ScrollRect.MovementType.Clamped;scroll.scrollSensitivity=38f;
             AddText("CLICKDUNGEON",54,110);AddText("Read the dungeon. Reveal the danger. Risk the deeper path.",24,100);
             for(int slot=1;slot<=4;slot++){int captured=slot;string label=SlotLabel(slot);AddButton(label,()=>SelectSlot(captured),92);}
@@ -45,7 +70,6 @@ namespace ClickDungeon.Presentation.Menu
             AddText("NEW RUN",30,64);foreach(HeroClassId cls in Enum.GetValues(typeof(HeroClassId))){HeroClassId captured=cls;AddButton(cls.ToString(),()=>StartNew(captured),74);}
             AddButton("Continue Selected Slot",Continue,82);AddButton("Achievements",ShowAchievements,74);AddButton("Enter the Abyss",StartAbyss,82);if(!_services.Store.FullGameUnlocked)AddButton("Unlock Full Game",UnlockFullGame,82);AddButton("Delete Selected Slot",DeleteSelected,70);
         }
-
 
         private void ApplySafeArea()
         {
