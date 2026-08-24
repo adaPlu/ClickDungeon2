@@ -52,6 +52,8 @@ The integrated scope on `develop` includes:
 - Menu/game audio routing and event-driven presentation feedback
 - Deterministic replay recording, playback, compatibility checks, and final-state hashing
 
+For the full implementation-grounded feature inventory, see [FEATURE_LIST.md](FEATURE_LIST.md).
+
 ## Architecture
 
 The codebase is split into three main runtime layers:
