@@ -13,7 +13,10 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-      - name: Compile Application with minimal Unity stubs and run persistence tests
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile Application with minimal Unity stubs and run persistence/replay/content tests
         shell: bash
         run: |
           set -euo pipefail
@@ -71,3 +74,12 @@ jobs:
           </Project>
           EOF
           dotnet test .ci/application/ApplicationCompileTests.csproj --configuration Release --nologo --logger "console;verbosity=normal"
+      - name: Run canonical content, replay, and adversarial static validation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m compileall -q scripts
+          python scripts/validate-content.py
+          python scripts/validate-replay.py
+          python scripts/static-audit.py
+          grep -F 'm_EditorVersion: 6000.5.9f1' ProjectSettings/ProjectVersion.txt
