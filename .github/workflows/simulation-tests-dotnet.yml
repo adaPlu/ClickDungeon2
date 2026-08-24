@@ -1,0 +1,40 @@
+name: Simulation Tests DotNet
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  simulation-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Run complete engine-free simulation test suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .ci/sim-tests
+          cat > .ci/sim-tests/SimulationTests.csproj <<'EOF'
+          <Project Sdk="Microsoft.NET.Sdk">
+            <PropertyGroup>
+              <TargetFramework>net8.0</TargetFramework>
+              <ImplicitUsings>disable</ImplicitUsings>
+              <Nullable>disable</Nullable>
+              <LangVersion>latest</LangVersion>
+              <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+              <IsTestProject>true</IsTestProject>
+            </PropertyGroup>
+            <ItemGroup>
+              <Compile Include="../../Assets/ClickDungeon/Simulation/**/*.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Tests/EditMode/**/*.cs" />
+              <PackageReference Include="NUnit" Version="3.14.0" />
+              <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+              <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+            </ItemGroup>
+          </Project>
+          EOF
+          dotnet test .ci/sim-tests/SimulationTests.csproj --configuration Release --nologo --logger "console;verbosity=normal"
