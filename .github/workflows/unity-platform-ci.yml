@@ -11,28 +11,59 @@ jobs:
     outputs:
       source_ready: ${{ steps.check.outputs.source_ready }}
       license_ready: ${{ steps.check.outputs.license_ready }}
+      personal_license_shape_ready: ${{ steps.check.outputs.personal_license_shape_ready }}
+      professional_license_ready: ${{ steps.check.outputs.professional_license_ready }}
     steps:
       - uses: actions/checkout@v4
+      - name: Audit Unity metadata reproducibility
+        run: python3 scripts/validate-unity-metadata.py
       - id: check
         name: Check source and Unity secrets
         shell: bash
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         run: |
           source_ready=false
           license_ready=false
+          personal_license_shape_ready=false
+          professional_license_ready=false
+
           if [ -f Packages/manifest.json ] && [ -f ProjectSettings/ProjectVersion.txt ] && [ -f Assets/ClickDungeon/Simulation/GameSession.cs ] && [ -f Assets/ClickDungeon/Editor/BuildAutomation.cs ]; then
             source_ready=true
           fi
-          if [ -n "$UNITY_LICENSE" ] && [ -n "$UNITY_EMAIL" ] && [ -n "$UNITY_PASSWORD" ]; then
+
+          if [ -n "$UNITY_LICENSE" ]; then
+            trimmed_license="${UNITY_LICENSE#"${UNITY_LICENSE%%[![:space:]]*}"}"
+            if [ "${#UNITY_LICENSE}" -ge 256 ] && [[ "$trimmed_license" == \<* ]]; then
+              personal_license_shape_ready=true
+            fi
+          fi
+
+          if [ -n "$UNITY_SERIAL" ]; then
+            professional_license_ready=true
+          fi
+
+          if [ -n "$UNITY_EMAIL" ] && [ -n "$UNITY_PASSWORD" ] && { [ "$personal_license_shape_ready" = true ] || [ "$professional_license_ready" = true ]; }; then
             license_ready=true
           fi
+
           echo "source_ready=$source_ready" >> "$GITHUB_OUTPUT"
           echo "license_ready=$license_ready" >> "$GITHUB_OUTPUT"
+          echo "personal_license_shape_ready=$personal_license_shape_ready" >> "$GITHUB_OUTPUT"
+          echo "professional_license_ready=$professional_license_ready" >> "$GITHUB_OUTPUT"
+
           echo "Unity source ready: $source_ready"
-          echo "Unity license secrets ready: $license_ready"
+          echo "Unity credentials present: $([ -n "$UNITY_EMAIL" ] && [ -n "$UNITY_PASSWORD" ] && echo true || echo false)"
+          echo "UNITY_LICENSE resembles raw .ulf contents: $personal_license_shape_ready"
+          echo "UNITY_SERIAL configured: $professional_license_ready"
+          echo "Unity activation inputs ready: $license_ready"
+
+          if [ -n "$UNITY_LICENSE" ] && [ "$personal_license_shape_ready" != true ]; then
+            echo "::warning::UNITY_LICENSE is present but does not resemble raw .ulf contents. For GameCI GitHub Personal licensing, store the contents of Unity_lic.ulf, not a file path or extracted serial."
+          fi
 
   editmode:
     needs: preflight
@@ -46,9 +77,11 @@ jobs:
         uses: game-ci/unity-test-runner@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
+          unityVersion: 6000.5.9f1
           testMode: EditMode
           artifactsPath: test-artifacts
           githubToken: ${{ secrets.GITHUB_TOKEN }}
@@ -70,9 +103,11 @@ jobs:
         uses: game-ci/unity-builder@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
+          unityVersion: 6000.5.9f1
           targetPlatform: StandaloneWindows64
           buildMethod: ClickDungeon.EditorTools.BuildAutomation.BuildWindows
           allowDirtyBuild: true
@@ -96,9 +131,11 @@ jobs:
         uses: game-ci/unity-builder@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
+          unityVersion: 6000.5.9f1
           targetPlatform: Android
           buildMethod: ClickDungeon.EditorTools.BuildAutomation.BuildAndroid
           allowDirtyBuild: true
@@ -122,9 +159,11 @@ jobs:
         uses: game-ci/unity-builder@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
+          unityVersion: 6000.5.9f1
           targetPlatform: WebGL
           buildMethod: ClickDungeon.EditorTools.BuildAutomation.BuildWeb
           allowDirtyBuild: true
