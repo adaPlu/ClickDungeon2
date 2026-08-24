@@ -55,5 +55,15 @@ namespace ClickDungeon.Simulation.Status
                 var status=state.Statuses[i];if(status.StatusId!=statusId)continue;status.RemainingActions-=Math.Max(1,amount);if(status.RemainingActions<=0)state.Statuses.RemoveAt(i);return;
             }
         }
+
+        public static void Remove(RunState state,string statusId)
+        {
+            for(int i=state.Statuses.Count-1;i>=0;i--)
+            {
+                if(state.Statuses[i].StatusId!=statusId)continue;
+                state.Statuses.RemoveAt(i);
+                return;
+            }
+        }
     }
 }
