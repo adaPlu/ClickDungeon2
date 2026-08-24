@@ -58,8 +58,16 @@ for token in ['entitlement.full_game_required','LivingMonstersAdjacentTo','Defea
     if token not in session:errors.append(f'GameSession integration contract missing {token}')
 
 build_path=ROOT/'Assets/ClickDungeon/Editor/BuildAutomation.cs';build=build_path.read_text()
-for token in ['TextMeshProResourceBootstrap.Ensure','ContentAssetGenerator.Generate','PresentationAssetGenerator.Generate','SceneScaffolder.EnsureCoreScenes','AssetDatabase.SaveAssets','ImportAssetOptions.ForceUpdate']:
+for token in ['BuildPlayerSettings.Apply','TextMeshProResourceBootstrap.Ensure','ContentAssetGenerator.Generate','PresentationAssetGenerator.Generate','SceneScaffolder.EnsureCoreScenes','AssetDatabase.SaveAssets','ImportAssetOptions.ForceUpdate']:
     if token not in build:errors.append(f'BuildAutomation missing {token}')
+
+player_settings=ROOT/'Assets/ClickDungeon/Editor/BuildPlayerSettings.cs'
+if not player_settings.exists():errors.append('BuildPlayerSettings.cs is missing')
+else:
+    settings=player_settings.read_text()
+    for token in ['com.adaplu.clickdungeon','AndroidApiLevel23','AndroidApiLevel36','AndroidArchitecture.ARMv7|AndroidArchitecture.ARM64','targetOSVersionString="13.0"','UIOrientation.Portrait']:
+        if token not in settings:errors.append(f'BuildPlayerSettings missing {token}')
+
 tmp_bootstrap=ROOT/'Assets/ClickDungeon/Editor/TextMeshProResourceBootstrap.cs'
 if not tmp_bootstrap.exists():errors.append('TextMeshProResourceBootstrap.cs is missing')
 else:
