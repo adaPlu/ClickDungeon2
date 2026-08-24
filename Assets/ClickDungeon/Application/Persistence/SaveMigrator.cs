@@ -3,6 +3,7 @@ using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ClickDungeon.Application.State;
+using ClickDungeon.Application.Versioning;
 using ClickDungeon.Simulation.Model;
 
 namespace ClickDungeon.Application.Persistence
@@ -26,7 +27,14 @@ namespace ClickDungeon.Application.Persistence
             }
 
             int schema = root.Value<int?>("schema_version") ?? 1;
-            if (schema == 2) return root.ToObject<SaveDocument>(Serializer);
+            if (schema == GameVersionInfo.SaveSchemaVersion)
+            {
+                var current = root.ToObject<SaveDocument>(Serializer) ?? throw new JsonSerializationException("Save document invalid.");
+                if (current.simulation_version > GameVersionInfo.SimulationVersion) throw new InvalidOperationException($"Save requires newer simulation version {current.simulation_version}.");
+                if (current.content_revision > GameVersionInfo.ContentRevision) throw new InvalidOperationException($"Save requires newer content revision {current.content_revision}.");
+                return current;
+            }
+            if (schema > GameVersionInfo.SaveSchemaVersion) throw new InvalidOperationException($"Save requires newer schema {schema}.");
             if (schema != 1) throw new InvalidOperationException($"Unsupported save schema {schema}.");
 
             var runToken = root["payload"];
