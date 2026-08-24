@@ -1,0 +1,36 @@
+name: Simulation Compile
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  compile-simulation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Compile engine-free simulation assembly
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .ci/simulation
+          cat > .ci/simulation/SimulationCompile.csproj <<'EOF'
+          <Project Sdk="Microsoft.NET.Sdk">
+            <PropertyGroup>
+              <TargetFramework>net8.0</TargetFramework>
+              <ImplicitUsings>disable</ImplicitUsings>
+              <Nullable>disable</Nullable>
+              <LangVersion>latest</LangVersion>
+              <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+              <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+            </PropertyGroup>
+            <ItemGroup>
+              <Compile Include="../../Assets/ClickDungeon/Simulation/**/*.cs" />
+            </ItemGroup>
+          </Project>
+          EOF
+          dotnet build .ci/simulation/SimulationCompile.csproj --configuration Release --nologo

@@ -1,0 +1,73 @@
+name: Application Compile Tests
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  compile-and-test-application:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Compile Application with minimal Unity stubs and run persistence tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .ci/application
+          cat > .ci/application/UnityEngineStubs.cs <<'EOF'
+          using System;
+          namespace UnityEngine
+          {
+              public class ScriptableObject { }
+              [AttributeUsage(AttributeTargets.Class)] public sealed class CreateAssetMenuAttribute : Attribute { public string menuName; public string fileName; }
+              [AttributeUsage(AttributeTargets.Field)] public sealed class SerializeField : Attribute { }
+              [AttributeUsage(AttributeTargets.Field)] public sealed class TextAreaAttribute : Attribute { public TextAreaAttribute(int minLines,int maxLines) { } }
+              public enum RuntimePlatform { WindowsPlayer, OSXPlayer, LinuxPlayer, WebGLPlayer, Android, IPhonePlayer }
+              public static class Application
+              {
+                  public static bool isEditor => false;
+                  public static RuntimePlatform platform => RuntimePlatform.WindowsPlayer;
+                  public static bool isMobilePlatform => false;
+                  public static string persistentDataPath => System.IO.Path.GetTempPath();
+              }
+              public static class PlayerPrefs
+              {
+                  public static int GetInt(string key,int defaultValue=0)=>defaultValue;
+                  public static void SetInt(string key,int value) { }
+                  public static void Save() { }
+              }
+              public static class Debug
+              {
+                  public static void Log(object message) { }
+                  public static void LogWarning(object message) { }
+                  public static void LogError(object message) { }
+              }
+          }
+          EOF
+          cat > .ci/application/ApplicationCompileTests.csproj <<'EOF'
+          <Project Sdk="Microsoft.NET.Sdk">
+            <PropertyGroup>
+              <TargetFramework>net8.0</TargetFramework>
+              <ImplicitUsings>disable</ImplicitUsings>
+              <Nullable>disable</Nullable>
+              <LangVersion>latest</LangVersion>
+              <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+              <IsTestProject>true</IsTestProject>
+            </PropertyGroup>
+            <ItemGroup>
+              <Compile Include="../../Assets/ClickDungeon/Simulation/**/*.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Application/**/*.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Tests/ApplicationEditMode/**/*.cs" Exclude="../../Assets/ClickDungeon/Tests/ApplicationEditMode/**/*.asmdef" />
+              <Compile Include="UnityEngineStubs.cs" />
+              <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+              <PackageReference Include="NUnit" Version="3.14.0" />
+              <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+              <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+            </ItemGroup>
+          </Project>
+          EOF
+          dotnet test .ci/application/ApplicationCompileTests.csproj --configuration Release --nologo --logger "console;verbosity=normal"
