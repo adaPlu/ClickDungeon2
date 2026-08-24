@@ -17,6 +17,7 @@ namespace ClickDungeon.EditorTools
         {
             BuildPlayerSettings.Apply(target);
             TextMeshProResourceBootstrap.Ensure();
+            PrototypeAssetBootstrap.Ensure();
             SceneScaffolder.EnsureCoreScenes();
             ContentAssetGenerator.Generate(false);
             PresentationAssetGenerator.Generate(false);
