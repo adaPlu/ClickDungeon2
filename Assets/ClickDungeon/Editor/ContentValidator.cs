@@ -15,7 +15,7 @@ namespace ClickDungeon.EditorTools
 
         public static void ValidateOrThrow()
         {
-            string dir=Path.Combine(Application.dataPath,"ClickDungeon","Content","Json"); if(!Directory.Exists(dir))throw new InvalidDataException("Content JSON directory missing.");
+            string dir=Path.Combine(UnityEngine.Application.dataPath,"ClickDungeon","Content","Json"); if(!Directory.Exists(dir))throw new InvalidDataException("Content JSON directory missing.");
             var required=new[]{"classes.json","abilities.json","monsters.json","bosses.json","biomes.json","floor_archetypes.json","items.json","affixes.json","statuses.json","balance.json"};
             var docs=new Dictionary<string,JObject>(StringComparer.Ordinal);
             foreach(string name in required){string path=Path.Combine(dir,name);if(!File.Exists(path))throw new InvalidDataException($"Missing {name}");docs[name]=JObject.Parse(File.ReadAllText(path));}
