@@ -1,3 +1,5 @@
 # ClickDungeon2
 
-Bootstrap commit. Full Unity project is being published to the `develop` branch.
+Unity 6000.5.9f1 rebuild of ClickDungeon focused on information-driven tile exploration, spatial threat, class-specific board play, and deliberate risk routes.
+
+Primary development branch: `develop`.
