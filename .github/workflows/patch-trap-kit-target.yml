@@ -1,0 +1,86 @@
+name: Patch Trap Kit Economy Target
+
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'develop'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: develop
+          fetch-depth: 0
+      - name: Patch simulation and runtime UI
+        shell: python
+        run: |
+          from pathlib import Path
+          gs=Path('Assets/ClickDungeon/Simulation/GameSession.cs')
+          s=gs.read_text()
+          s=s.replace('else if(command is UseItemCommand item) result=UseItem(item.ItemId,events);','else if(command is UseItemCommand item) result=UseItem(item.ItemId,item.TargetTileIndex,events);')
+          old='''        private CommandResult UseItem(string itemId,List<GameEvent> events)
+        {
+            int index=State.InventoryItemIds.IndexOf(itemId);if(index<0)return CommandResult.Reject("item.not_owned");if(!_content.TryItem(itemId,out var item))return CommandResult.Reject("item.unknown");
+            if(item.Kind!="consumable")return CommandResult.Reject("item.not_consumable");State.InventoryItemIds.RemoveAt(index);if(item.Heal>0){int before=State.Hp;int heal=item.Heal+(State.EquippedArmorAffixId=="affix.vital"?2:0);State.Hp=Math.Min(State.MaxHp,State.Hp+heal);events.Add(new GameEvent("item.healed",-1,itemId,State.Hp-before));}
+            var enemy=FirstAdjacentMonster();if(enemy>=0)MonsterIntentResolver.Resolve(State,State.Tiles[enemy],_content,events);return CommandResult.Accept(events);
+        }
+'''
+          new='''        private CommandResult UseItem(string itemId,int targetTileIndex,List<GameEvent> events)
+        {
+            int inventoryIndex=State.InventoryItemIds.IndexOf(itemId);if(inventoryIndex<0)return CommandResult.Reject("item.not_owned");if(!_content.TryItem(itemId,out var item))return CommandResult.Reject("item.unknown");
+            if(item.Kind!="consumable")return CommandResult.Reject("item.not_consumable");
+            if(itemId=="item.trap_disarm_kit")
+            {
+                if(targetTileIndex<0)return CommandResult.Reject("item.target_required");
+                if(!TryTile(targetTileIndex,out var trapTile))return CommandResult.Reject("tile.out_of_range");
+                if(!IsAdjacent(targetTileIndex)&&targetTileIndex!=Index(State.PlayerPosition))return CommandResult.Reject("tile.not_adjacent");
+                if(trapTile.Content!=TileContentKind.Trap||trapTile.Resolution!=TileResolution.Available||(trapTile.Visibility!=TileVisibility.Identified&&trapTile.Visibility!=TileVisibility.Revealed))return CommandResult.Reject("trap.not_disarmable");
+                State.InventoryItemIds.RemoveAt(inventoryIndex);ResolveTile(trapTile);events.Add(new GameEvent("trap.disarmed",targetTileIndex,trapTile.ContentId));GainRecharge(1,events);return CommandResult.Accept(events);
+            }
+            if(item.Heal<=0)return CommandResult.Reject("item.effect_not_implemented");
+            State.InventoryItemIds.RemoveAt(inventoryIndex);int before=State.Hp;int heal=item.Heal+(State.EquippedArmorAffixId=="affix.vital"?2:0);State.Hp=Math.Min(State.MaxHp,State.Hp+heal);events.Add(new GameEvent("item.healed",-1,itemId,State.Hp-before));
+            var enemy=FirstAdjacentMonster();if(enemy>=0)MonsterIntentResolver.Resolve(State,State.Tiles[enemy],_content,events);return CommandResult.Accept(events);
+        }
+'''
+          if old not in s: raise SystemExit('GameSession UseItem block changed')
+          gs.write_text(s.replace(old,new,1))
+
+          ui=Path('Assets/ClickDungeon/Presentation/UI/RuntimeGameUI.cs')
+          u=ui.read_text()
+          if 'private string _pendingItemId;' not in u:u=u.replace('private string _pendingAbilityId;','private string _pendingAbilityId;\n        private string _pendingItemId;',1)
+          if 'new UseItemCommand(id,index)' not in u:u=u.replace('if(!string.IsNullOrEmpty(_pendingAbilityId)){string id=_pendingAbilityId;_pendingAbilityId=null;Apply(new UseAbilityCommand(id,index));return;}','if(!string.IsNullOrEmpty(_pendingItemId)){string id=_pendingItemId;_pendingItemId=null;Apply(new UseItemCommand(id,index));return;}\n            if(!string.IsNullOrEmpty(_pendingAbilityId)){string id=_pendingAbilityId;_pendingAbilityId=null;Apply(new UseAbilityCommand(id,index));return;}',1)
+          oldbar='var defend=CreateButton("Defend",_abilityBar,"Defend",16);defend.onClick.AddListener(()=>Apply(new DefendCommand()));var potion=CreateButton("Potion",_abilityBar,"Potion",16);potion.interactable=_session.State.InventoryItemIds.Contains("item.healing_potion");potion.onClick.AddListener(()=>Apply(new UseItemCommand("item.healing_potion")));var gear=CreateButton("Gear",_abilityBar,"Gear",16);gear.onClick.AddListener(ShowInventory);'
+          newbar='var defend=CreateButton("Defend",_abilityBar,"Defend",16);defend.onClick.AddListener(()=>Apply(new DefendCommand()));var potion=CreateButton("Potion",_abilityBar,"Potion",16);potion.interactable=_session.State.InventoryItemIds.Contains("item.healing_potion");potion.onClick.AddListener(()=>Apply(new UseItemCommand("item.healing_potion")));var kit=CreateButton("Disarm",_abilityBar,"Disarm",16);kit.interactable=_session.State.InventoryItemIds.Contains("item.trap_disarm_kit");kit.onClick.AddListener(()=>BeginItem("item.trap_disarm_kit"));var gear=CreateButton("Gear",_abilityBar,"Gear",16);gear.onClick.AddListener(ShowInventory);'
+          if oldbar not in u: raise SystemExit('ability bar insertion point changed')
+          u=u.replace(oldbar,newbar,1)
+          if 'private void BeginItem(string id)' not in u:u=u.replace('        private void BeginAbility(string id)','        private void BeginItem(string id)\n        {\n            _pendingAbilityId=null;_pendingItemId=id;_status.text="Select an adjacent identified trap to disarm.";\n        }\n\n        private void BeginAbility(string id)',1)
+          oldshop='        private void ShowMerchant(int tileIndex){ClearChoicePanel();_choicePanel.gameObject.SetActive(true);AddChoice("Potion 12g",()=>ApplyAndClose(new BuyItemCommand(tileIndex,"item.healing_potion")));AddChoice("Sword 25g",()=>ApplyAndClose(new BuyItemCommand(tileIndex,"item.rusty_sword")));AddChoice("Armor 25g",()=>ApplyAndClose(new BuyItemCommand(tileIndex,"item.leather_armor")));}\n'
+          newshop='''        private void ShowMerchant(int tileIndex)
+        {
+            ClearChoicePanel();_choicePanel.gameObject.SetActive(true);var merchant=_session.State.Tiles[tileIndex];string shopId=merchant.ContentId=="merchant.standard"?"shop.standard":merchant.ContentId.Replace("merchant.","shop.");var shop=_content.Shop(shopId);
+            foreach(string itemId in shop.StockItemIds){var def=_content.Item(itemId);string id=itemId;string name=string.IsNullOrEmpty(def.DisplayName)?ShortId(itemId):def.DisplayName;AddChoice($"{name} {def.Price}g",()=>ApplyAndClose(new BuyItemCommand(tileIndex,id)));}
+        }
+'''
+          if oldshop not in u: raise SystemExit('merchant block changed')
+          u=u.replace(oldshop,newshop,1)
+          u=u.replace('case "item.not_owned":return "That item is not in this run\'s inventory.";','case "item.not_owned":return "That item is not in this run\'s inventory.";case "item.target_required":return "Select a target for that item first.";case "trap.not_disarmable":return "The kit can only disarm an adjacent identified trap.";case "item.effect_not_implemented":return "That consumable has no usable effect yet.";',1)
+          u=u.replace('case "trap.triggered":return $"Trap! Lost {evt.Amount} HP.";','case "trap.triggered":return $"Trap! Lost {evt.Amount} HP.";case "trap.disarmed":return "Trap disarmed safely.";',1)
+          ui.write_text(u)
+      - name: Commit repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -F 'UseItem(item.ItemId,item.TargetTileIndex,events)' Assets/ClickDungeon/Simulation/GameSession.cs
+          grep -F 'trap.disarmed' Assets/ClickDungeon/Simulation/GameSession.cs
+          grep -F 'foreach(string itemId in shop.StockItemIds)' Assets/ClickDungeon/Presentation/UI/RuntimeGameUI.cs
+          git config user.name 'ClickDungeon CI'
+          git config user.email 'actions@users.noreply.github.com'
+          git add Assets/ClickDungeon/Simulation/GameSession.cs Assets/ClickDungeon/Presentation/UI/RuntimeGameUI.cs
+          git commit -m 'feat(economy): implement trap kit and canonical merchant UI'
+          git push origin HEAD:develop
