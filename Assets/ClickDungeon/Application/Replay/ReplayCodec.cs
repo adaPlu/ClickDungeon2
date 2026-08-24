@@ -33,8 +33,9 @@ namespace ClickDungeon.Application.Replay
             }
         }
 
-        private static void ValidateCompatibility(ReplayEnvelope replay)
+        public static void ValidateCompatibility(ReplayEnvelope replay)
         {
+            if(replay==null)throw new ArgumentNullException(nameof(replay));
             if(replay.SimulationVersion!=GameVersionInfo.SimulationVersion)throw new InvalidDataException($"Replay simulation version {replay.SimulationVersion} is unsupported; current version is {GameVersionInfo.SimulationVersion}.");
             if(replay.ContentRevision!=GameVersionInfo.ContentRevision)throw new InvalidDataException($"Replay content revision {replay.ContentRevision} is unsupported; current revision is {GameVersionInfo.ContentRevision}.");
         }
