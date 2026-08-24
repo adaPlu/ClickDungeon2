@@ -19,7 +19,7 @@ namespace ClickDungeon.Application.Replay
                 HeroClassId=initialState.HeroClass.ToString(),
                 Mode=initialState.Mode,
                 CampaignFloorLimit=initialState.CampaignFloorLimit,
-                UnlockedAbilityIds=initialState.AbilityStates.Select(a=>a.AbilityId).OrderBy(id=>id,StringComparer.Ordinal).ToList()
+                UnlockedAbilityIds=initialState.AbilityStates.Select(a=>a.AbilityId).ToList()
             };
         }
 
