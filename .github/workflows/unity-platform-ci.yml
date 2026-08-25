@@ -196,6 +196,21 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
+      - name: Prepare Android upload keystore when configured
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          set -euo pipefail
+          if [ -n "$ANDROID_KEYSTORE_BASE64" ]; then
+            mkdir -p .ci/android-signing
+            printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > .ci/android-signing/upload.keystore
+            chmod 600 .ci/android-signing/upload.keystore
+            echo "CLICKDUNGEON_ANDROID_KEYSTORE_PATH=${GITHUB_WORKSPACE}/.ci/android-signing/upload.keystore" >> "$GITHUB_ENV"
+            echo "Android upload keystore materialized for this build."
+          else
+            echo "Android upload keystore is not configured; this CI bundle will use debug signing."
+          fi
       - name: Build Android AAB through ClickDungeon BuildAutomation
         uses: game-ci/unity-builder@1d4ee0697f193f54668e98961d79907911f4b4f2
         env:
@@ -203,11 +218,18 @@ jobs:
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          CLICKDUNGEON_ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          CLICKDUNGEON_ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          CLICKDUNGEON_ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         with:
           unityVersion: 6000.5.9f1
           targetPlatform: Android
           buildMethod: ClickDungeon.EditorTools.BuildAutomation.BuildAndroid
           allowDirtyBuild: false
+      - name: Remove Android signing material
+        if: always()
+        shell: bash
+        run: rm -rf .ci/android-signing
       - name: Inspect Android App Bundle artifact
         run: python3 scripts/inspect-build-artifact.py android Builds/Android
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

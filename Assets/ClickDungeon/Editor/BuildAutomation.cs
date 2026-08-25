@@ -25,10 +25,25 @@ namespace ClickDungeon.EditorTools
             AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
             Directory.CreateDirectory(Path.GetDirectoryName(path)??path);
             var options=new BuildPlayerOptions{scenes=Scenes,locationPathName=path,target=target,options=BuildOptions.None};
-            if(target==BuildTarget.Android)EditorUserBuildSettings.buildAppBundle=true;
-            BuildReport report=BuildPipeline.BuildPlayer(options);
-            if(report.summary.result!=BuildResult.Succeeded)throw new System.Exception($"Build failed: {report.summary.result}");
-            Debug.Log($"Build succeeded {target}: {path}");
+            BuildPlayerSettings.AndroidSigningState signingState=default;
+            bool restoreAndroidSigning=false;
+            if(target==BuildTarget.Android)
+            {
+                EditorUserBuildSettings.buildAppBundle=true;
+                signingState=BuildPlayerSettings.ApplyAndroidSigningFromEnvironment();
+                restoreAndroidSigning=true;
+            }
+
+            try
+            {
+                BuildReport report=BuildPipeline.BuildPlayer(options);
+                if(report.summary.result!=BuildResult.Succeeded)throw new System.Exception($"Build failed: {report.summary.result}");
+                Debug.Log($"Build succeeded {target}: {path}");
+            }
+            finally
+            {
+                if(restoreAndroidSigning)BuildPlayerSettings.RestoreAndroidSigning(signingState);
+            }
         }
     }
 }
