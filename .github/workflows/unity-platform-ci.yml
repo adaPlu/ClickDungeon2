@@ -206,7 +206,7 @@ jobs:
             mkdir -p .ci/android-signing
             printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > .ci/android-signing/upload.keystore
             chmod 600 .ci/android-signing/upload.keystore
-            echo "CLICKDUNGEON_ANDROID_KEYSTORE_PATH=${GITHUB_WORKSPACE}/.ci/android-signing/upload.keystore" >> "$GITHUB_ENV"
+            echo "CLICKDUNGEON_ANDROID_KEYSTORE_PATH=.ci/android-signing/upload.keystore" >> "$GITHUB_ENV"
             echo "Android upload keystore materialized for this build."
           else
             echo "Android upload keystore is not configured; this CI bundle will use debug signing."
