@@ -5,8 +5,16 @@
 *.meta text eol=lf
 *.asset text eol=lf
 *.jslib text eol=lf
+*.mat text eol=lf
+*.shader text eol=lf
+*.shadergraph text eol=lf
+*.cginc text eol=lf
+*.hlsl text eol=lf
+*.txt text eol=lf
 *.ps1 text eol=crlf
 *.png binary
 *.wav binary
 *.ogg binary
 *.mp3 binary
+*.ttf binary
+*.otf binary

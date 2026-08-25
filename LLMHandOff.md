@@ -571,3 +571,38 @@ Remaining blockers:
 
 - WebGL persistence still needs an actual Unity WebGL/browser smoke test for the async JS callback path.
 - Release artifact verification needs a successful same-SHA Unity CI run and downloaded artifacts.
+
+## Seventh Graph Results And /graphRepair Pass
+
+Baseline: `91f734f` on `develop` after release media provenance was pushed.
+
+### Graph Result
+
+#### G11: Windows Unity build fails before player generation because TMP essentials are missing
+
+- Finding: GA-REL-09
+- Severity: Medium
+- Confidence: CONFIRMED
+- Component: Unity build automation / TextMesh Pro resources
+- Files: `Assets/TextMesh Pro/**`, `Assets/ClickDungeon/Editor/TextMeshProResourceBootstrap.cs`, `.github/workflows/unity-platform-ci.yml`
+- Execution path: GitHub Unity Platform CI EditMode passed `70/70`, then Windows build called `TextMeshProResourceBootstrap.Ensure()`. The bootstrap invoked `TMPro.TMP_PackageUtilities.ImportProjectResourcesMenu`, but batch mode did not create `Assets/TextMesh Pro/Resources/TMP Settings.asset`, so `BuildAutomation.BuildWindows()` threw before producing `Builds/Windows`.
+- Repair: extracted Unity's TMP Essential Resources from the installed `com.unity.ugui` package cache into `Assets/TextMesh Pro` so the build starts from committed resources instead of importing them during each build.
+
+### Seventh /graphRepair Results
+
+- TMP Settings, fallback font assets, line-breaking tables, style sheet, and TMP shaders are now source-controlled with `.meta` sidecars.
+- Strict Unity metadata validation passes with 310 asset entries and 310 `.meta` files.
+- Source-side release validation remains blocked only on absent same-SHA release artifacts.
+
+Validation after seventh `/graphRepair`:
+
+- `python scripts\validate-unity-metadata.py --strict`: PASS
+- `python scripts\static-audit.py`: PASS, `0 errors, 0 warnings`
+- `python scripts\validate-assets.py`: PASS
+- `python scripts\test-validators.py`: PASS
+- `python scripts\release-check.py`: expected BLOCKED only on absent same-SHA release artifacts.
+
+Remaining blockers:
+
+- WebGL persistence still needs an actual Unity WebGL/browser smoke test for the async JS callback path.
+- Release artifact verification needs a successful same-SHA Unity CI run and downloaded artifacts.
