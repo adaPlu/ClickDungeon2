@@ -35,6 +35,46 @@ namespace ClickDungeon.Tests.ApplicationEditMode
         }
 
         [Test]
+        public void TamperedPrimaryJsonFallsBackToPreviousKnownGoodCopy()
+        {
+            var content=GameContent.CreateDevelopmentFallback();var run=new FloorGenerator(content).CreateNewRun(2,HeroClassId.Thief);var repo=new LocalSaveRepository(_dir);
+            repo.SaveSlot(1,new SlotSavePayload{Meta=new SlotMetaState(),ActiveRun=run},1);run.Gold=5;repo.SaveSlot(1,new SlotSavePayload{Meta=new SlotMetaState(),ActiveRun=run},2);
+            string path=Path.Combine(_dir,"slot_1.json");var doc=JsonConvert.DeserializeObject<SaveDocument>(File.ReadAllText(path));doc.payload.ActiveRun.Gold=999;File.WriteAllText(path,JsonConvert.SerializeObject(doc,Formatting.Indented));
+            var recovered=repo.LoadSlot(1);
+            Assert.AreEqual(0,recovered.payload.ActiveRun.Gold);
+            Assert.AreEqual(1,recovered.revision_number);
+        }
+
+        [Test]
+        public void CorruptPrimaryAndBackupSlotThrowsInsteadOfDefaulting()
+        {
+            var repo=new LocalSaveRepository(_dir);
+            File.WriteAllText(Path.Combine(_dir,"slot_1.json"),"{broken");
+            File.WriteAllText(Path.Combine(_dir,"slot_1.json.bak"),"{also_broken");
+            Assert.Throws<InvalidDataException>(()=>repo.LoadSlot(1));
+        }
+
+        [Test]
+        public void AccountPrimaryFallsBackToPreviousKnownGoodBackup()
+        {
+            string path=Path.Combine(_dir,"account.json");var repo=new AccountRepository(path);
+            repo.Save(new AccountState{TotalRuns=1});repo.Save(new AccountState{TotalRuns=2});
+            File.WriteAllText(path,"{broken");
+            var recovered=repo.Load();
+            Assert.AreEqual(1,recovered.TotalRuns);
+        }
+
+        [Test]
+        public void CorruptAccountPrimaryAndBackupThrowsInsteadOfDefaulting()
+        {
+            string path=Path.Combine(_dir,"account.json");
+            File.WriteAllText(path,"{broken");
+            File.WriteAllText(path+".bak","{also_broken");
+            var repo=new AccountRepository(path);
+            Assert.Throws<InvalidDataException>(()=>repo.Load());
+        }
+
+        [Test]
         public void FutureSchemaIsRejected()
         {
             string json=JsonConvert.SerializeObject(new{schema_version=GameVersionInfo.SaveSchemaVersion+1});

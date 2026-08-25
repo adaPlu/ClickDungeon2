@@ -2,7 +2,9 @@ name: Simulation Tests DotNet
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, develop]
+  push:
+    branches: [develop]
   workflow_dispatch:
 
 jobs:

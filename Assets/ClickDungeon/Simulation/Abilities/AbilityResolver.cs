@@ -97,6 +97,7 @@ namespace ClickDungeon.Simulation.Abilities
             if(index<0||index>=state.Tiles.Count) return false;
             var target=Position(index); var p=state.PlayerPosition;
             int dr=Math.Sign(target.Row-p.Row); int dc=Math.Sign(target.Col-p.Col);
+            if(dr==0&&dc==0) return false;
             if(dr!=0 && dc!=0) return false;
             int r=p.Row+dr,c=p.Col+dc,count=0;
             while(r>=0&&r<RunState.BoardSize&&c>=0&&c<RunState.BoardSize&&count<4)
@@ -123,6 +124,7 @@ namespace ClickDungeon.Simulation.Abilities
         private bool Shadowstep(RunState state,int index,List<GameEvent> events,string abilityId)
         {
             if(index<0||index>=state.Tiles.Count) return false;
+            if(Position(index).Equals(state.PlayerPosition)) return false;
             var tile=state.Tiles[index]; if(tile.Visibility!=TileVisibility.Revealed || tile.Occupancy==OccupancyKind.Monster) return false;
             if(Manhattan(state.PlayerPosition,Position(index))>2) return false;
             int old=state.PlayerPosition.Row*RunState.BoardSize+state.PlayerPosition.Col; state.Tiles[old].Occupancy=OccupancyKind.None;

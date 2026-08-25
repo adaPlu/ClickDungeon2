@@ -125,7 +125,19 @@ namespace ClickDungeon.Presentation
 
         private bool TryLoadExisting(out SlotSavePayload payload)
         {
-            payload=null;try{var doc=_saves.LoadSlot(_slot);if(doc?.payload?.ActiveRun==null)return false;_revision=doc.revision_number;payload=doc.payload;return true;}catch(Exception ex){Debug.LogError($"Slot {_slot} could not be loaded: {ex}");return false;}
+            payload=null;
+            try
+            {
+                var doc=_saves.LoadSlot(_slot);
+                if(doc?.payload?.ActiveRun==null)return false;
+                _revision=doc.revision_number;payload=doc.payload;return true;
+            }
+            catch(Exception ex)
+            {
+                if(_saves.SlotExists(_slot))throw new InvalidDataException($"Slot {_slot} exists but no valid save copy could be loaded.",ex);
+                Debug.LogError($"Slot {_slot} could not be loaded: {ex}");
+                return false;
+            }
         }
         private void OnStateChanged(){UpdateMeta();SaveCurrent();_musicAndAmbience?.Refresh(Session.State);}
         private void UpdateMeta(){var s=Session.State;_meta.HeroClassId=s.HeroClass.ToString();_meta.BestFloor=Math.Max(_meta.BestFloor,s.Mode==RunMode.Campaign?s.Floor:_meta.BestFloor);_meta.BestAbyssDepth=Math.Max(_meta.BestAbyssDepth,s.AbyssDepth);_meta.CampaignCompleted|=s.CampaignCompleted;_meta.LastPlayedAt=DateTimeOffset.UtcNow.ToString("O");_meta.PlaySeconds=_playSecondsBase+Math.Max(0,(long)(Time.realtimeSinceStartup-_playStartedAt));foreach(var a in s.AbilityStates)if(!_meta.UnlockedAbilityIds.Contains(a.AbilityId))_meta.UnlockedAbilityIds.Add(a.AbilityId);}

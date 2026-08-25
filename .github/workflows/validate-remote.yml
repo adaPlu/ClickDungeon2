@@ -34,7 +34,9 @@ jobs:
             Packages/manifest.json
             ProjectSettings/ProjectVersion.txt
             scripts/validate-content.py
+            scripts/validate-replay.py
             scripts/static-audit.py
+            scripts/test-validators.py
           )
           for file in "${required[@]}"; do
             if [ ! -f "$file" ]; then
@@ -49,8 +51,14 @@ jobs:
       - name: Validate canonical content
         run: python scripts/validate-content.py
 
+      - name: Validate replay contracts
+        run: python scripts/validate-replay.py
+
       - name: Run adversarial static audit
         run: python scripts/static-audit.py
+
+      - name: Run validator fixture tests
+        run: python scripts/test-validators.py
 
       - name: Confirm Unity version
         shell: bash
@@ -68,5 +76,7 @@ jobs:
             echo '- Unity target: 6000.5.9f1'
             echo '- Python tooling compilation attempted'
             echo '- Canonical content validation attempted'
+            echo '- Replay contract validation attempted'
             echo '- Static adversarial audit attempted'
+            echo '- Validator fixture tests attempted'
           } >> "$GITHUB_STEP_SUMMARY"

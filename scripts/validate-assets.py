@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from pathlib import Path
 import hashlib, json, struct, wave, sys
-ROOT=Path(__file__).resolve().parents[1]
+ROOT=Path(sys.argv[1]).resolve() if len(sys.argv)>1 else Path(__file__).resolve().parents[1]
 errors=[]
 art=ROOT/'Assets'/'ClickDungeon'/'Art'; audio=ROOT/'Assets'/'ClickDungeon'/'Audio'
 
@@ -36,6 +36,13 @@ def validate_manifest(path,runtime):
         elif sha256(f)!=expected: errors.append(f'{aid}: SHA-256 mismatch')
         if not row.get('usage_terms'): errors.append(f'{aid}: usage_terms missing')
         if not row.get('prompt_ref'): errors.append(f'{aid}: prompt_ref missing')
+    if runtime.exists():
+        runtime_files={str(p.relative_to(runtime)).replace('\\','/') for p in runtime.rglob('*') if p.is_file()}
+        manifest_files={filename.replace('\\','/') for filename in files}
+        extra=sorted(runtime_files-manifest_files)
+        for filename in extra: errors.append(f'{path.name}: runtime file is missing manifest coverage: {filename}')
+        for filename in sorted(runtime_files):
+            if 'placeholder' in filename.lower(): errors.append(f'{path.name}: placeholder runtime file is not release-ready: {filename}')
     return rows
 
 artrows=validate_manifest(art/'Source'/'asset_manifest.json',art/'Runtime')

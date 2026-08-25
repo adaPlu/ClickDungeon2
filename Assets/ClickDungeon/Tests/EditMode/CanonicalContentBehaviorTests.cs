@@ -23,11 +23,27 @@ public sealed class CanonicalContentBehaviorTests
         Assert.AreEqual(3,applied);Assert.IsFalse(state.Statuses.Exists(s=>s.StatusId=="status.vulnerable"));
     }
 
-    [Test] public void CurseDrainsRechargeProgress()
+    [Test] public void CurseDoesNotAdvanceAsMeaningfulAction()
     {
         var content=GameContent.CreateDevelopmentFallback();var state=new RunState();state.AbilityStates.Add(new AbilityChargeState{AbilityId="ability.knight.shield_wall",Charges=0,RechargeProgress=3});var events=new List<GameEvent>();
         StatusResolver.AddOrRefresh(state,content,"status.curse",2);StatusResolver.AdvanceMeaningfulAction(state,content,events);
+        Assert.AreEqual(3,state.AbilityStates[0].RechargeProgress);
+        Assert.AreEqual(2,state.Statuses[0].RemainingActions);
+    }
+
+    [Test] public void CurseDrainsRechargeProgressOnFloorAction()
+    {
+        var content=GameContent.CreateDevelopmentFallback();var state=new RunState();state.AbilityStates.Add(new AbilityChargeState{AbilityId="ability.knight.shield_wall",Charges=0,RechargeProgress=3});var events=new List<GameEvent>();
+        StatusResolver.AddOrRefresh(state,content,"status.curse",2);StatusResolver.AdvanceFloorAction(state,content,events);
         Assert.AreEqual(2,state.AbilityStates[0].RechargeProgress);
+        Assert.AreEqual(1,state.Statuses[0].RemainingActions);
+    }
+
+    [Test] public void FallbackStatusTimingMatchesCanonicalTiming()
+    {
+        var content=GameContent.CreateDevelopmentFallback();
+        Assert.AreEqual("enemy_response",content.Status("status.root").TickTiming);
+        Assert.AreEqual("floor_action",content.Status("status.curse").TickTiming);
     }
 
     [Test] public void Depth99AchievementUsesCanonicalThreshold()

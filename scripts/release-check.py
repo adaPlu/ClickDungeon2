@@ -57,6 +57,14 @@ run_check(
     [sys.executable, str(ROOT / "scripts" / "validate-content.py")],
 )
 run_check(
+    "Replay contract validation",
+    [sys.executable, str(ROOT / "scripts" / "validate-replay.py")],
+)
+run_check(
+    "Static architecture audit",
+    [sys.executable, str(ROOT / "scripts" / "static-audit.py")],
+)
+run_check(
     "Media/provenance validation",
     [sys.executable, str(ROOT / "scripts" / "validate-assets.py")],
 )

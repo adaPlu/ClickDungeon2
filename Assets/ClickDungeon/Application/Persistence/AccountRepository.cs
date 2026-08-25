@@ -14,8 +14,8 @@ namespace ClickDungeon.Application.Persistence
         public AccountRepository(string path=null) { _path=path??Path.Combine(UnityEngine.Application.persistentDataPath,"ClickDungeon2","account.json"); }
         public AccountState Load()
         {
-            Exception last=null;foreach(string path in new[]{_path,_path+".bak"}){if(!File.Exists(path))continue;try{return JsonConvert.DeserializeObject<AccountState>(File.ReadAllText(path,Encoding.UTF8))??new AccountState();}catch(Exception ex){last=ex;}}
-            if(last!=null)Debug.LogError($"Account settings and backup were unreadable; defaults loaded. {last}");return new AccountState();
+            Exception last=null;foreach(string path in new[]{_path,_path+".bak"}){if(!File.Exists(path))continue;try{return JsonConvert.DeserializeObject<AccountState>(File.ReadAllText(path,Encoding.UTF8))??throw new InvalidDataException("Account payload missing.");}catch(Exception ex){last=ex;}}
+            if(last!=null)throw new InvalidDataException("No valid account copy available.",last);return new AccountState();
         }
         public void Save(AccountState state)
         {

@@ -133,8 +133,11 @@ release_path=ROOT/'scripts/release-check.py';release=release_path.read_text()
 store_gate=re.search(r"store_root\s*=\s*ROOT\s*/\s*['\"]Store['\"]",release)
 if not store_gate or 'placeholder' not in release.lower():errors.append('release-check.py does not gate store placeholders')
 if 'validate-assets.py' not in release:errors.append('release-check.py does not run validate-assets.py')
+if 'validate-replay.py' not in release:errors.append('release-check.py does not run validate-replay.py')
+if 'static-audit.py' not in release:errors.append('release-check.py does not run static-audit.py')
 if 'validate-unity-metadata.py' not in release or '--strict' not in release:errors.append('release-check.py does not strictly gate Unity metadata reproducibility')
 if not (ROOT/'scripts/validate-assets.py').exists():errors.append('scripts/validate-assets.py is missing')
+if not (ROOT/'scripts/test-validators.py').exists():errors.append('scripts/test-validators.py is missing')
 
 for token in ['Abyss Depth','ShowInventory','ClickDungeonPresentationAssets','RefreshIntent']:
     if token not in runtime_ui:errors.append(f'Runtime presentation contract missing {token}')

@@ -32,7 +32,10 @@ namespace ClickDungeon.Simulation
             if(command==null)return CommandResult.Reject("command.null");
             if(State.GameOver)return CommandResult.Reject("run.game_over");
             if(State.CampaignCompleted)return CommandResult.Reject("run.completed");
-            var events=new List<GameEvent>(); CommandResult result;
+            var events=new List<GameEvent>();
+            var statusesBeforeCommand=CurrentStatuses(State);
+            int camouflageBeforeCommand=State.CamouflageActions;
+            CommandResult result;
             if(command is RevealTileCommand reveal) result=Reveal(reveal.TileIndex,events);
             else if(command is MoveCommand move) result=Move(move.TileIndex,events);
             else if(command is InteractCommand interact) result=Interact(interact.TileIndex,events);
@@ -51,7 +54,8 @@ namespace ClickDungeon.Simulation
             if(result.Accepted)
             {
                 State.CommandNumber++;
-                if(ConsumesMeaningfulAction(command) && !State.CampaignCompleted && !State.GameOver) StatusResolver.AdvanceMeaningfulAction(State,_content,events);
+                if(ConsumesMeaningfulAction(command) && !State.CampaignCompleted && !State.GameOver) StatusResolver.AdvanceMeaningfulAction(State,_content,events,statusesBeforeCommand,camouflageBeforeCommand>0);
+                if(!State.CampaignCompleted && !State.GameOver) StatusResolver.AdvanceFloorAction(State,_content,events,statusesBeforeCommand);
             }
             return result;
         }
@@ -77,12 +81,14 @@ namespace ClickDungeon.Simulation
         private CommandResult Move(int index,List<GameEvent> events)
         {
             if(!TryTile(index,out var tile))return CommandResult.Reject("tile.out_of_range");
-            if(State.RootedActions>0){State.RootedActions--;StatusResolver.Consume(State,_content,"status.root");return CommandResult.Reject("player.rooted");}
             if(!IsAdjacent(index))return CommandResult.Reject("tile.not_adjacent");
             if(tile.Visibility!=TileVisibility.Revealed)return CommandResult.Reject("tile.not_revealed");
             if(tile.Occupancy==OccupancyKind.Monster)return CommandResult.Reject("tile.blocked_by_monster");
+            bool threatBypassed=State.CamouflageActions>0&&State.ShieldPoints<=0&&ThreatResolver.IsThreatened(State,index);
             if(State.CamouflageActions<=0&&State.ShieldPoints<=0&&ThreatResolver.IsThreatened(State,index))return CommandResult.Reject("tile.threatened");
+            if(State.RootedActions>0){State.RootedActions--;StatusResolver.Consume(State,_content,"status.root");events.Add(new GameEvent("player.rooted",index,"status.root"));return CommandResult.Accept(events);}
             int old=Index(State.PlayerPosition);State.Tiles[old].Occupancy=OccupancyKind.None;tile.Occupancy=OccupancyKind.Player;State.PlayerPosition=Position(index);events.Add(new GameEvent("player.moved",index));TerrainResolver.ResolveEntry(State,old,index,_content,events);
+            if(threatBypassed)State.CamouflageActions--;
             if(tile.Terrain==TerrainKind.Arcane&&tile.TerrainTriggered)GainRecharge(1,events);
             int slide=TerrainResolver.TryIceSlideTarget(State,old,index);if(slide>=0){tile.Occupancy=OccupancyKind.None;State.Tiles[slide].Occupancy=OccupancyKind.Player;State.PlayerPosition=Position(slide);events.Add(new GameEvent("terrain.ice.slide",slide));TerrainResolver.ResolveEntry(State,index,slide,_content,events);}
             return CommandResult.Accept(events);
@@ -253,5 +259,11 @@ namespace ClickDungeon.Simulation
         private static GridPosition Position(int index)=>new GridPosition(index/RunState.BoardSize,index%RunState.BoardSize);
         private static int Index(GridPosition p)=>p.Row*RunState.BoardSize+p.Col;
         private static bool ConsumesMeaningfulAction(GameCommand command)=>command is RevealTileCommand||command is AttackCommand||command is DefendCommand||command is UseAbilityCommand||command is UseItemCommand||command is ChooseShrineCommand||command is UnlockVaultCommand;
+        private static Dictionary<string,StatusInstance> CurrentStatuses(RunState state)
+        {
+            var statuses=new Dictionary<string,StatusInstance>(StringComparer.Ordinal);
+            foreach(var status in state.Statuses)statuses[status.StatusId]=new StatusInstance{StatusId=status.StatusId,RemainingActions=status.RemainingActions,Stacks=status.Stacks};
+            return statuses;
+        }
     }
 }
