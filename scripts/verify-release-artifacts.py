@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -16,6 +17,45 @@ EXPECTED = (
     ("android", "ClickDungeon2-Android-AAB"),
     ("webgl", "ClickDungeon2-WebGL"),
 )
+
+
+def verify_android_release_signing(artifact_dir: Path, errors: list[str]) -> None:
+    """Reject CI/debug signing at the release boundary.
+
+    Ordinary platform CI is allowed to produce a debug-signed smoke AAB. The
+    manual release gate is stricter: it must see a non-debug signer before an
+    Android artifact can be considered production-ready.
+    """
+
+    bundles = sorted(artifact_dir.rglob("*.aab"))
+    if len(bundles) != 1:
+        errors.append(
+            f"expected exactly one Android App Bundle for release signing verification, found {len(bundles)}"
+        )
+        return
+
+    keytool = shutil.which("keytool")
+    if keytool is None:
+        errors.append("keytool is unavailable; cannot verify Android release signer")
+        return
+
+    result = subprocess.run(
+        [keytool, "-printcert", "-jarfile", str(bundles[0])],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    output = "\n".join(part for part in (result.stdout, result.stderr) if part)
+    if result.returncode != 0:
+        errors.append("Android App Bundle signer certificate could not be read")
+        return
+
+    normalized = output.casefold()
+    if "cn=android debug" in normalized:
+        errors.append(
+            "Android App Bundle is signed with the Android Debug certificate; a production upload signer is required"
+        )
 
 
 def main() -> int:
@@ -43,6 +83,9 @@ def main() -> int:
             )
             if result.returncode != 0:
                 errors.append(f"{name} failed artifact inspection")
+                continue
+            if platform == "android":
+                verify_android_release_signing(path, errors)
 
     if errors:
         print("RELEASE ARTIFACT VERIFICATION FAILED")
