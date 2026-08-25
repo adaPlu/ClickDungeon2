@@ -7,7 +7,6 @@ using ClickDungeon.Simulation.Combat;
 using ClickDungeon.Simulation.Progression;
 
 #if UNITY_EDITOR
-using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -67,7 +66,9 @@ public sealed class CanonicalContentBehaviorTests
     [UnityTest]
     public IEnumerator PostWindowsRuntimeSmokeLoadsBootMainAndGame()
     {
-        if(Environment.GetEnvironmentVariable("CLICKDUNGEON_RUNTIME_SMOKE")!="1")
+        var projectRoot=System.IO.Path.GetFullPath(System.IO.Path.Combine(UnityEngine.Application.dataPath,".."));
+        var smokeMarker=System.IO.Path.Combine(projectRoot,".ci","runtime-smoke.enabled");
+        if(!System.IO.File.Exists(smokeMarker))
         {
             Assert.Ignore("Post-Windows runtime smoke only.");
             yield break;
