@@ -95,12 +95,15 @@ jobs:
         run: |
           mkdir -p .ci/unity-import
           git status --porcelain=v1 --untracked-files=all -- Assets ProjectSettings Packages > .ci/unity-import/status.txt || true
+          git diff --no-ext-diff -- Assets ProjectSettings Packages > .ci/unity-import/import.diff || true
+          python3 scripts/validate-unity-metadata.py > .ci/unity-import/metadata-audit.txt 2>&1 || true
           {
             find Assets -name '*.meta' -type f -print0 2>/dev/null || true
             [ -d ProjectSettings ] && printf '%s\0' ProjectSettings
+            [ -f Packages/manifest.json ] && printf '%s\0' Packages/manifest.json
             [ -f Packages/packages-lock.json ] && printf '%s\0' Packages/packages-lock.json
           } | tar --null --files-from=- -czf .ci/unity-import/metadata-snapshot.tar.gz || true
-          echo "Captured Unity import status and canonical metadata snapshot when available."
+          echo "Captured Unity import status, diff, audit, and canonical metadata snapshot when available."
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
