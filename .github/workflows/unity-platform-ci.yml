@@ -1,8 +1,8 @@
 name: Unity Platform CI
 
 on:
-  pull_request:
-    branches: [main]
+  push:
+    branches: [main, develop]
   workflow_dispatch:
 
 jobs:
@@ -14,7 +14,7 @@ jobs:
       personal_license_shape_ready: ${{ steps.check.outputs.personal_license_shape_ready }}
       professional_license_ready: ${{ steps.check.outputs.professional_license_ready }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - name: Audit Unity metadata reproducibility
         run: python3 scripts/validate-unity-metadata.py
       - id: check
@@ -70,11 +70,11 @@ jobs:
     if: needs.preflight.outputs.source_ready == 'true' && needs.preflight.outputs.license_ready == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
       - name: Run Unity EditMode tests
-        uses: game-ci/unity-test-runner@v4
+        uses: game-ci/unity-test-runner@0ff419b913a3630032cbe0de48a0099b5a9f0ed9
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
@@ -97,7 +97,7 @@ jobs:
             [ -f Packages/packages-lock.json ] && printf '%s\0' Packages/packages-lock.json
           } | tar --null --files-from=- -czf test-artifacts/unity-import/metadata-snapshot.tar.gz || true
           echo "Captured Unity import status and canonical metadata snapshot when available."
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
           name: unity-editmode-results
@@ -108,11 +108,11 @@ jobs:
     needs: editmode
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
       - name: Build Windows through ClickDungeon BuildAutomation
-        uses: game-ci/unity-builder@v4
+        uses: game-ci/unity-builder@1d4ee0697f193f54668e98961d79907911f4b4f2
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
@@ -125,7 +125,7 @@ jobs:
           allowDirtyBuild: true
       - name: Inspect Windows player artifact
         run: python3 scripts/inspect-build-artifact.py windows Builds/Windows
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
           name: ClickDungeon2-Windows
@@ -136,11 +136,11 @@ jobs:
     needs: windows
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
       - name: Build Android AAB through ClickDungeon BuildAutomation
-        uses: game-ci/unity-builder@v4
+        uses: game-ci/unity-builder@1d4ee0697f193f54668e98961d79907911f4b4f2
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
@@ -153,7 +153,7 @@ jobs:
           allowDirtyBuild: true
       - name: Inspect Android App Bundle artifact
         run: python3 scripts/inspect-build-artifact.py android Builds/Android
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
           name: ClickDungeon2-Android-AAB
@@ -164,11 +164,11 @@ jobs:
     needs: windows
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
       - name: Build WebGL through ClickDungeon BuildAutomation
-        uses: game-ci/unity-builder@v4
+        uses: game-ci/unity-builder@1d4ee0697f193f54668e98961d79907911f4b4f2
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
@@ -181,7 +181,7 @@ jobs:
           allowDirtyBuild: true
       - name: Inspect WebGL player artifact
         run: python3 scripts/inspect-build-artifact.py webgl Builds/Web
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
           name: ClickDungeon2-WebGL

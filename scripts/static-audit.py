@@ -139,6 +139,21 @@ if 'validate-unity-metadata.py' not in release or '--strict' not in release:erro
 if not (ROOT/'scripts/validate-assets.py').exists():errors.append('scripts/validate-assets.py is missing')
 if not (ROOT/'scripts/test-validators.py').exists():errors.append('scripts/test-validators.py is missing')
 
+workflow_dir=ROOT/'.github/workflows'
+sha_ref=re.compile(r'^[0-9a-f]{40}$')
+for p in sorted(workflow_dir.glob('*.yml')):
+    text=p.read_text()
+    for match in re.finditer(r'uses:\s*["\']?([^"\'\s#]+)',text):
+        action=match.group(1)
+        if action.startswith('./') or action.startswith('docker://'):continue
+        if '@' not in action:
+            errors.append(f'{p.relative_to(ROOT)} action is missing immutable ref: {action}')
+            continue
+        name,ref=action.rsplit('@',1)
+        if not sha_ref.fullmatch(ref):errors.append(f'{p.relative_to(ROOT)} action {name} is not pinned to a full commit SHA')
+    if re.search(r'^\s*pull_request\s*:',text,re.MULTILINE) and re.search(r'UNITY_(LICENSE|SERIAL|EMAIL|PASSWORD)\s*:\s*\$\{\{\s*secrets\.',text):
+        errors.append(f'{p.relative_to(ROOT)} exposes Unity secrets to pull_request jobs')
+
 for token in ['Abyss Depth','ShowInventory','ClickDungeonPresentationAssets','RefreshIntent']:
     if token not in runtime_ui:errors.append(f'Runtime presentation contract missing {token}')
 

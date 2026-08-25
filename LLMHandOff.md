@@ -315,8 +315,6 @@ Completed in this session:
 Blocked or intentionally unresolved:
 
 - `REL-05` needs a WebGL async persistence callback design and Unity/WebGL validation.
-- `SEC-01` needs a workflow trust-policy decision for secret-bearing Unity jobs.
-- `SEC-02` needs reviewed immutable SHA pins for third-party actions.
 - `REL-06` needs a release artifact/signing process decision.
 - `REL-07` needs Unity-generated canonical `.meta` files and ProjectSettings before dirty-build enforcement can be disabled.
 - `SEC-03` needs a Unity-generated `Packages/packages-lock.json`.
@@ -354,8 +352,8 @@ Independent review:
 | DATA-03 | Fixed | VERIFIED | Account repository throws on corrupt primary+backup instead of defaulting; account fallback and corrupt-both tests added. |
 | REL-05 | Blocked | CONFIRMED | Requires WebGL async callback design/Unity runtime validation. |
 | CI-01 | Fixed | VERIFIED | Strong static/simulation/application workflows now trigger for `develop`; remote validator also runs replay validation. |
-| SEC-01 | Blocked | CONFIRMED | Requires workflow trust policy decision. |
-| SEC-02 | Blocked | CONFIRMED | Requires reviewed action SHA pins. |
+| SEC-01 | Fixed | VERIFIED | Second `/Gaudit` pass moved Unity Platform CI off `pull_request` and removed Unity secret reads from `pr-diagnostic.yml`; static audit now rejects Unity secrets in PR workflows. |
+| SEC-02 | Fixed | VERIFIED | Second `/Gaudit` pass pinned external workflow actions to full commit SHAs and added a static audit rule for mutable action refs. |
 | REL-06 | Blocked | CONFIRMED | Requires artifact/signing release process. |
 | REL-07 | Blocked | CONFIRMED | Requires Unity-generated canonical metadata. |
 | SEC-03 | Blocked | CONFIRMED | Requires Unity-generated package lock. |
@@ -367,3 +365,59 @@ Independent review:
 | TEST-04 | Fixed | VERIFIED | Added valid-JSON tamper checksum fallback test. |
 | TEST-05 | Partially fixed | VERIFIED | Added account fallback and corrupt-both tests; broader account progression tests remain open. |
 | MAINT-01 | Partially fixed | VERIFIED | Static audit now checks release gate includes replay/static, and `scripts/test-validators.py` covers the asset validator's recursive unmanifested-file failure path. |
+
+## Second /Gaudit And /graphRepair Pass
+
+Baseline: `e428fb4d` on `develop` after the first `/graphRepair` batch was pushed.
+
+### New Graph-Audit Findings
+
+#### GA-SEC-01: Unity secrets were still reachable from PR-triggered workflows
+
+- Severity: High
+- Confidence: CONFIRMED
+- Component: GitHub Actions
+- Files: `.github/workflows/unity-platform-ci.yml`, `.github/workflows/pr-diagnostic.yml`, `scripts/static-audit.py`
+- Execution path: `unity-platform-ci.yml` still used `pull_request` while passing Unity secrets into preflight/EditMode/build jobs. `pr-diagnostic.yml` also read Unity secrets on `pull_request`.
+- Impact: same-repo PR-controlled workflow code could run with Unity credential material or disclose secret configuration state.
+- Repair graph node: G5 CI trust-boundary hardening.
+
+#### GA-SEC-02: External workflow actions were still mutable tag refs
+
+- Severity: Medium
+- Confidence: CONFIRMED
+- Component: GitHub Actions supply chain
+- Files: `.github/workflows/*.yml`, `scripts/static-audit.py`
+- Execution path: workflows used `actions/*@v4`, `actions/setup-python@v5`, and `game-ci/*@v4` mutable refs.
+- Impact: workflow dependencies could move without repository review.
+- Repair graph node: G6 immutable action pinning.
+
+### Second /graphRepair Results
+
+- G5 changed Unity Platform CI to run on trusted `push` to `main`/`develop` and `workflow_dispatch`, not `pull_request`.
+- G5 removed Unity secret reads from `pr-diagnostic.yml`.
+- G6 pinned all external actions to resolved 40-character commit SHAs:
+  - `actions/checkout@11d5960a326750d5838078e36cf38b85af677262`
+  - `actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065`
+  - `actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9`
+  - `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02`
+  - `game-ci/unity-test-runner@0ff419b913a3630032cbe0de48a0099b5a9f0ed9`
+  - `game-ci/unity-builder@1d4ee0697f193f54668e98961d79907911f4b4f2`
+- G6 updated `scripts/static-audit.py` to reject non-SHA external actions and Unity secrets in PR-triggered workflows.
+
+Validation after second `/graphRepair`:
+
+- `python -m compileall -q scripts`: PASS
+- `python scripts\validate-content.py`: PASS
+- `python scripts\validate-replay.py`: PASS
+- `python scripts\test-validators.py`: PASS
+- `python scripts\static-audit.py`: PASS, `0 errors, 0 warnings`
+- `python scripts\release-check.py`: expected BLOCKED only on media/provenance, Unity metadata, and `allowDirtyBuild` pending canonical Unity metadata.
+
+Remaining blockers:
+
+- `REL-05`: WebGL async persistence callback/result propagation still requires Unity/WebGL runtime design and validation.
+- `REL-06`: Release readiness still needs artifact/signing verification for same-SHA builds.
+- `REL-07`: Dirty Unity build enforcement still waits on canonical `.meta` and ProjectSettings files.
+- `SEC-03`: Unity package lock still requires Unity-generated `Packages/packages-lock.json`.
+- Production asset/media blockers still require final manifests and runtime media.
