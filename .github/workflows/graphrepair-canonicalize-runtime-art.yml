@@ -1,0 +1,85 @@
+name: GraphRepair Canonicalize Runtime Art
+
+on:
+  push:
+    branches: [graphrepair-canonicalize-runtime-art]
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  canonicalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: develop
+          fetch-depth: 0
+      - name: Guard source head and download proven Unity delta
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          expected=53536dd1f7d1c32b38c5db9006c22b779991fe1f
+          actual="$(git rev-parse HEAD)"
+          test "$actual" = "$expected" || { echo "develop moved: $actual"; exit 2; }
+          mkdir -p .ci/graphrepair/delta .ci/graphrepair/extracted
+          gh api "/repos/${GITHUB_REPOSITORY}/actions/artifacts/9574259786/zip" > .ci/graphrepair/delta.zip
+          unzip -q .ci/graphrepair/delta.zip -d .ci/graphrepair/delta
+          test -f .ci/graphrepair/delta/project-delta.tar.gz
+          tar -xzf .ci/graphrepair/delta/project-delta.tar.gz -C .ci/graphrepair/extracted
+      - name: Apply only proven portable Unity outputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t metas < <(find .ci/graphrepair/extracted/Assets/ClickDungeon/Art/Runtime -maxdepth 1 -type f -name '*_core.png.meta' | sort)
+          test "${#metas[@]}" -eq 32 || { printf 'expected 32 core sprite metas, found %s\n' "${#metas[@]}"; exit 3; }
+          for src in "${metas[@]}"; do
+            rel="${src#.ci/graphrepair/extracted/}"
+            grep -q '^  spriteSheet:' "$src"
+            ! grep -q '^    sprites: \[\]$' "$src"
+            cp "$src" "$rel"
+          done
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('ProjectSettings/ProjectSettings.asset')
+          text=p.read_text(encoding='utf-8')
+          replacements={
+              '  defaultScreenOrientation: 4\n':'  defaultScreenOrientation: 0\n',
+              '  companyName: DefaultCompany\n':'  companyName: adaPlu\n',
+              '  productName: clickdungeon\n':'  productName: ClickDungeon\n',
+              '  bundleVersion: 1.0\n':'  bundleVersion: 0.2.0\n',
+          }
+          for old,new in replacements.items():
+              if old not in text:
+                  raise SystemExit(f'expected PlayerSettings line missing: {old.strip()}')
+              text=text.replace(old,new,1)
+          p.write_text(text,encoding='utf-8')
+          PY
+      - name: Validate guarded change set
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/validate-unity-metadata.py --strict
+          grep -F '  defaultScreenOrientation: 0' ProjectSettings/ProjectSettings.asset
+          grep -F '  companyName: adaPlu' ProjectSettings/ProjectSettings.asset
+          grep -F '  productName: ClickDungeon' ProjectSettings/ProjectSettings.asset
+          grep -F '  bundleVersion: 0.2.0' ProjectSettings/ProjectSettings.asset
+          mapfile -t changed < <(git diff --name-only | sort)
+          test "${#changed[@]}" -eq 33 || { printf 'expected 33 changed files, found %s\n' "${#changed[@]}"; printf '%s\n' "${changed[@]}"; exit 4; }
+          test "$(printf '%s\n' "${changed[@]}" | grep -c '^Assets/ClickDungeon/Art/Runtime/.*_core\.png\.meta$')" -eq 32
+          test "$(printf '%s\n' "${changed[@]}" | grep -c '^ProjectSettings/ProjectSettings\.asset$')" -eq 1
+          if printf '%s\n' "${changed[@]}" | grep -Ev '^(Assets/ClickDungeon/Art/Runtime/.*_core\.png\.meta|ProjectSettings/ProjectSettings\.asset)$'; then
+            echo 'unexpected changed path'; exit 5
+          fi
+      - name: Commit and push canonical Unity state
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add Assets/ClickDungeon/Art/Runtime/*_core.png.meta ProjectSettings/ProjectSettings.asset
+          git commit -m 'fix: canonicalize sliced sprite import settings'
+          git push origin HEAD:develop
