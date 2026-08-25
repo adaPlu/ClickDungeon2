@@ -350,7 +350,7 @@ Independent review:
 | DATA-01 | Fixed | VERIFIED | Development fallback `status.root` and `status.curse` timing now match canonical content, and `floor_action` advancement is distinct from `meaningful_action`; covered by resolver and session tests. |
 | DATA-02 | Fixed | VERIFIED | Continue path now treats existing corrupt slot as recovery failure rather than absent save; repository corrupt-both coverage added. |
 | DATA-03 | Fixed | VERIFIED | Account repository throws on corrupt primary+backup instead of defaulting; account fallback and corrupt-both tests added. |
-| REL-05 | Blocked | CONFIRMED | Requires WebGL async callback design/Unity runtime validation. |
+| REL-05 | Fixed | STATIC_VERIFIED | WebGL bridge now exposes pending/succeeded/failed sync status through C# polling; temporary application harness passed. Browser/WebGL runtime smoke validation remains before release. |
 | CI-01 | Fixed | VERIFIED | Strong static/simulation/application workflows now trigger for `develop`; remote validator also runs replay validation. |
 | SEC-01 | Fixed | VERIFIED | Second `/Gaudit` pass moved Unity Platform CI off `pull_request` and removed Unity secret reads from `pr-diagnostic.yml`; static audit now rejects Unity secrets in PR workflows. |
 | SEC-02 | Fixed | VERIFIED | Second `/Gaudit` pass pinned external workflow actions to full commit SHAs and added a static audit rule for mutable action refs. |
@@ -416,7 +416,49 @@ Validation after second `/graphRepair`:
 
 Remaining blockers:
 
-- `REL-05`: WebGL async persistence callback/result propagation still requires Unity/WebGL runtime design and validation.
+- `REL-06`: Release readiness still needs artifact/signing verification for same-SHA builds.
+- `REL-07`: Dirty Unity build enforcement still waits on canonical `.meta` and ProjectSettings files.
+- `SEC-03`: Unity package lock still requires Unity-generated `Packages/packages-lock.json`.
+- Production asset/media blockers still require final manifests and runtime media.
+
+## Third Graph Results And /graphRepair Pass
+
+Baseline: `00b3abda4b20f891b9663e775149db128470780b` on `develop` after the CI supply-chain hardening batch was pushed.
+
+### Graph Result
+
+#### G7: WebGL persistence durability observability
+
+- Finding: `REL-05`
+- Severity: Medium
+- Confidence: CONFIRMED
+- Component: Application platform persistence bridge
+- Files: `Assets/ClickDungeon/Application/Platform/PersistentDataSync.cs`, `Assets/Plugins/WebGL/ClickDungeonPersistence.jslib`, `Assets/ClickDungeon/Tests/ApplicationEditMode/PersistenceTests.cs`, `scripts/static-audit.py`
+- Execution path: save repositories call `PersistentDataSync.RequestSync()`, which previously invoked JS `FS.syncfs(false, callback)` without exposing pending/failure status back to C#.
+- Repair: expose `PersistentDataSyncStatus`, `LastStatus`, `LastRequestedAtUtc`, and `PollStatus()` in C#; track pending/succeeded/failed in the WebGL `.jslib`; declare Emscripten `__deps` for shared JS helper state; add static audit guards for the status export, dependency tokens, and state transitions.
+
+### Third /graphRepair Results
+
+- `REL-05` code path fixed: WebGL sync is no longer purely fire-and-forget because C# can observe pending/succeeded/failed state by polling the JS bridge.
+- Added edit-mode coverage for the deterministic non-WebGL path.
+- Added static audit coverage for WebGL bridge symbol compatibility, Emscripten helper-state dependencies, and status transitions.
+
+Validation after third `/graphRepair`:
+
+- `python -m compileall -q scripts`: PASS
+- `python scripts\validate-replay.py`: PASS
+- `python scripts\static-audit.py`: PASS, `0 errors, 0 warnings`
+- Temporary `.NET` application harness: PASS, `20/20`
+
+Independent review:
+
+- Initial review requested Emscripten `__deps` declarations for the shared `$ClickDungeonPersistentDataSyncState` helper object.
+- Follow-up repair added dependency declarations for both WebGL exports and static audit enforcement for those tokens.
+- Second review approved the follow-up delta with no remaining findings.
+
+Remaining blockers:
+
+- WebGL persistence still needs an actual Unity WebGL/browser smoke test for the async JS callback path.
 - `REL-06`: Release readiness still needs artifact/signing verification for same-SHA builds.
 - `REL-07`: Dirty Unity build enforcement still waits on canonical `.meta` and ProjectSettings files.
 - `SEC-03`: Unity package lock still requires Unity-generated `Packages/packages-lock.json`.

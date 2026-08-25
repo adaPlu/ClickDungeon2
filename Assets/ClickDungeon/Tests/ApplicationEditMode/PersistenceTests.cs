@@ -3,6 +3,7 @@ using System.IO;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using ClickDungeon.Application.Persistence;
+using ClickDungeon.Application.Platform;
 using ClickDungeon.Application.State;
 using ClickDungeon.Application.Versioning;
 using ClickDungeon.Simulation.Generation;
@@ -72,6 +73,14 @@ namespace ClickDungeon.Tests.ApplicationEditMode
             File.WriteAllText(path+".bak","{also_broken");
             var repo=new AccountRepository(path);
             Assert.Throws<InvalidDataException>(()=>repo.Load());
+        }
+
+        [Test]
+        public void PersistentDataSyncReportsSucceededOutsideWebGl()
+        {
+            PersistentDataSync.RequestSync();
+            Assert.AreEqual(PersistentDataSyncStatus.Succeeded,PersistentDataSync.PollStatus());
+            Assert.IsFalse(string.IsNullOrEmpty(PersistentDataSync.LastRequestedAtUtc));
         }
 
         [Test]

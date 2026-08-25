@@ -108,10 +108,18 @@ sync_cs=ROOT/'Assets/ClickDungeon/Application/Platform/PersistentDataSync.cs'
 sync_js=ROOT/'Assets/Plugins/WebGL/ClickDungeonPersistence.jslib'
 if not sync_cs.exists():errors.append('PersistentDataSync.cs is missing')
 if not sync_js.exists():errors.append('ClickDungeonPersistence.jslib is missing')
-if sync_cs.exists() and 'ClickDungeonSyncPersistentData' not in sync_cs.read_text():errors.append('PersistentDataSync C# extern name changed')
+if sync_cs.exists():
+    sync_text=sync_cs.read_text()
+    if 'ClickDungeonSyncPersistentData' not in sync_text:errors.append('PersistentDataSync C# extern name changed')
+    if 'ClickDungeonGetPersistentDataSyncStatus' not in sync_text or 'PollStatus' not in sync_text:errors.append('PersistentDataSync no longer exposes WebGL sync status polling')
 if sync_js.exists():
     js=sync_js.read_text()
     if 'ClickDungeonSyncPersistentData' not in js:errors.append('WebGL persistence export name changed')
+    if 'ClickDungeonGetPersistentDataSyncStatus' not in js:errors.append('WebGL persistence status export name changed')
+    for token in ['ClickDungeonSyncPersistentData__deps', 'ClickDungeonGetPersistentDataSyncStatus__deps', '$ClickDungeonPersistentDataSyncState']:
+        if token not in js:errors.append(f'WebGL persistence bridge missing Emscripten dependency token {token}')
+    for token in ['status = 1','status = 2','status = 3']:
+        if token not in js:errors.append(f'WebGL persistence bridge missing sync state transition {token}')
     if 'FS.syncfs(false' not in js:errors.append('WebGL persistence bridge no longer flushes to IndexedDB')
 
 # Generated Resources names are runtime contracts.
