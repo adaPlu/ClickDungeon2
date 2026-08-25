@@ -134,6 +134,27 @@ jobs:
           allowDirtyBuild: false
       - name: Inspect Windows player artifact
         run: python3 scripts/inspect-build-artifact.py windows Builds/Windows
+      - name: Capture post-build Unity project delta
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p .ci/windows-project-delta
+          git status --porcelain=v1 --untracked-files=all -- Assets ProjectSettings Packages > .ci/windows-project-delta/status.txt || true
+          git diff --no-ext-diff -- Assets ProjectSettings Packages > .ci/windows-project-delta/tracked.diff || true
+          git ls-files -m -o --exclude-standard -z -- Assets ProjectSettings Packages > .ci/windows-project-delta/changed-files.zlist || true
+          if [ -s .ci/windows-project-delta/changed-files.zlist ]; then
+            tar --null --files-from=.ci/windows-project-delta/changed-files.zlist -czf .ci/windows-project-delta/project-delta.tar.gz || true
+          else
+            tar -czf .ci/windows-project-delta/project-delta.tar.gz --files-from=/dev/null
+          fi
+          python3 scripts/validate-unity-metadata.py > .ci/windows-project-delta/metadata-audit.txt 2>&1 || true
+          echo "Captured real Unity post-build source, scene, metadata, package, and settings deltas."
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: unity-windows-project-delta
+          path: .ci/windows-project-delta
+          if-no-files-found: error
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
