@@ -1,5 +1,13 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.TestTools;
+using ClickDungeon.Presentation;
+using ClickDungeon.Presentation.Menu;
+using ClickDungeon.Presentation.UI;
 using ClickDungeon.Simulation.Content;
 using ClickDungeon.Simulation.Model;
 using ClickDungeon.Simulation.Status;
@@ -50,5 +58,44 @@ public sealed class CanonicalContentBehaviorTests
     {
         var content=GameContent.CreateDevelopmentFallback();var state=new RunState{Mode=RunMode.Abyss,AbyssDepth=99};var evt=new GameEvent("abyss.depth.entered",-1,"",99);
         CollectionAssert.Contains(new List<string>(AchievementEvaluator.Evaluate(content,state,evt)),"achievement.depth_99");
+    }
+
+    [UnityTest]
+    public IEnumerator PostWindowsRuntimeSmokeLoadsBootMainAndGame()
+    {
+        if(Environment.GetEnvironmentVariable("CLICKDUNGEON_RUNTIME_SMOKE")!="1")
+        {
+            Assert.Ignore("Post-Windows runtime smoke only.");
+            yield break;
+        }
+
+        PlayerPrefs.DeleteAll();
+        bool reachedMain=false,mainMenuReady=false,gameSceneReady=false,contentReady=false,sessionReady=false,runtimeUiReady=false;
+
+        yield return new EnterPlayMode();
+        SceneManager.LoadScene("Boot");
+        for(int i=0;i<20&&SceneManager.GetActiveScene().name!="Main";i++)yield return null;
+        reachedMain=SceneManager.GetActiveScene().name=="Main";
+        mainMenuReady=UnityEngine.Object.FindFirstObjectByType<MainMenuUI>()!=null;
+
+        if(reachedMain)
+        {
+            SceneManager.LoadScene("Game");
+            for(int i=0;i<20&&UnityEngine.Object.FindFirstObjectByType<GameBootstrap>()==null;i++)yield return null;
+            var bootstrap=UnityEngine.Object.FindFirstObjectByType<GameBootstrap>();
+            gameSceneReady=SceneManager.GetActiveScene().name=="Game"&&bootstrap!=null;
+            contentReady=bootstrap?.Content!=null;
+            sessionReady=bootstrap?.Session!=null;
+            runtimeUiReady=UnityEngine.Object.FindFirstObjectByType<RuntimeGameUI>()!=null;
+        }
+
+        yield return new ExitPlayMode();
+
+        Assert.IsTrue(reachedMain,"BootLoader did not transition to Main.");
+        Assert.IsTrue(mainMenuReady,"Main scene did not initialize MainMenuUI.");
+        Assert.IsTrue(gameSceneReady,"Game scene did not initialize GameBootstrap.");
+        Assert.IsTrue(contentReady,"GameBootstrap did not load canonical game content.");
+        Assert.IsTrue(sessionReady,"GameBootstrap did not create a GameSession.");
+        Assert.IsTrue(runtimeUiReady,"Game scene did not initialize RuntimeGameUI.");
     }
 }

@@ -76,13 +76,14 @@ jobs:
           </Project>
           EOF
           dotnet test .ci/application/ApplicationCompileTests.csproj --configuration Release --nologo --logger "console;verbosity=normal"
-      - name: Run canonical content, replay, adversarial, and validator-fixture validation
+      - name: Run canonical content, replay, asset provenance, adversarial, and validator-fixture validation
         shell: bash
         run: |
           set -euo pipefail
           python -m compileall -q scripts
           python scripts/validate-content.py
           python scripts/validate-replay.py
+          python scripts/validate-assets.py
           python scripts/static-audit.py
           python scripts/test-validators.py
           grep -F 'm_EditorVersion: 6000.5.9f1' ProjectSettings/ProjectVersion.txt
