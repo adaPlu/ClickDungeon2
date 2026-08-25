@@ -532,3 +532,42 @@ Remaining blockers:
 - WebGL persistence still needs an actual Unity WebGL/browser smoke test for the async JS callback path.
 - Release artifact verification needs a completed same-SHA Unity CI run and downloaded artifacts.
 - Production asset/media blockers still require final manifests and runtime media.
+
+## Sixth Graph Results And /graphRepair Pass
+
+Baseline: `6143d96` on `develop` after Unity metadata and package lock were pushed.
+
+### Graph Result
+
+#### G10: Production media provenance and Unity CI result capture
+
+- Findings: production asset/media blocker, GA-CI-03
+- Severity: Medium
+- Confidence: CONFIRMED
+- Component: Runtime media, asset manifests, Unity import CI
+- Files: `Assets/ClickDungeon/Art/**`, `Assets/ClickDungeon/Audio/**`, `scripts/generate-release-assets.py`, `scripts/validate-assets.py`, `Assets/ClickDungeon/Editor/PixelAssetImporter.cs`, `Assets/ClickDungeon/Editor/AnimationClipGenerator.cs`, `.github/workflows/unity-platform-ci.yml`
+- Execution path: release validation had no runtime art/audio manifests and no production media. A subsequent Unity CI audit showed EditMode tests passed, but the job failed while posting test results without `checks: write` and while writing metadata evidence under root-owned `test-artifacts`.
+- Repair: added a deterministic release asset generator that creates manifest-covered PNG/WAV runtime media and Unity sidecars, tightened asset validation to ignore `.meta` sidecars as media, fixed editor sheet detection so production `*_core` sprite sheets are sliced like development `*_core_*` sheets, repaired `TagManager.asset` empty layer entries, and updated Unity CI permissions/evidence capture.
+
+### Sixth /graphRepair Results
+
+- Production media/provenance blocker fixed at source level: `validate-assets.py` passes with 23 monster sheets, 4 hero sheets, 5 boss sheets, 10 biome masters, and 37 audio files.
+- Strict Unity metadata validation passes locally with 267 asset entries and 267 `.meta` files.
+- Unity editor local import could not complete because the local Unity licensing client repeatedly lost connection; GitHub Unity CI remains the external verification path.
+- Prior same-SHA Unity CI result for `6143d96` had EditMode tests passing `70/70`; the job failed after tests because result publishing lacked `checks: write` and metadata capture wrote under root-owned `test-artifacts`.
+
+Validation after sixth `/graphRepair`:
+
+- `python scripts\validate-content.py`: PASS
+- `python scripts\validate-replay.py`: PASS
+- `python scripts\static-audit.py`: PASS, `0 errors, 0 warnings`
+- `python scripts\validate-assets.py`: PASS
+- `python scripts\validate-unity-metadata.py --strict`: PASS
+- `python -m compileall -q scripts`: PASS
+- `python scripts\test-validators.py`: PASS
+- `python scripts\release-check.py`: expected BLOCKED only on absent same-SHA release artifacts.
+
+Remaining blockers:
+
+- WebGL persistence still needs an actual Unity WebGL/browser smoke test for the async JS callback path.
+- Release artifact verification needs a successful same-SHA Unity CI run and downloaded artifacts.

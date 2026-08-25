@@ -26,12 +26,14 @@ namespace ClickDungeon.EditorTools
             var importer=AssetImporter.GetAtPath(path) as TextureImporter;if(importer==null)return;
             importer.textureType=TextureImporterType.Sprite;importer.mipmapEnabled=false;importer.filterMode=FilterMode.Point;importer.textureCompression=TextureImporterCompression.Uncompressed;importer.alphaIsTransparency=true;importer.spritePixelsPerUnit=64;
             string file=Path.GetFileNameWithoutExtension(path);
-            if(file.StartsWith("monster_",StringComparison.Ordinal)&&file.Contains("_core_"))Slice(importer,256,192,64,new[]{"Attack","Defend","Move"},4);
-            else if(file.StartsWith("hero_",StringComparison.Ordinal)&&file.Contains("_core_"))Slice(importer,256,256,64,new[]{"Idle","Move","Attack","Defend"},4);
-            else if(file.StartsWith("boss_",StringComparison.Ordinal)&&file.Contains("_core_")){importer.spritePixelsPerUnit=128;Slice(importer,512,384,128,new[]{"Attack","Defend","Move"},4);}
+            if(file.StartsWith("monster_",StringComparison.Ordinal)&&IsCoreSheet(file))Slice(importer,256,192,64,new[]{"Attack","Defend","Move"},4);
+            else if(file.StartsWith("hero_",StringComparison.Ordinal)&&IsCoreSheet(file))Slice(importer,256,256,64,new[]{"Idle","Move","Attack","Defend"},4);
+            else if(file.StartsWith("boss_",StringComparison.Ordinal)&&IsCoreSheet(file)){importer.spritePixelsPerUnit=128;Slice(importer,512,384,128,new[]{"Attack","Defend","Move"},4);}
             else importer.spriteImportMode=SpriteImportMode.Single;
             importer.SaveAndReimport();
         }
+
+        private static bool IsCoreSheet(string file)=>file.EndsWith("_core",StringComparison.Ordinal)||file.Contains("_core_",StringComparison.Ordinal);
 
         private static void Slice(TextureImporter importer,int width,int height,int frame,string[] rows,int columns)
         {

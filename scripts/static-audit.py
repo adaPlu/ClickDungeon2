@@ -125,6 +125,8 @@ if sync_js.exists():
 # Generated Resources names are runtime contracts.
 content_gen=(ROOT/'Assets/ClickDungeon/Editor/ContentAssetGenerator.cs').read_text()
 presentation_gen=(ROOT/'Assets/ClickDungeon/Editor/PresentationAssetGenerator.cs').read_text()
+pixel_importer=(ROOT/'Assets/ClickDungeon/Editor/PixelAssetImporter.cs').read_text()
+animation_gen=(ROOT/'Assets/ClickDungeon/Editor/AnimationClipGenerator.cs').read_text()
 game_boot=(ROOT/'Assets/ClickDungeon/Presentation/GameBootstrap.cs').read_text()
 menu=(ROOT/'Assets/ClickDungeon/Presentation/Menu/MainMenuUI.cs').read_text()
 runtime_ui=(ROOT/'Assets/ClickDungeon/Presentation/UI/RuntimeGameUI.cs').read_text()
@@ -136,6 +138,11 @@ for token in ['Resources.Load<GeneratedContentDatabase>("ClickDungeonGeneratedCo
     if token not in game_boot or token not in menu:errors.append('Runtime generated-content Resources name does not match generator')
 for token in ['Resources.Load<PresentationAssetDatabase>("ClickDungeonPresentationAssets")']:
     if token not in runtime_ui:errors.append('Runtime presentation Resources name does not match generator')
+for name,text in [('PixelAssetImporter.cs',pixel_importer),('AnimationClipGenerator.cs',animation_gen)]:
+    if 'EndsWith("_core",StringComparison.Ordinal)' not in text:
+        errors.append(f'{name} does not recognize production *_core sprite sheet names')
+    if 'Contains("_core_",StringComparison.Ordinal)' not in text:
+        errors.append(f'{name} does not preserve compatibility with *_core_* development sheet names')
 
 release_path=ROOT/'scripts/release-check.py';release=release_path.read_text()
 store_gate=re.search(r"store_root\s*=\s*ROOT\s*/\s*['\"]Store['\"]",release)
@@ -183,6 +190,12 @@ for p in sorted(workflow_dir.glob('*.yml')):
 unity_ci=workflow_dir/'unity-platform-ci.yml'
 if unity_ci.exists() and 'allowDirtyBuild: true' in unity_ci.read_text():
     errors.append('unity-platform-ci.yml permits dirty Unity builds')
+if unity_ci.exists():
+    unity_ci_text=unity_ci.read_text()
+    if 'checks: write' not in unity_ci_text:
+        errors.append('unity-platform-ci.yml lacks checks: write permission for Unity test result publishing')
+    if 'test-artifacts/unity-import' in unity_ci_text:
+        errors.append('unity-platform-ci.yml writes metadata capture into root-owned test-artifacts')
 
 for token in ['Abyss Depth','ShowInventory','ClickDungeonPresentationAssets','RefreshIntent']:
     if token not in runtime_ui:errors.append(f'Runtime presentation contract missing {token}')

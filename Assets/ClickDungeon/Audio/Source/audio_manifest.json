@@ -1,0 +1,303 @@
+{
+  "assets": [
+    {
+      "asset_id": "audio.ambience.arcane_nexus",
+      "filename": "ambience_arcane_nexus.wav",
+      "prompt_ref": "procedural release ambience loop seed",
+      "sha256": "1ef142c5df5e13f2ce4ae2283b12fcc4a86c31bff25637ede7a45a6d8e28d104",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.ambience.ash_wastes",
+      "filename": "ambience_ash_wastes.wav",
+      "prompt_ref": "procedural release ambience loop seed",
+      "sha256": "4f1ca76a5e1555a8d14f9fac6d024db872a45a6cef4e09ef0cf1c15cb566e9a1",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.ambience.cavern",
+      "filename": "ambience_cavern.wav",
+      "prompt_ref": "procedural release ambience loop seed",
+      "sha256": "0572a5e6fbcce71cb15a9263af42206db69179ec6bd496dd418eb2dacf41ec4f",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.ambience.crypt",
+      "filename": "ambience_crypt.wav",
+      "prompt_ref": "procedural release ambience loop seed",
+      "sha256": "b61d9e747319e5cfb91312d1e07b93316b6f22861a32f5aa101d62e9eb2faa41",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.ambience.frozen_ruins",
+      "filename": "ambience_frozen_ruins.wav",
+      "prompt_ref": "procedural release ambience loop seed",
+      "sha256": "cadcd9b8e0989d7cd6a377fadb3eb5f9461efbde22b8ba33bd16fd3a9f50dcca",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.ambience.lava_field",
+      "filename": "ambience_lava_field.wav",
+      "prompt_ref": "procedural release ambience loop seed",
+      "sha256": "cc6a448ce825367e422db7e00f18496f9800255f6d62392ac2b6ee8b69ea4222",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.ambience.mire",
+      "filename": "ambience_mire.wav",
+      "prompt_ref": "procedural release ambience loop seed",
+      "sha256": "bb894e56d1e5a771970a0869a3a4782d707267f78daffcc09a4d0c5b9c0639ea",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.ambience.storm_plateau",
+      "filename": "ambience_storm_plateau.wav",
+      "prompt_ref": "procedural release ambience loop seed",
+      "sha256": "1223f79b3d426deee2a18190c7f260756de8e54f3d8bda7325cecb47468a9b8d",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.ambience.sunken_temple",
+      "filename": "ambience_sunken_temple.wav",
+      "prompt_ref": "procedural release ambience loop seed",
+      "sha256": "672ee08e6469c530a38c96e85898904bb13d868e7322183a70ba01ac450453e7",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.ambience.thorn_wilds",
+      "filename": "ambience_thorn_wilds.wav",
+      "prompt_ref": "procedural release ambience loop seed",
+      "sha256": "b1a567ab268ddd4b6cd4205c5143e505a87481603d0dc35075c49575ab424c0a",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.music.music_boss",
+      "filename": "music_boss.wav",
+      "prompt_ref": "procedural release music loop seed",
+      "sha256": "3c2c2e2638216dbd1aa068e6b8bcd1ecf94e6ffc3618613fcac1453ce57e7fba",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.music.music_combat",
+      "filename": "music_combat.wav",
+      "prompt_ref": "procedural release music loop seed",
+      "sha256": "df61701af2dc7f32ecabd13132c364b3568718e48480774e8928121604d4b943",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.music.music_defeat",
+      "filename": "music_defeat.wav",
+      "prompt_ref": "procedural release music loop seed",
+      "sha256": "3d7ed1a944616fc9ded7a9057118493dfb57e5e79f66f092fd3cf1b7df585db0",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.music.music_exploration",
+      "filename": "music_exploration.wav",
+      "prompt_ref": "procedural release music loop seed",
+      "sha256": "be8574a7637b51d90a9a99932abe07747eb0a6815d5e26248ae114d93c68bb41",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.music.music_final_boss",
+      "filename": "music_final_boss.wav",
+      "prompt_ref": "procedural release music loop seed",
+      "sha256": "46819abd54240cfc107b58701b24d8881ffa1a99d2665a72a9d1811459a21ab8",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.music.music_menu",
+      "filename": "music_menu.wav",
+      "prompt_ref": "procedural release music loop seed",
+      "sha256": "67f4feefd9ec6d2796ea138e864e036d4ae8b91c5d943b59d9b13ec26a583362",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.music.music_victory",
+      "filename": "music_victory.wav",
+      "prompt_ref": "procedural release music loop seed",
+      "sha256": "415160c5a270c57b81453ca25a7e18a0dddca0c61e6b7dd81cd9246231c8ebff",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.sfx.ability",
+      "filename": "ability.wav",
+      "prompt_ref": "procedural release sfx",
+      "sha256": "3b24b72adaa7afa068e7fcd6fa4a4f3e5e3864109c7848a666fed8b04916644a",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.sfx.attack_player",
+      "filename": "attack_player.wav",
+      "prompt_ref": "procedural release sfx",
+      "sha256": "7ec75e98be44d4ef4e9f70be5ba70cb7367ff79041d5fff17c27dd79c7ce74e4",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.sfx.boss_phase",
+      "filename": "boss_phase.wav",
+      "prompt_ref": "procedural release sfx",
+      "sha256": "2abd594bd3bf3341990175e918e87ff356c551f477c2048fc207f380933ebd4f",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.sfx.chest_open",
+      "filename": "chest_open.wav",
+      "prompt_ref": "procedural release sfx",
+      "sha256": "b763ccd948f4a0749cb81bfb35131610602ad9c405938454401a44df1b64ee0d",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.sfx.defeat",
+      "filename": "defeat.wav",
+      "prompt_ref": "procedural release sfx",
+      "sha256": "c954133d97ba367743c0e9235414d97e46fc33ac4cd354998c4d059b2e24755f",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.sfx.defend_player",
+      "filename": "defend_player.wav",
+      "prompt_ref": "procedural release sfx",
+      "sha256": "14e626447c2170a7e9d7511771cf635c20e10b90646c90ac90b42358b11ddf98",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.sfx.forbidden_exit",
+      "filename": "forbidden_exit.wav",
+      "prompt_ref": "procedural release sfx",
+      "sha256": "6be5206d4ccb628b171c32a7169036e2c770b21dc7d81d42891d2238bcfc1337",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.sfx.merchant",
+      "filename": "merchant.wav",
+      "prompt_ref": "procedural release sfx",
+      "sha256": "59b2f967a7885c2b84b6b5fe9d8ff4554b34fb4174f3efec68fd4be3c313b14f",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.sfx.monster_hit",
+      "filename": "monster_hit.wav",
+      "prompt_ref": "procedural release sfx",
+      "sha256": "c411bb0d2a385db6a37326f231c844139dabcccc0eae4b6a03c9b8f913e4bab1",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.sfx.pickup_gold",
+      "filename": "pickup_gold.wav",
+      "prompt_ref": "procedural release sfx",
+      "sha256": "8997a3a04816815bc46b943a0914754ee3d3b8b1419df687c69d9abd32c8acad",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.sfx.pickup_key",
+      "filename": "pickup_key.wav",
+      "prompt_ref": "procedural release sfx",
+      "sha256": "94c5c59ffbe00ce9aef8bf7e00f57605ff13f8d4a205b669165047ea8fda9d98",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.sfx.safe_exit",
+      "filename": "safe_exit.wav",
+      "prompt_ref": "procedural release sfx",
+      "sha256": "936e57dc481499babb3091c4dd156a9b6351df6eb1e5d07ddea6a7c23800ea8d",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.sfx.shrine",
+      "filename": "shrine.wav",
+      "prompt_ref": "procedural release sfx",
+      "sha256": "3e8229315862bf9f7562ddaffbc70ff656e208baf66b5adb0e55e3047df3f432",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.sfx.ui_reveal",
+      "filename": "ui_reveal.wav",
+      "prompt_ref": "procedural release sfx",
+      "sha256": "0f21fd89475ac0f3a534ba2bd306661660bca2ab22701d351b21f084a26d96ec",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.sfx.victory",
+      "filename": "victory.wav",
+      "prompt_ref": "procedural release sfx",
+      "sha256": "07cde51baec8e8e4bb55c9cd5c6978eea3218ade5364e759d9ed320a7a72f6fb",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.trap.acid",
+      "filename": "trap_acid.wav",
+      "prompt_ref": "procedural release trap sfx",
+      "sha256": "7c8cefad04aa4e01dce50239d1d7472c59be17f38452b5685ba2d91691519204",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.trap.fire",
+      "filename": "trap_fire.wav",
+      "prompt_ref": "procedural release trap sfx",
+      "sha256": "a3cb5a0da36c37e80a12551abab45a7e5abaca1623606b76bb54b7b72a784adc",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.trap.freeze",
+      "filename": "trap_freeze.wav",
+      "prompt_ref": "procedural release trap sfx",
+      "sha256": "217098b033d04db71c2f094105d0b846f36426cd5da58bc442f7f9307f2e084c",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.trap.pitfall",
+      "filename": "trap_pitfall.wav",
+      "prompt_ref": "procedural release trap sfx",
+      "sha256": "8f61598ca93fd1c386ad43f64ab746df9e1d6719a5370f4ef11850dd87139f60",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "audio.trap.poison",
+      "filename": "trap_poison.wav",
+      "prompt_ref": "procedural release trap sfx",
+      "sha256": "7c1950ca0ef2c4fdf9c6fcbd4f9b86ffcf8a02e1cac4928c016b937d202aec27",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    }
+  ],
+  "generated_by": "scripts/generate-release-assets.py",
+  "schema": "clickdungeon.asset_manifest.v1",
+  "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+}

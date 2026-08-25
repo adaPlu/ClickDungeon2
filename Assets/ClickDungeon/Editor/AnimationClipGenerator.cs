@@ -20,11 +20,13 @@ namespace ClickDungeon.EditorTools
             foreach(string guid in AssetDatabase.FindAssets("t:Texture2D",new[]{RuntimeArt}))
             {
                 string path=AssetDatabase.GUIDToAssetPath(guid);string file=Path.GetFileNameWithoutExtension(path);
-                if(!(file.Contains("_core_")&&(file.StartsWith("monster_")||file.StartsWith("hero_")||file.StartsWith("boss_"))))continue;
+                if(!(IsCoreSheet(file)&&(file.StartsWith("monster_")||file.StartsWith("hero_")||file.StartsWith("boss_"))))continue;
                 GenerateForSheet(path,file);
             }
             AssetDatabase.SaveAssets();AssetDatabase.Refresh();Debug.Log("ClickDungeon animation clips generated.");
         }
+
+        private static bool IsCoreSheet(string file)=>file.EndsWith("_core",StringComparison.Ordinal)||file.Contains("_core_",StringComparison.Ordinal);
 
         private static void GenerateForSheet(string sheetPath,string actorName)
         {

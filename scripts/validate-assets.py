@@ -37,7 +37,7 @@ def validate_manifest(path,runtime):
         if not row.get('usage_terms'): errors.append(f'{aid}: usage_terms missing')
         if not row.get('prompt_ref'): errors.append(f'{aid}: prompt_ref missing')
     if runtime.exists():
-        runtime_files={str(p.relative_to(runtime)).replace('\\','/') for p in runtime.rglob('*') if p.is_file()}
+        runtime_files={str(p.relative_to(runtime)).replace('\\','/') for p in runtime.rglob('*') if p.is_file() and p.suffix.lower()!='.meta'}
         manifest_files={filename.replace('\\','/') for filename in files}
         extra=sorted(runtime_files-manifest_files)
         for filename in extra: errors.append(f'{path.name}: runtime file is missing manifest coverage: {filename}')
