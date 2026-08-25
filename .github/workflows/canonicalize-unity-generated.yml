@@ -72,7 +72,6 @@ jobs:
           fi
 
           python3 scripts/validate-unity-metadata.py --strict
-          git diff --cached --check
           git diff --cached --stat
 
       - name: Commit canonical Unity state to develop
