@@ -88,6 +88,9 @@ check_production_manifest(
     ROOT / "Assets" / "ClickDungeon" / "Audio" / "Source" / "audio_manifest.json"
 )
 
+if not (ROOT / "Packages" / "packages-lock.json").is_file():
+    errors.append("missing Unity package lock: Packages/packages-lock.json")
+
 store_root = ROOT / "Store"
 if store_root.exists():
     store_placeholders = [

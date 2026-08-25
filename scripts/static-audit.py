@@ -145,9 +145,11 @@ if 'validate-replay.py' not in release:errors.append('release-check.py does not 
 if 'static-audit.py' not in release:errors.append('release-check.py does not run static-audit.py')
 if 'verify-release-artifacts.py' not in release:errors.append('release-check.py does not require release artifact verification')
 if 'validate-unity-metadata.py' not in release or '--strict' not in release:errors.append('release-check.py does not strictly gate Unity metadata reproducibility')
+if 'Packages' not in release or 'packages-lock.json' not in release:errors.append('release-check.py does not require Unity package lock')
 if not (ROOT/'scripts/validate-assets.py').exists():errors.append('scripts/validate-assets.py is missing')
 if not (ROOT/'scripts/test-validators.py').exists():errors.append('scripts/test-validators.py is missing')
 if not (ROOT/'scripts/verify-release-artifacts.py').exists():errors.append('scripts/verify-release-artifacts.py is missing')
+if not (ROOT/'Packages/packages-lock.json').is_file():errors.append('Packages/packages-lock.json is missing')
 
 artifact_inspector=ROOT/'scripts/inspect-build-artifact.py'
 if artifact_inspector.exists():
@@ -177,6 +179,10 @@ for p in sorted(workflow_dir.glob('*.yml')):
         if not sha_ref.fullmatch(ref):errors.append(f'{p.relative_to(ROOT)} action {name} is not pinned to a full commit SHA')
     if re.search(r'^\s*pull_request\s*:',text,re.MULTILINE) and re.search(r'UNITY_(LICENSE|SERIAL|EMAIL|PASSWORD)\s*:\s*\$\{\{\s*secrets\.',text):
         errors.append(f'{p.relative_to(ROOT)} exposes Unity secrets to pull_request jobs')
+
+unity_ci=workflow_dir/'unity-platform-ci.yml'
+if unity_ci.exists() and 'allowDirtyBuild: true' in unity_ci.read_text():
+    errors.append('unity-platform-ci.yml permits dirty Unity builds')
 
 for token in ['Abyss Depth','ShowInventory','ClickDungeonPresentationAssets','RefreshIntent']:
     if token not in runtime_ui:errors.append(f'Runtime presentation contract missing {token}')

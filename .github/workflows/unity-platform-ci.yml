@@ -122,7 +122,7 @@ jobs:
           unityVersion: 6000.5.9f1
           targetPlatform: StandaloneWindows64
           buildMethod: ClickDungeon.EditorTools.BuildAutomation.BuildWindows
-          allowDirtyBuild: true
+          allowDirtyBuild: false
       - name: Inspect Windows player artifact
         run: python3 scripts/inspect-build-artifact.py windows Builds/Windows
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -150,7 +150,7 @@ jobs:
           unityVersion: 6000.5.9f1
           targetPlatform: Android
           buildMethod: ClickDungeon.EditorTools.BuildAutomation.BuildAndroid
-          allowDirtyBuild: true
+          allowDirtyBuild: false
       - name: Inspect Android App Bundle artifact
         run: python3 scripts/inspect-build-artifact.py android Builds/Android
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -178,7 +178,7 @@ jobs:
           unityVersion: 6000.5.9f1
           targetPlatform: WebGL
           buildMethod: ClickDungeon.EditorTools.BuildAutomation.BuildWeb
-          allowDirtyBuild: true
+          allowDirtyBuild: false
       - name: Inspect WebGL player artifact
         run: python3 scripts/inspect-build-artifact.py webgl Builds/Web
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
