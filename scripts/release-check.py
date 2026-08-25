@@ -73,6 +73,14 @@ run_check(
     [sys.executable, str(ROOT / "scripts" / "validate-unity-metadata.py"), "--strict"],
 )
 
+if (ROOT / "release-artifacts").is_dir():
+    run_check(
+        "Release artifact verification",
+        [sys.executable, str(ROOT / "scripts" / "verify-release-artifacts.py"), "release-artifacts"],
+    )
+else:
+    errors.append("release artifacts are missing; run release-gate with a successful same-SHA Unity CI run ID")
+
 check_production_manifest(
     ROOT / "Assets" / "ClickDungeon" / "Art" / "Source" / "asset_manifest.json"
 )

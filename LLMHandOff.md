@@ -314,8 +314,6 @@ Completed in this session:
 
 Blocked or intentionally unresolved:
 
-- `REL-05` needs a WebGL async persistence callback design and Unity/WebGL validation.
-- `REL-06` needs a release artifact/signing process decision.
 - `REL-07` needs Unity-generated canonical `.meta` files and ProjectSettings before dirty-build enforcement can be disabled.
 - `SEC-03` needs a Unity-generated `Packages/packages-lock.json`.
 - Production asset/media blockers require final art/audio/store assets and manifests.
@@ -354,7 +352,7 @@ Independent review:
 | CI-01 | Fixed | VERIFIED | Strong static/simulation/application workflows now trigger for `develop`; remote validator also runs replay validation. |
 | SEC-01 | Fixed | VERIFIED | Second `/Gaudit` pass moved Unity Platform CI off `pull_request` and removed Unity secret reads from `pr-diagnostic.yml`; static audit now rejects Unity secrets in PR workflows. |
 | SEC-02 | Fixed | VERIFIED | Second `/Gaudit` pass pinned external workflow actions to full commit SHAs and added a static audit rule for mutable action refs. |
-| REL-06 | Blocked | CONFIRMED | Requires artifact/signing release process. |
+| REL-06 | Fixed | VERIFIED | Release gate now requires a successful same-SHA Unity CI run ID, downloads Windows/Android/WebGL artifacts, verifies their structure, and rejects unsigned Android AAB metadata. |
 | REL-07 | Blocked | CONFIRMED | Requires Unity-generated canonical metadata. |
 | SEC-03 | Blocked | CONFIRMED | Requires Unity-generated package lock. |
 | SEC-04 | Fixed | VERIFIED | Asset validator now rejects runtime files missing manifest coverage and placeholder runtime filenames. |
@@ -416,7 +414,6 @@ Validation after second `/graphRepair`:
 
 Remaining blockers:
 
-- `REL-06`: Release readiness still needs artifact/signing verification for same-SHA builds.
 - `REL-07`: Dirty Unity build enforcement still waits on canonical `.meta` and ProjectSettings files.
 - `SEC-03`: Unity package lock still requires Unity-generated `Packages/packages-lock.json`.
 - Production asset/media blockers still require final manifests and runtime media.
@@ -459,7 +456,50 @@ Independent review:
 Remaining blockers:
 
 - WebGL persistence still needs an actual Unity WebGL/browser smoke test for the async JS callback path.
-- `REL-06`: Release readiness still needs artifact/signing verification for same-SHA builds.
+- `REL-07`: Dirty Unity build enforcement still waits on canonical `.meta` and ProjectSettings files.
+- `SEC-03`: Unity package lock still requires Unity-generated `Packages/packages-lock.json`.
+- Production asset/media blockers still require final manifests and runtime media.
+
+## Fourth Graph Results And /graphRepair Pass
+
+Baseline: `d15c5c2` on `develop` after WebGL persistence sync status was pushed.
+
+### Graph Result
+
+#### G8: Release artifact and Android signing readiness
+
+- Finding: `REL-06`
+- Severity: Medium
+- Confidence: CONFIRMED
+- Component: Release workflow and artifact validators
+- Files: `.github/workflows/release-gate.yml`, `scripts/release-check.py`, `scripts/verify-release-artifacts.py`, `scripts/inspect-build-artifact.py`, `scripts/static-audit.py`, `scripts/test-validators.py`
+- Execution path: release readiness previously validated source state but did not require artifacts from a successful Unity CI run for the same SHA, and Android AAB inspection did not check signing metadata.
+- Repair: require a `unity_run_id` input for manual release readiness, verify that GitHub Actions run completed successfully for the current SHA, download expected platform artifacts, inspect Windows/Android/WebGL outputs, require Android signing metadata, and make `release-check.py` block when release artifacts are absent.
+
+### Fourth /graphRepair Results
+
+- `REL-06` fixed at the release gate and local release-check layer.
+- Added aggregate release artifact verifier for downloaded Unity CI artifacts.
+- Added validator fixtures for missing platform artifacts and unsigned Android AAB metadata.
+- Added static audit checks so release artifact verification remains wired into `release-check.py` and `release-gate.yml`.
+
+Validation after fourth `/graphRepair`:
+
+- `python -m compileall -q scripts`: PASS
+- `python scripts\validate-content.py`: PASS
+- `python scripts\validate-replay.py`: PASS
+- `python scripts\test-validators.py`: PASS
+- `python scripts\static-audit.py`: PASS, `0 errors, 0 warnings`
+- `python scripts\release-check.py`: expected BLOCKED on absent release artifacts, media/provenance, Unity metadata, and dirty-build enforcement pending canonical Unity metadata.
+
+Independent review:
+
+- Review approved the release gate same-SHA Unity CI run check, expected artifact downloads, aggregate artifact verifier, Android signing metadata inspection, release-check missing-artifact blocker, static audit contract checks, and validator negative coverage.
+- No remaining REL-06 findings.
+
+Remaining blockers:
+
+- WebGL persistence still needs an actual Unity WebGL/browser smoke test for the async JS callback path.
 - `REL-07`: Dirty Unity build enforcement still waits on canonical `.meta` and ProjectSettings files.
 - `SEC-03`: Unity package lock still requires Unity-generated `Packages/packages-lock.json`.
 - Production asset/media blockers still require final manifests and runtime media.

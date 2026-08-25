@@ -56,6 +56,20 @@ def inspect_android(root: Path) -> None:
             fail("Android App Bundle does not contain a base manifest")
         if not any(name.startswith("base/dex/") or name.startswith("base/root/") or name.startswith("base/lib/") for name in names):
             fail("Android App Bundle does not contain expected base application payload")
+        signatures = [
+            name
+            for name in names
+            if name.upper().startswith("META-INF/")
+            and name.upper().endswith((".RSA", ".DSA", ".EC"))
+        ]
+        signature_manifests = [
+            name
+            for name in names
+            if name.upper().startswith("META-INF/")
+            and name.upper().endswith(".SF")
+        ]
+        if not signatures or not signature_manifests:
+            fail("Android App Bundle does not contain signing metadata")
     print(
         "ANDROID ARTIFACT OK: "
         f"bytes={bundle.stat().st_size} entries={len(names)} sha256={sha256(bundle)}"

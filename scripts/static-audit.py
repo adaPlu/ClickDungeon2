@@ -143,9 +143,25 @@ if not store_gate or 'placeholder' not in release.lower():errors.append('release
 if 'validate-assets.py' not in release:errors.append('release-check.py does not run validate-assets.py')
 if 'validate-replay.py' not in release:errors.append('release-check.py does not run validate-replay.py')
 if 'static-audit.py' not in release:errors.append('release-check.py does not run static-audit.py')
+if 'verify-release-artifacts.py' not in release:errors.append('release-check.py does not require release artifact verification')
 if 'validate-unity-metadata.py' not in release or '--strict' not in release:errors.append('release-check.py does not strictly gate Unity metadata reproducibility')
 if not (ROOT/'scripts/validate-assets.py').exists():errors.append('scripts/validate-assets.py is missing')
 if not (ROOT/'scripts/test-validators.py').exists():errors.append('scripts/test-validators.py is missing')
+if not (ROOT/'scripts/verify-release-artifacts.py').exists():errors.append('scripts/verify-release-artifacts.py is missing')
+
+artifact_inspector=ROOT/'scripts/inspect-build-artifact.py'
+if artifact_inspector.exists():
+    artifact_text=artifact_inspector.read_text()
+    if 'signing metadata' not in artifact_text or 'META-INF/' not in artifact_text:
+        errors.append('inspect-build-artifact.py does not verify Android signing metadata')
+else:errors.append('scripts/inspect-build-artifact.py is missing')
+
+release_workflow=ROOT/'.github/workflows/release-gate.yml'
+if release_workflow.exists():
+    release_workflow_text=release_workflow.read_text()
+    for token in ['unity_run_id','gh run view','headSha','gh run download','verify-release-artifacts.py']:
+        if token not in release_workflow_text:errors.append(f'release-gate.yml missing same-SHA artifact gate token {token}')
+else:errors.append('.github/workflows/release-gate.yml is missing')
 
 workflow_dir=ROOT/'.github/workflows'
 sha_ref=re.compile(r'^[0-9a-f]{40}$')

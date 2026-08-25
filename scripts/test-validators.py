@@ -5,6 +5,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import zipfile
 
 ROOT=Path(__file__).resolve().parents[1]
 
@@ -43,8 +44,37 @@ def test_nested_runtime_asset_requires_manifest_coverage():
     finally:
         shutil.rmtree(temp,ignore_errors=True)
 
+def test_release_artifacts_require_all_platform_outputs():
+    temp=Path(tempfile.mkdtemp(prefix='cd2-release-artifacts-'))
+    try:
+        (temp/'ClickDungeon2-Windows').mkdir()
+        result=subprocess.run([sys.executable,str(ROOT/'scripts'/'verify-release-artifacts.py'),str(temp)],capture_output=True,text=True)
+        output=result.stdout+result.stderr
+        if result.returncode==0 or 'missing downloaded artifact directory: ClickDungeon2-Android-AAB' not in output:
+            print(output)
+            raise AssertionError('release artifact verification did not reject missing platform artifacts')
+    finally:
+        shutil.rmtree(temp,ignore_errors=True)
+
+def test_android_artifact_requires_signing_metadata():
+    temp=Path(tempfile.mkdtemp(prefix='cd2-android-artifact-'))
+    try:
+        bundle=temp/'ClickDungeon2.aab'
+        with zipfile.ZipFile(bundle,'w') as archive:
+            archive.writestr('base/manifest/AndroidManifest.xml',b'manifest')
+            archive.writestr('base/dex/classes.dex',b'dex')
+        result=subprocess.run([sys.executable,str(ROOT/'scripts'/'inspect-build-artifact.py'),'android',str(temp)],capture_output=True,text=True)
+        output=result.stdout+result.stderr
+        if result.returncode==0 or 'signing metadata' not in output:
+            print(output)
+            raise AssertionError('Android artifact inspection did not reject unsigned AAB metadata')
+    finally:
+        shutil.rmtree(temp,ignore_errors=True)
+
 def main():
     test_nested_runtime_asset_requires_manifest_coverage()
+    test_release_artifacts_require_all_platform_outputs()
+    test_android_artifact_requires_signing_metadata()
     print('VALIDATOR TESTS PASSED')
 
 if __name__=='__main__':

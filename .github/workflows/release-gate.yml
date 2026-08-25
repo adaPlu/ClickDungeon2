@@ -2,9 +2,15 @@ name: Release Readiness Gate
 
 on:
   workflow_dispatch:
+    inputs:
+      unity_run_id:
+        description: Unity Platform CI run ID for this exact commit
+        required: true
+        type: string
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   release-readiness:
@@ -15,6 +21,40 @@ jobs:
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: '3.12'
+
+      - name: Verify Unity CI run for this commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          UNITY_RUN_ID: ${{ inputs.unity_run_id }}
+        shell: bash
+        run: |
+          head_sha="$(gh run view "$UNITY_RUN_ID" --json headSha --jq '.headSha')"
+          status="$(gh run view "$UNITY_RUN_ID" --json status --jq '.status')"
+          conclusion="$(gh run view "$UNITY_RUN_ID" --json conclusion --jq '.conclusion')"
+          if [ "$head_sha" != "$GITHUB_SHA" ]; then
+            echo "Unity CI run SHA $head_sha does not match release SHA $GITHUB_SHA"
+            exit 1
+          fi
+          if [ "$status" != "completed" ] || [ "$conclusion" != "success" ]; then
+            echo "Unity CI run is not a successful completed run: status=$status conclusion=$conclusion"
+            exit 1
+          fi
+
+      - name: Download Unity CI artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          UNITY_RUN_ID: ${{ inputs.unity_run_id }}
+        shell: bash
+        run: |
+          mkdir -p release-artifacts/ClickDungeon2-Windows
+          mkdir -p release-artifacts/ClickDungeon2-Android-AAB
+          mkdir -p release-artifacts/ClickDungeon2-WebGL
+          gh run download "$UNITY_RUN_ID" --name ClickDungeon2-Windows --dir release-artifacts/ClickDungeon2-Windows
+          gh run download "$UNITY_RUN_ID" --name ClickDungeon2-Android-AAB --dir release-artifacts/ClickDungeon2-Android-AAB
+          gh run download "$UNITY_RUN_ID" --name ClickDungeon2-WebGL --dir release-artifacts/ClickDungeon2-WebGL
+
+      - name: Verify release artifacts
+        run: python scripts/verify-release-artifacts.py release-artifacts
 
       - name: Validate canonical content
         run: python scripts/validate-content.py
