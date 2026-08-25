@@ -1,18 +1,21 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
+using ClickDungeon.Simulation.Content;
+using ClickDungeon.Simulation.Model;
+using ClickDungeon.Simulation.Status;
+using ClickDungeon.Simulation.Combat;
+using ClickDungeon.Simulation.Progression;
+
+#if UNITY_EDITOR
+using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 using ClickDungeon.Presentation;
 using ClickDungeon.Presentation.Menu;
 using ClickDungeon.Presentation.UI;
-using ClickDungeon.Simulation.Content;
-using ClickDungeon.Simulation.Model;
-using ClickDungeon.Simulation.Status;
-using ClickDungeon.Simulation.Combat;
-using ClickDungeon.Simulation.Progression;
+#endif
 
 public sealed class CanonicalContentBehaviorTests
 {
@@ -60,6 +63,7 @@ public sealed class CanonicalContentBehaviorTests
         CollectionAssert.Contains(new List<string>(AchievementEvaluator.Evaluate(content,state,evt)),"achievement.depth_99");
     }
 
+#if UNITY_EDITOR
     [UnityTest]
     public IEnumerator PostWindowsRuntimeSmokeLoadsBootMainAndGame()
     {
@@ -98,4 +102,5 @@ public sealed class CanonicalContentBehaviorTests
         Assert.IsTrue(sessionReady,"GameBootstrap did not create a GameSession.");
         Assert.IsTrue(runtimeUiReady,"Game scene did not initialize RuntimeGameUI.");
     }
+#endif
 }
