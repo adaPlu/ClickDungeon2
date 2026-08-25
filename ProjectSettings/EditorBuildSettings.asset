@@ -4,5 +4,14 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/ClickDungeon/Scenes/Boot.unity
+    guid: ce40fc8788f99bcfd9e31b50725fa527
+  - enabled: 1
+    path: Assets/ClickDungeon/Scenes/Main.unity
+    guid: fcb399106fd9bb3278014a403fd5d4fd
+  - enabled: 1
+    path: Assets/ClickDungeon/Scenes/Game.unity
+    guid: 4b304f8fe842c8e62a60da2d75e81973
   m_configObjects: {}
