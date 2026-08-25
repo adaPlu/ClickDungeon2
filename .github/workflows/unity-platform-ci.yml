@@ -169,6 +169,11 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
+      - name: Enable post-Windows runtime smoke
+        shell: bash
+        run: |
+          mkdir -p .ci
+          : > .ci/runtime-smoke.enabled
       - name: Run post-Windows presentation/runtime smoke
         uses: game-ci/unity-test-runner@0ff419b913a3630032cbe0de48a0099b5a9f0ed9
         env:
@@ -176,12 +181,34 @@ jobs:
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-          CLICKDUNGEON_RUNTIME_SMOKE: '1'
         with:
           unityVersion: 6000.5.9f1
           testMode: EditMode
           artifactsPath: runtime-smoke-results
           githubToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Require runtime smoke test to execute and pass
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          path = Path("runtime-smoke-results/editmode-results.xml")
+          if not path.is_file():
+              raise SystemExit(f"Runtime smoke result XML is missing: {path}")
+
+          root = ET.parse(path).getroot()
+          expected = "CanonicalContentBehaviorTests.PostWindowsRuntimeSmokeLoadsBootMainAndGame"
+          matches = [case for case in root.iter("test-case") if case.get("fullname") == expected]
+          if len(matches) != 1:
+              raise SystemExit(f"Expected exactly one runtime smoke test result for {expected}; found {len(matches)}")
+
+          result = matches[0].get("result")
+          label = matches[0].get("label", "")
+          print(f"Runtime smoke result: {result} {label}".strip())
+          if result != "Passed":
+              raise SystemExit(f"Runtime smoke did not execute successfully: result={result!r}, label={label!r}")
+          PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
