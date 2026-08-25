@@ -1,0 +1,85 @@
+name: Canonicalize captured Unity editor outputs
+
+on:
+  push:
+    branches: [unity-canonicalize]
+    paths:
+      - '.github/workflows/canonicalize-unity-generated.yml'
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  canonicalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: develop
+          fetch-depth: 0
+
+      - name: Download proven Unity 6000.5.9f1 evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .ci/canonicalize/edit .ci/canonicalize/windows
+          gh run download 32873423454 --repo "$GITHUB_REPOSITORY" --name unity-editmode-results --dir .ci/canonicalize/edit
+          gh run download 32873423454 --repo "$GITHUB_REPOSITORY" --name unity-windows-project-delta --dir .ci/canonicalize/windows
+          mkdir -p .ci/canonicalize/edit-snapshot .ci/canonicalize/windows-snapshot
+          tar -xzf .ci/canonicalize/edit/.ci/unity-import/metadata-snapshot.tar.gz -C .ci/canonicalize/edit-snapshot
+          tar -xzf .ci/canonicalize/windows/project-delta.tar.gz -C .ci/canonicalize/windows-snapshot
+
+      - name: Apply only portable Editor-generated state
+        shell: bash
+        run: |
+          set -euo pipefail
+          status=.ci/canonicalize/edit/.ci/unity-import/status.txt
+          imported=0
+          while IFS= read -r line; do
+            if [[ "$line" == " M Assets/"*.meta ]]; then
+              path="${line:3}"
+              install -D -m 0644 ".ci/canonicalize/edit-snapshot/$path" "$path"
+              imported=$((imported + 1))
+            fi
+          done < "$status"
+          if [ "$imported" -ne 32 ]; then
+            echo "Expected exactly 32 first-import runtime-art meta upgrades, found $imported"
+            exit 1
+          fi
+
+          install -D -m 0644 .ci/canonicalize/windows-snapshot/Assets/ClickDungeon/Scenes.meta Assets/ClickDungeon/Scenes.meta
+          rm -rf Assets/ClickDungeon/Scenes
+          cp -a .ci/canonicalize/windows-snapshot/Assets/ClickDungeon/Scenes Assets/ClickDungeon/Scenes
+          install -D -m 0644 .ci/canonicalize/windows-snapshot/ProjectSettings/EditorBuildSettings.asset ProjectSettings/EditorBuildSettings.asset
+
+          git add Assets/ClickDungeon/Art/Runtime/*.meta Assets/ClickDungeon/Scenes.meta Assets/ClickDungeon/Scenes ProjectSettings/EditorBuildSettings.asset
+          git diff --cached --name-only > .ci/canonicalize/staged.txt
+
+          if grep -Eq '^(Packages/|ProjectSettings/(ProjectAuditorSettings|ShaderGraphSettings|ProjectSettings)\.asset$)' .ci/canonicalize/staged.txt; then
+            echo 'Runner-specific or target-specific state was accidentally staged.'
+            cat .ci/canonicalize/staged.txt
+            exit 1
+          fi
+
+          staged_count="$(wc -l < .ci/canonicalize/staged.txt | tr -d ' ')"
+          if [ "$staged_count" -ne 40 ]; then
+            echo "Expected exactly 40 canonicalized files, found $staged_count"
+            cat .ci/canonicalize/staged.txt
+            exit 1
+          fi
+
+          python3 scripts/validate-unity-metadata.py --strict
+          git diff --cached --check
+          git diff --cached --stat
+
+      - name: Commit canonical Unity state to develop
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'chore: canonicalize Unity editor metadata and scenes'
+          git push origin HEAD:develop
