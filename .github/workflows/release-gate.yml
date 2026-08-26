@@ -28,9 +28,17 @@ jobs:
           UNITY_RUN_ID: ${{ inputs.unity_run_id }}
         shell: bash
         run: |
-          head_sha="$(gh run view "$UNITY_RUN_ID" --json headSha --jq '.headSha')"
-          status="$(gh run view "$UNITY_RUN_ID" --json status --jq '.status')"
-          conclusion="$(gh run view "$UNITY_RUN_ID" --json conclusion --jq '.conclusion')"
+          run_json="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${UNITY_RUN_ID}")"
+          head_sha="$(jq -r '.head_sha' <<<"$run_json")"
+          status="$(jq -r '.status' <<<"$run_json")"
+          conclusion="$(jq -r '.conclusion' <<<"$run_json")"
+          workflow_name="$(jq -r '.name' <<<"$run_json")"
+          workflow_path="$(jq -r '.path' <<<"$run_json")"
+
+          if [ "$workflow_name" != "Unity Platform CI" ] || [ "$workflow_path" != ".github/workflows/unity-platform-ci.yml" ]; then
+            echo "Run $UNITY_RUN_ID is not the required Unity Platform CI workflow: name=$workflow_name path=$workflow_path"
+            exit 1
+          fi
           if [ "$head_sha" != "$GITHUB_SHA" ]; then
             echo "Unity CI run SHA $head_sha does not match release SHA $GITHUB_SHA"
             exit 1
