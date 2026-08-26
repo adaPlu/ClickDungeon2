@@ -20,7 +20,7 @@ namespace ClickDungeon.EditorTools
             PrototypeAssetBootstrap.Ensure();
             SceneScaffolder.EnsureCoreScenes();
             ContentAssetGenerator.Generate(false);
-            PresentationAssetGenerator.Generate(false);
+            PresentationAssetGenerator.Generate(false,false);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
             Directory.CreateDirectory(Path.GetDirectoryName(path)??path);
