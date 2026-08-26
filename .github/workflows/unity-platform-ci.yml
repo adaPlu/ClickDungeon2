@@ -164,51 +164,61 @@ jobs:
 
   runtime-smoke:
     needs: windows
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Download built Windows player
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
-          fetch-depth: 0
-      - name: Enable post-Windows runtime smoke
-        shell: bash
+          name: ClickDungeon2-Windows
+          path: Builds/Windows
+      - name: Launch and verify built Windows player
+        shell: pwsh
         run: |
-          mkdir -p .ci
-          : > .ci/runtime-smoke.enabled
-      - name: Run post-Windows presentation/runtime smoke
-        uses: game-ci/unity-test-runner@0ff419b913a3630032cbe0de48a0099b5a9f0ed9
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-        with:
-          unityVersion: 6000.5.9f1
-          testMode: EditMode
-          artifactsPath: runtime-smoke-results
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
-      - name: Require runtime smoke test to execute and pass
-        shell: bash
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          import xml.etree.ElementTree as ET
+          $ErrorActionPreference = 'Stop'
+          $results = Join-Path $PWD 'runtime-smoke-results'
+          New-Item -ItemType Directory -Force -Path $results | Out-Null
+          $logPath = Join-Path $results 'player.log'
+          $exe = Get-ChildItem -Path 'Builds/Windows' -Filter '*.exe' -File -Recurse |
+            Where-Object { $_.Name -notmatch '^UnityCrashHandler' } |
+            Select-Object -First 1
+          if ($null -eq $exe) { throw 'ClickDungeon2 Windows executable was not found in the downloaded artifact.' }
 
-          path = Path("runtime-smoke-results/editmode-results.xml")
-          if not path.is_file():
-              raise SystemExit(f"Runtime smoke result XML is missing: {path}")
+          Write-Host "Launching built player: $($exe.FullName)"
+          $arguments = "-batchmode -nographics -logFile `"$logPath`" -cd2RuntimeSmoke"
+          $process = Start-Process -FilePath $exe.FullName -ArgumentList $arguments -PassThru
+          $deadline = [DateTime]::UtcNow.AddSeconds(70)
+          while (-not $process.HasExited -and [DateTime]::UtcNow -lt $deadline) {
+            Start-Sleep -Seconds 1
+            $process.Refresh()
+          }
 
-          root = ET.parse(path).getroot()
-          expected = "CanonicalContentBehaviorTests.PostWindowsRuntimeSmokeLoadsBootMainAndGame"
-          matches = [case for case in root.iter("test-case") if case.get("fullname") == expected]
-          if len(matches) != 1:
-              raise SystemExit(f"Expected exactly one runtime smoke test result for {expected}; found {len(matches)}")
+          if (-not $process.HasExited) {
+            Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+            if (Test-Path $logPath) { Get-Content $logPath }
+            throw 'Built Windows player did not complete the runtime smoke within 70 seconds.'
+          }
 
-          result = matches[0].get("result")
-          label = matches[0].get("label", "")
-          print(f"Runtime smoke result: {result} {label}".strip())
-          if result != "Passed":
-              raise SystemExit(f"Runtime smoke did not execute successfully: result={result!r}, label={label!r}")
-          PY
+          $exitCode = $process.ExitCode
+          if (-not (Test-Path $logPath)) { throw "Built player exited with code $exitCode but did not produce player.log." }
+          $logText = Get-Content -Raw $logPath
+          Get-Content $logPath
+
+          if ($exitCode -ne 0) { throw "Built Windows player runtime smoke exited with code $exitCode." }
+          if ($logText.Contains('[CD2_RUNTIME_SMOKE] FAIL')) { throw 'Built player emitted an explicit runtime-smoke failure marker.' }
+
+          $requiredMarkers = @(
+            '[CD2_RUNTIME_SMOKE] START',
+            '[CD2_RUNTIME_SMOKE] SCENE Boot',
+            '[CD2_RUNTIME_SMOKE] SCENE Main',
+            '[CD2_RUNTIME_SMOKE] MAIN_READY',
+            '[CD2_RUNTIME_SMOKE] SCENE Game',
+            '[CD2_RUNTIME_SMOKE] GAME_READY',
+            '[CD2_RUNTIME_SMOKE] PASS'
+          )
+          foreach ($marker in $requiredMarkers) {
+            if (-not $logText.Contains($marker)) { throw "Required runtime marker missing: $marker" }
+          }
+          Write-Host 'Built Windows player proved Boot -> Main -> Game and initialized GameBootstrap successfully.'
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
