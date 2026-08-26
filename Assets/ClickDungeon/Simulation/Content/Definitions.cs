@@ -173,13 +173,36 @@ namespace ClickDungeon.Simulation.Content
         }
     }
 
+    public sealed class BalanceRangeDefinition
+    {
+        public int Min;
+        public int Max;
+    }
+
+    public sealed class PowerEnvelopeDefinition
+    {
+        public int Floor;
+        public int Hp;
+        public int Attack;
+        public int Defense;
+        public int ItemTier;
+    }
+
     public sealed class BalanceDefinition
     {
         public int CampaignFloors = 50;
+        public int BoardSize = RunState.BoardSize;
         public int BigKeyMaxCarry = 2;
+        public BalanceRangeDefinition TargetFloorSeconds = new BalanceRangeDefinition();
+        public BalanceRangeDefinition TargetCampaignMinutes = new BalanceRangeDefinition();
+        public BalanceRangeDefinition NormalEncounterDecisions = new BalanceRangeDefinition();
+        public BalanceRangeDefinition EliteEncounterDecisions = new BalanceRangeDefinition();
+        public BalanceRangeDefinition BossEncounterDecisions = new BalanceRangeDefinition();
         public int ForbiddenMonsterDelta = 2;
         public int ForbiddenTrapDelta = 1;
         public int ForbiddenEliteChanceBasisPoints = 2500;
         public int ForbiddenGoldMultiplierBasisPoints = 15000;
+        public int ForbiddenRareRewardMultiplierBasisPoints = 16000;
+        public PowerEnvelopeDefinition[] PowerEnvelopes = new PowerEnvelopeDefinition[0];
     }
 }
