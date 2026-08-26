@@ -197,7 +197,14 @@ namespace ClickDungeon.Simulation.Balance
                 return 880;
             }
             if(command is BuyItemCommand)return policy==BalancePolicy.Cautious?920:600;
-            if(command is RevealTileCommand)return policy==BalancePolicy.Cautious?500:650;
+            if(command is RevealTileCommand reveal)
+            {
+                var clue=state.Tiles[reveal.TileIndex].Clue;
+                if(policy==BalancePolicy.Cautious)return clue==ClueFamily.Danger?100:clue==ClueFamily.Opportunity?700:clue==ClueFamily.PassageArcane?780:500;
+                if(policy==BalancePolicy.GreedyLoot)return clue==ClueFamily.Opportunity?920:clue==ClueFamily.PassageArcane?700:clue==ClueFamily.Danger?450:650;
+                if(policy==BalancePolicy.HardRoute)return clue==ClueFamily.PassageArcane?900:clue==ClueFamily.Opportunity?760:clue==ClueFamily.Danger?600:650;
+                return 650;
+            }
             if(command is MoveCommand move)
             {
                 int visits=visitCounts!=null&&move.TileIndex>=0&&move.TileIndex<visitCounts.Length?visitCounts[move.TileIndex]:0;
