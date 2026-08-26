@@ -66,26 +66,28 @@ namespace ClickDungeon.Simulation.Balance
         {
             var generator=new FloorGenerator(_content);var state=generator.CreateNewRun(seed,hero);state.CampaignFloorLimit=_content.Balance.CampaignFloors;
             var session=new GameSession(state,generator,_content);var chooserRng=new XorShift32(seed^0xA511E9B3u);int highest=state.Floor;int accepted=0;bool stalled=false;
+            var visitCounts=new int[RunState.BoardSize*RunState.BoardSize];int visitFloor=state.Floor;visitCounts[Index(state.PlayerPosition)]=1;
             for(int step=0;step<maxCommands&&!state.GameOver&&!state.CampaignCompleted;step++)
             {
-                var command=Choose(state,policy,chooserRng);if(command==null){stalled=true;break;}
+                if(state.Floor!=visitFloor){Array.Clear(visitCounts,0,visitCounts.Length);visitFloor=state.Floor;visitCounts[Index(state.PlayerPosition)]=1;}
+                var command=Choose(state,policy,chooserRng,visitCounts);if(command==null){stalled=true;break;}
                 var commandResult=session.Apply(command);
                 if(!commandResult.Accepted){stalled=true;break;}
-                accepted++;if(command is TakeForbiddenExitCommand)metrics.ForbiddenExits++;highest=Math.Max(highest,state.Floor);
+                accepted++;if(command is MoveCommand)visitCounts[Index(state.PlayerPosition)]++;if(command is TakeForbiddenExitCommand)metrics.ForbiddenExits++;highest=Math.Max(highest,state.Floor);
             }
             if(!state.GameOver&&!state.CampaignCompleted&&accepted>=maxCommands)stalled=true;
             if(state.GameOver)metrics.Deaths++;if(state.CampaignCompleted)metrics.CampaignCompletions++;if(stalled&&!state.GameOver&&!state.CampaignCompleted)metrics.StalledRuns++;
             metrics.TotalCommands+=accepted;metrics.TotalHighestFloor+=highest;metrics.TotalEndingGold+=state.Gold;
         }
 
-        private GameCommand Choose(RunState state,BalancePolicy policy,IRandomSource rng)
+        private GameCommand Choose(RunState state,BalancePolicy policy,IRandomSource rng,int[] visitCounts)
         {
             var candidates=LegalCandidates(state,policy).ToList();if(candidates.Count==0)return null;
             if(policy==BalancePolicy.RandomLegal)return candidates[rng.NextInt(candidates.Count)];
             int best=int.MinValue;var bestCommands=new List<GameCommand>();
             foreach(var command in candidates)
             {
-                int score=Score(state,command,policy);
+                int score=Score(state,command,policy,visitCounts);
                 if(score>best){best=score;bestCommands.Clear();bestCommands.Add(command);}else if(score==best)bestCommands.Add(command);
             }
             return bestCommands[rng.NextInt(bestCommands.Count)];
@@ -108,7 +110,12 @@ namespace ClickDungeon.Simulation.Balance
                     if(tile.Content==TileContentKind.Gold||tile.Content==TileContentKind.SmallKey||tile.Content==TileContentKind.Consumable||tile.Content==TileContentKind.Equipment)yield return new InteractCommand(i);
                     else if(tile.Content==TileContentKind.BigKey&&state.BigKeys<_content.Balance.BigKeyMaxCarry)yield return new InteractCommand(i);
                     else if(tile.Content==TileContentKind.Chest&&state.SmallKeys>0)yield return new InteractCommand(i);
-                    else if(tile.Content==TileContentKind.Shrine)yield return new ChooseShrineCommand(i,state.Hp*2<state.MaxHp?ShrineChoice.MaxHp:ShrineChoice.Attack);
+                    else if(tile.Content==TileContentKind.Shrine)
+                    {
+                        yield return new ChooseShrineCommand(i,ShrineChoice.MaxHp);
+                        yield return new ChooseShrineCommand(i,ShrineChoice.Attack);
+                        yield return new ChooseShrineCommand(i,ShrineChoice.Defense);
+                    }
                     else if(tile.Content==TileContentKind.SealedVault&&state.BigKeys>0&&policy!=BalancePolicy.HardRoute)yield return new UnlockVaultCommand(i);
                     else if(tile.Content==TileContentKind.Merchant)
                     {
@@ -163,7 +170,7 @@ namespace ClickDungeon.Simulation.Balance
             if(id=="ability.wizard.fireball")for(int i=0;i<state.Tiles.Count;i++)if(IsLivingMonster(state,i))yield return new UseAbilityCommand(id,i);
         }
 
-        private int Score(RunState state,GameCommand command,BalancePolicy policy)
+        private int Score(RunState state,GameCommand command,BalancePolicy policy,int[] visitCounts)
         {
             if(command is EquipItemCommand)return 1150;
             if(command is UseAbilityCommand ability)
@@ -181,10 +188,21 @@ namespace ClickDungeon.Simulation.Balance
             {
                 var tile=state.Tiles[interact.TileIndex];if(tile.Content==TileContentKind.BigKey)return policy==BalancePolicy.HardRoute?1050:800;if(tile.Content==TileContentKind.Chest)return policy==BalancePolicy.GreedyLoot?1000:750;if(tile.Content==TileContentKind.Gold)return policy==BalancePolicy.GreedyLoot?950:700;return 720;
             }
-            if(command is ChooseShrineCommand)return 880;
+            if(command is ChooseShrineCommand shrine)
+            {
+                if(shrine.Choice==ShrineChoice.MaxHp&&state.Hp*2<state.MaxHp)return 1000;
+                if(policy==BalancePolicy.Cautious)return shrine.Choice==ShrineChoice.Defense?960:shrine.Choice==ShrineChoice.MaxHp?940:850;
+                if(policy==BalancePolicy.GreedyLoot)return shrine.Choice==ShrineChoice.Attack?940:shrine.Choice==ShrineChoice.MaxHp?880:840;
+                if(policy==BalancePolicy.HardRoute)return shrine.Choice==ShrineChoice.Attack?980:shrine.Choice==ShrineChoice.Defense?900:880;
+                return 880;
+            }
             if(command is BuyItemCommand)return policy==BalancePolicy.Cautious?920:600;
             if(command is RevealTileCommand)return policy==BalancePolicy.Cautious?500:650;
-            if(command is MoveCommand)return 450;
+            if(command is MoveCommand move)
+            {
+                int visits=visitCounts!=null&&move.TileIndex>=0&&move.TileIndex<visitCounts.Length?visitCounts[move.TileIndex]:0;
+                return 450-Math.Min(300,visits*50);
+            }
             if(command is DefendCommand)return policy==BalancePolicy.Cautious?800:300;
             return 0;
         }
