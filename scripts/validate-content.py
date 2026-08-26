@@ -77,6 +77,39 @@ boss_rewards=mastery.get('boss_mastery_rewards',[])
 if len(boss_rewards)!=len(data.get('bosses.json',{}).get('bosses',[])): errors.append('progression boss_mastery_rewards must match boss count')
 if data.get('progression.json',{}).get('campaign',{}).get('prestige_depth',0)<=data.get('balance.json',{}).get('campaign_floors',50): errors.append('prestige depth must exceed campaign length')
 
+balance=data.get('balance.json',{})
+campaign_floors=balance.get('campaign_floors',0)
+if campaign_floors<=0: errors.append('balance.json campaign_floors must be positive')
+if balance.get('board_size')!=5: errors.append('balance.json board_size must match the 5x5 runtime board')
+
+def validate_range(name,value):
+    if not isinstance(value,list) or len(value)!=2 or not all(isinstance(v,int) for v in value):
+        errors.append(f'balance.json {name} must be a two-integer range')
+        return
+    if value[0]<=0 or value[1]<value[0]: errors.append(f'balance.json {name} must be positive and ordered')
+
+validate_range('target_floor_seconds',balance.get('target_floor_seconds'))
+validate_range('target_campaign_minutes',balance.get('target_campaign_minutes'))
+encounters=balance.get('encounter_decisions',{})
+for name in ('normal','elite','boss'): validate_range(f'encounter_decisions.{name}',encounters.get(name))
+forbidden=balance.get('forbidden_route',{})
+for field in ('elite_chance_bp','gold_multiplier_bp','rare_reward_multiplier_bp'):
+    if forbidden.get(field,0)<=0: errors.append(f'balance.json forbidden_route.{field} must be positive')
+
+envelopes=balance.get('power_envelopes',[])
+if not envelopes: errors.append('balance.json power_envelopes must not be empty')
+else:
+    floors=[row.get('floor',0) for row in envelopes]
+    if floors!=sorted(set(floors)): errors.append('balance.json power_envelopes floors must be unique and increasing')
+    if floors[0]!=1: errors.append('balance.json power_envelopes must start at floor 1')
+    if floors[-1]!=campaign_floors: errors.append('balance.json power_envelopes must end at campaign_floors')
+    previous=None
+    for row in envelopes:
+        values=(row.get('hp',0),row.get('attack',0),row.get('defense',0),row.get('item_tier',-1))
+        if values[0]<=0 or values[1]<=0 or values[2]<0 or values[3]<0: errors.append(f"balance.json invalid power envelope at floor {row.get('floor')}")
+        if previous is not None and any(values[i]<previous[i] for i in range(4)): errors.append(f"balance.json power envelope regresses at floor {row.get('floor')}")
+        previous=values
+
 allowed_triggers={'floor.entered','floor.entered.forbidden','vault.opened','campaign.completed','abyss.depth.entered'}
 for a in data.get('achievements.json',{}).get('achievements',[]):
     if not a.get('display_name'): errors.append(f"achievement {a.get('id')} missing display_name")
