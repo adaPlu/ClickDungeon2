@@ -19,11 +19,13 @@ namespace ClickDungeon.EditorTools
         [MenuItem("ClickDungeon/Art/Generate Presentation Asset Database")]
         public static void GenerateMenu()=>Generate(true);
 
-        public static PresentationAssetDatabase Generate(bool log)
+        public static PresentationAssetDatabase Generate(bool log)=>Generate(log,true);
+
+        public static PresentationAssetDatabase Generate(bool log,bool generateAnimations)
         {
             bool hasRuntimeArt=AssetDatabase.IsValidFolder(RuntimeArt);
             bool hasRuntimeAudio=AssetDatabase.IsValidFolder(RuntimeAudio);
-            if(hasRuntimeArt){PixelAssetImporter.ConfigureAll();AnimationClipGenerator.GenerateAll();}
+            if(hasRuntimeArt){PixelAssetImporter.ConfigureAll();if(generateAnimations)AnimationClipGenerator.GenerateAll();}
             Directory.CreateDirectory(OutputDirectory);
 
             var sprites=new List<PresentationAssetDatabase.SpriteEntry>();
