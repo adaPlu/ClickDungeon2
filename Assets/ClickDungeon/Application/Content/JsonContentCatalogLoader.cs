@@ -165,7 +165,37 @@ namespace ClickDungeon.Application.Content
 
         private void LoadBalance(GameContent c,string path)
         {
-            var row=Read(path); var forbidden=row["forbidden_route"] as JObject; c.Balance=new BalanceDefinition{CampaignFloors=row.Value<int?>("campaign_floors")??50,BigKeyMaxCarry=row.Value<int?>("big_key_max_carry")??2,ForbiddenMonsterDelta=forbidden?.Value<int?>("monster_delta")??2,ForbiddenTrapDelta=forbidden?.Value<int?>("trap_delta")??1,ForbiddenEliteChanceBasisPoints=forbidden?.Value<int?>("elite_chance_bp")??2500,ForbiddenGoldMultiplierBasisPoints=forbidden?.Value<int?>("gold_multiplier_bp")??15000};
+            var row=Read(path);
+            var forbidden=row["forbidden_route"] as JObject;
+            var targetFloor=row["target_floor_seconds"] as JArray;
+            var targetCampaign=row["target_campaign_minutes"] as JArray;
+            var encounters=row["encounter_decisions"] as JObject;
+            var normal=encounters?["normal"] as JArray;
+            var elite=encounters?["elite"] as JArray;
+            var boss=encounters?["boss"] as JArray;
+            var envelopes=(row["power_envelopes"] as JArray ?? new JArray()).Select(e=>new PowerEnvelopeDefinition{Floor=e.Value<int>("floor"),Hp=e.Value<int>("hp"),Attack=e.Value<int>("attack"),Defense=e.Value<int>("defense"),ItemTier=e.Value<int>("item_tier")}).OrderBy(e=>e.Floor).ToArray();
+            c.Balance=new BalanceDefinition
+            {
+                CampaignFloors=row.Value<int?>("campaign_floors")??50,
+                BoardSize=row.Value<int?>("board_size")??RunState.BoardSize,
+                BigKeyMaxCarry=row.Value<int?>("big_key_max_carry")??2,
+                TargetFloorSeconds=ParseRange(targetFloor,45,90),
+                TargetCampaignMinutes=ParseRange(targetCampaign,60,90),
+                NormalEncounterDecisions=ParseRange(normal,2,4),
+                EliteEncounterDecisions=ParseRange(elite,3,6),
+                BossEncounterDecisions=ParseRange(boss,6,12),
+                ForbiddenMonsterDelta=forbidden?.Value<int?>("monster_delta")??2,
+                ForbiddenTrapDelta=forbidden?.Value<int?>("trap_delta")??1,
+                ForbiddenEliteChanceBasisPoints=forbidden?.Value<int?>("elite_chance_bp")??2500,
+                ForbiddenGoldMultiplierBasisPoints=forbidden?.Value<int?>("gold_multiplier_bp")??15000,
+                ForbiddenRareRewardMultiplierBasisPoints=forbidden?.Value<int?>("rare_reward_multiplier_bp")??16000,
+                PowerEnvelopes=envelopes
+            };
+        }
+
+        private static BalanceRangeDefinition ParseRange(JArray values,int defaultMin,int defaultMax)
+        {
+            return new BalanceRangeDefinition{Min=values!=null&&values.Count>0?values[0].Value<int>():defaultMin,Max=values!=null&&values.Count>1?values[1].Value<int>():defaultMax};
         }
 
         private static string HumanizeId(string id){if(string.IsNullOrEmpty(id))return string.Empty;int dot=id.LastIndexOf('.');string value=(dot>=0?id.Substring(dot+1):id).Replace('_',' ');return System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(value);}
