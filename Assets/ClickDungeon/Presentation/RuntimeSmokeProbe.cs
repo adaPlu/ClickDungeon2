@@ -40,14 +40,14 @@ namespace ClickDungeon.Presentation
         {
             _deadline = Time.realtimeSinceStartup + TimeoutSeconds;
             SceneManager.sceneLoaded += OnSceneLoaded;
-            Application.logMessageReceived += OnLogMessage;
+            UnityEngine.Application.logMessageReceived += OnLogMessage;
             Debug.Log($"{Prefix} START");
         }
 
         private void OnDestroy()
         {
             SceneManager.sceneLoaded -= OnSceneLoaded;
-            Application.logMessageReceived -= OnLogMessage;
+            UnityEngine.Application.logMessageReceived -= OnLogMessage;
         }
 
         private void Update()
@@ -169,7 +169,7 @@ namespace ClickDungeon.Presentation
         private static IEnumerator QuitAfterLogFlush(int exitCode)
         {
             yield return null;
-            Application.Quit(exitCode);
+            UnityEngine.Application.Quit(exitCode);
         }
     }
 }
