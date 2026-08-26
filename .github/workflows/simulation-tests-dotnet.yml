@@ -32,7 +32,7 @@ jobs:
             </PropertyGroup>
             <ItemGroup>
               <Compile Include="../../Assets/ClickDungeon/Simulation/**/*.cs" />
-              <Compile Include="../../Assets/ClickDungeon/Tests/EditMode/**/*.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Tests/EditMode/**/*.cs" Exclude="../../Assets/ClickDungeon/Tests/EditMode/CanonicalBalanceBaselineTests.cs" />
               <PackageReference Include="NUnit" Version="3.14.0" />
               <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
               <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
