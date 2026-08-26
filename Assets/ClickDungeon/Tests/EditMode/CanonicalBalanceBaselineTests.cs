@@ -16,7 +16,7 @@ namespace ClickDungeon.Tests.EditMode
         [Test]
         public void CanonicalProductionBalanceBaselineIsReportedDeterministically()
         {
-            string contentPath=Path.Combine(Application.dataPath,"ClickDungeon","Content","Json");
+            string contentPath=Path.Combine(UnityEngine.Application.dataPath,"ClickDungeon","Content","Json");
             var content=new JsonContentCatalogLoader().LoadFromDirectory(contentPath);
             Assert.AreEqual(50,content.Balance.CampaignFloors,"Baseline must use the canonical 50-floor production campaign.");
 
