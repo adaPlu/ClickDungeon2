@@ -168,8 +168,22 @@ else:errors.append('scripts/inspect-build-artifact.py is missing')
 release_workflow=ROOT/'.github/workflows/release-gate.yml'
 if release_workflow.exists():
     release_workflow_text=release_workflow.read_text()
-    for token in ['unity_run_id','gh run view','headSha','gh run download','verify-release-artifacts.py']:
-        if token not in release_workflow_text:errors.append(f'release-gate.yml missing same-SHA artifact gate token {token}')
+    release_gate_contracts={
+        'manual Unity run input':'unity_run_id',
+        'repository-scoped Actions API lookup':'gh api',
+        'Actions run lookup path':'actions/runs/${UNITY_RUN_ID}',
+        'run head SHA verification':'head_sha',
+        'run status verification':'status',
+        'run conclusion verification':'conclusion',
+        'workflow name binding':'workflow_name',
+        'workflow path binding':'workflow_path',
+        'required Unity workflow name':'Unity Platform CI',
+        'required Unity workflow path':'.github/workflows/unity-platform-ci.yml',
+        'artifact download':'gh run download',
+        'artifact verification':'verify-release-artifacts.py'
+    }
+    for contract,token in release_gate_contracts.items():
+        if token not in release_workflow_text:errors.append(f'release-gate.yml missing {contract} token {token}')
 else:errors.append('.github/workflows/release-gate.yml is missing')
 
 workflow_dir=ROOT/'.github/workflows'
