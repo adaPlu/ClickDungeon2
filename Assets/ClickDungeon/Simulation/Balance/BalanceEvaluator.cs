@@ -115,7 +115,7 @@ namespace ClickDungeon.Simulation.Balance
                 }
                 if(tile.Content==TileContentKind.ForbiddenExit&&tile.Visibility==TileVisibility.Revealed&&state.BigKeys>0&&!state.BossRequired&&policy==BalancePolicy.HardRoute)yield return new TakeForbiddenExitCommand(i);
                 if(tile.Content==TileContentKind.SafeExit&&tile.Visibility==TileVisibility.Revealed&&!state.BossRequired)yield return new TakeSafeExitCommand(i);
-                if(tile.Content==TileContentKind.Empty&&tile.Resolution==TileResolution.Resolved&&!ThreatResolver.IsThreatened(state,i))yield return new MoveCommand(i);
+                if(tile.Visibility==TileVisibility.Revealed&&tile.Occupancy!=OccupancyKind.Monster&&(state.CamouflageActions>0||state.ShieldPoints>0||!ThreatResolver.IsThreatened(state,i)))yield return new MoveCommand(i);
             }
             if(AdjacentLivingMonster(state)>=0)yield return new DefendCommand();
         }
