@@ -17,6 +17,17 @@ namespace ClickDungeon.Tests.ApplicationEditMode
             string contentDir=FindContentDirectory();
             GameContent content=new JsonContentCatalogLoader().LoadFromDirectory(contentDir);
             Assert.AreEqual(50,content.Balance.CampaignFloors);
+            Assert.AreEqual(RunState.BoardSize,content.Balance.BoardSize);
+            AssertRange(content.Balance.TargetFloorSeconds,45,90,"floor seconds");
+            AssertRange(content.Balance.TargetCampaignMinutes,60,90,"campaign minutes");
+            AssertRange(content.Balance.NormalEncounterDecisions,2,4,"normal encounter decisions");
+            AssertRange(content.Balance.EliteEncounterDecisions,3,6,"elite encounter decisions");
+            AssertRange(content.Balance.BossEncounterDecisions,6,12,"boss encounter decisions");
+            Assert.AreEqual(16000,content.Balance.ForbiddenRareRewardMultiplierBasisPoints,"forbidden rare reward multiplier");
+            Assert.AreEqual(6,content.Balance.PowerEnvelopes.Length,"canonical power-envelope count");
+            AssertPowerEnvelope(content,1,18,2,2,0);
+            AssertPowerEnvelope(content,10,23,5,4,1);
+            AssertPowerEnvelope(content,50,44,13,10,5);
 
             foreach(HeroClassId cls in Enum.GetValues(typeof(HeroClassId)))
             {
@@ -46,6 +57,20 @@ namespace ClickDungeon.Tests.ApplicationEditMode
                     Assert.IsTrue(state.Tiles.Any(t=>t.Content==TileContentKind.Boss&&t.ContentId==bossId),$"Floor {floor} boss tile");
                 }
             }
+        }
+
+        private static void AssertRange(BalanceRangeDefinition range,int min,int max,string label)
+        {
+            Assert.NotNull(range,label);Assert.AreEqual(min,range.Min,label+" min");Assert.AreEqual(max,range.Max,label+" max");
+        }
+
+        private static void AssertPowerEnvelope(GameContent content,int floor,int hp,int attack,int defense,int itemTier)
+        {
+            var envelope=content.Balance.PowerEnvelopes.Single(e=>e.Floor==floor);
+            Assert.AreEqual(hp,envelope.Hp,$"floor {floor} target hp");
+            Assert.AreEqual(attack,envelope.Attack,$"floor {floor} target attack");
+            Assert.AreEqual(defense,envelope.Defense,$"floor {floor} target defense");
+            Assert.AreEqual(itemTier,envelope.ItemTier,$"floor {floor} target item tier");
         }
 
         private static void AssertBoss(GameContent content,string id,ThreatPattern threat,MonsterIntentKind intent,int intentPower)
