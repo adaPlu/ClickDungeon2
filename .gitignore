@@ -22,6 +22,12 @@ Recordings/
 .DS_Store
 Thumbs.db
 
+# Derived Unity runtime databases regenerated from tracked source during player builds
+Assets/ClickDungeon/Content/Generated.meta
+Assets/ClickDungeon/Content/Generated/
+Assets/ClickDungeon/Presentation/Generated.meta
+Assets/ClickDungeon/Presentation/Generated/
+
 # Python tooling cache
 __pycache__/
 *.py[cod]
