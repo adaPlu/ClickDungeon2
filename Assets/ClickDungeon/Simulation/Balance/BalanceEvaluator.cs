@@ -73,6 +73,7 @@ namespace ClickDungeon.Simulation.Balance
                 if(!commandResult.Accepted){stalled=true;break;}
                 accepted++;if(command is TakeForbiddenExitCommand)metrics.ForbiddenExits++;highest=Math.Max(highest,state.Floor);
             }
+            if(!state.GameOver&&!state.CampaignCompleted&&accepted>=maxCommands)stalled=true;
             if(state.GameOver)metrics.Deaths++;if(state.CampaignCompleted)metrics.CampaignCompletions++;if(stalled&&!state.GameOver&&!state.CampaignCompleted)metrics.StalledRuns++;
             metrics.TotalCommands+=accepted;metrics.TotalHighestFloor+=highest;metrics.TotalEndingGold+=state.Gold;
         }
@@ -93,13 +94,14 @@ namespace ClickDungeon.Simulation.Balance
         private IEnumerable<GameCommand> LegalCandidates(RunState state,BalancePolicy policy)
         {
             if(state.Hp*2<state.MaxHp&&state.InventoryItemIds.Contains("item.healing_potion"))yield return new UseItemCommand("item.healing_potion");
-            int player=Index(state.PlayerPosition);
+            foreach(var command in EquipmentUpgradeCandidates(state))yield return command;
+            foreach(var command in SignatureAbilityCandidates(state))yield return command;
             for(int i=0;i<state.Tiles.Count;i++)
             {
                 var tile=state.Tiles[i];if(!IsAdjacent(state,i))continue;
                 if((tile.Content==TileContentKind.Monster||tile.Content==TileContentKind.Boss)&&tile.Visibility==TileVisibility.Revealed&&tile.Resolution==TileResolution.Available&&tile.MonsterHp>0){yield return new AttackCommand(i);continue;}
                 if(tile.Content==TileContentKind.Trap&&tile.Resolution==TileResolution.Available&&(tile.Visibility==TileVisibility.Identified||tile.Visibility==TileVisibility.Revealed)&&state.InventoryItemIds.Contains("item.trap_disarm_kit")){yield return new UseItemCommand("item.trap_disarm_kit",i);continue;}
-                if(tile.Visibility!=TileVisibility.Revealed&&!ThreatResolver.IsThreatened(state,i)){yield return new RevealTileCommand(i);continue;}
+                if(tile.Visibility!=TileVisibility.Revealed&&(state.CamouflageActions>0||!ThreatResolver.IsThreatened(state,i))){yield return new RevealTileCommand(i);continue;}
                 if(tile.Visibility!=TileVisibility.Revealed)continue;
                 if(tile.Resolution==TileResolution.Available)
                 {
@@ -120,8 +122,56 @@ namespace ClickDungeon.Simulation.Balance
             if(AdjacentLivingMonster(state)>=0)yield return new DefendCommand();
         }
 
+        private IEnumerable<GameCommand> EquipmentUpgradeCandidates(RunState state)
+        {
+            int currentAttack=0,currentDefense=0;
+            if(!string.IsNullOrEmpty(state.EquippedWeaponId)&&_content.TryItem(state.EquippedWeaponId,out var equippedWeapon))currentAttack=equippedWeapon.Attack;
+            if(!string.IsNullOrEmpty(state.EquippedArmorId)&&_content.TryItem(state.EquippedArmorId,out var equippedArmor))currentDefense=equippedArmor.Defense;
+            ItemInstanceState bestWeapon=null,bestArmor=null;int bestAttack=currentAttack,bestDefense=currentDefense;
+            foreach(var instance in state.ItemInstances)
+            {
+                if(!_content.TryItem(instance.BaseItemId,out var item))continue;
+                if(item.Kind=="weapon"&&item.Attack>bestAttack){bestAttack=item.Attack;bestWeapon=instance;}
+                else if(item.Kind=="armor"&&item.Defense>bestDefense){bestDefense=item.Defense;bestArmor=instance;}
+            }
+            if(bestWeapon!=null)yield return new EquipItemCommand(bestWeapon.BaseItemId,bestWeapon.InstanceId);
+            if(bestArmor!=null)yield return new EquipItemCommand(bestArmor.BaseItemId,bestArmor.InstanceId);
+        }
+
+        private IEnumerable<GameCommand> SignatureAbilityCandidates(RunState state)
+        {
+            var charge=state.AbilityStates.FirstOrDefault(a=>a.Charges>0);if(charge==null)yield break;
+            string id=charge.AbilityId;
+            if(id=="ability.knight.shield_wall")
+            {
+                if(state.ShieldPoints<=0&&AdjacentLivingMonster(state)>=0)yield return new UseAbilityCommand(id);
+                yield break;
+            }
+            if(id=="ability.ranger.piercing_shot")
+            {
+                for(int i=0;i<state.Tiles.Count;i++)if(IsLivingMonster(state,i)&&IsSameLine(state,i))yield return new UseAbilityCommand(id,i);
+                yield break;
+            }
+            if(id=="ability.thief.trap_scan")
+            {
+                for(int i=0;i<state.Tiles.Count;i++)
+                {
+                    var tile=state.Tiles[i];if(tile.Content==TileContentKind.Trap&&tile.Visibility!=TileVisibility.Revealed&&Manhattan(state.PlayerPosition,Position(i))<=2){yield return new UseAbilityCommand(id);yield break;}
+                }
+                yield break;
+            }
+            if(id=="ability.wizard.fireball")for(int i=0;i<state.Tiles.Count;i++)if(IsLivingMonster(state,i))yield return new UseAbilityCommand(id,i);
+        }
+
         private int Score(RunState state,GameCommand command,BalancePolicy policy)
         {
+            if(command is EquipItemCommand)return 1150;
+            if(command is UseAbilityCommand ability)
+            {
+                if(ability.AbilityId=="ability.knight.shield_wall")return 1125;
+                if(ability.AbilityId=="ability.ranger.piercing_shot"||ability.AbilityId=="ability.wizard.fireball")return 1075;
+                if(ability.AbilityId=="ability.thief.trap_scan")return 775;
+            }
             if(command is AttackCommand)return policy==BalancePolicy.Cautious?1000:850;
             if(command is UseItemCommand item)return item.ItemId=="item.healing_potion"?1100:900;
             if(command is TakeForbiddenExitCommand)return policy==BalancePolicy.HardRoute?1200:-200;
@@ -139,8 +189,12 @@ namespace ClickDungeon.Simulation.Balance
             return 0;
         }
 
-        private static int AdjacentLivingMonster(RunState state){for(int i=0;i<state.Tiles.Count;i++){var t=state.Tiles[i];if(IsAdjacent(state,i)&&(t.Content==TileContentKind.Monster||t.Content==TileContentKind.Boss)&&t.Visibility==TileVisibility.Revealed&&t.Resolution==TileResolution.Available&&t.MonsterHp>0)return i;}return -1;}
-        private static bool IsAdjacent(RunState state,int index)=>state.PlayerPosition.IsOrthogonallyAdjacent(new GridPosition(index/RunState.BoardSize,index%RunState.BoardSize));
+        private static bool IsLivingMonster(RunState state,int index){var t=state.Tiles[index];return (t.Content==TileContentKind.Monster||t.Content==TileContentKind.Boss)&&t.Visibility==TileVisibility.Revealed&&t.Resolution==TileResolution.Available&&t.MonsterHp>0;}
+        private static int AdjacentLivingMonster(RunState state){for(int i=0;i<state.Tiles.Count;i++)if(IsAdjacent(state,i)&&IsLivingMonster(state,i))return i;return -1;}
+        private static bool IsSameLine(RunState state,int index){var p=Position(index);return p.Row==state.PlayerPosition.Row||p.Col==state.PlayerPosition.Col;}
+        private static int Manhattan(GridPosition a,GridPosition b)=>Math.Abs(a.Row-b.Row)+Math.Abs(a.Col-b.Col);
+        private static GridPosition Position(int index)=>new GridPosition(index/RunState.BoardSize,index%RunState.BoardSize);
+        private static bool IsAdjacent(RunState state,int index)=>state.PlayerPosition.IsOrthogonallyAdjacent(Position(index));
         private static int Index(GridPosition p)=>p.Row*RunState.BoardSize+p.Col;
     }
 }
