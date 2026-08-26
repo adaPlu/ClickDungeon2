@@ -28,18 +28,18 @@ namespace ClickDungeon.Application.Services
     }
 
     /// <summary>
-    /// Development entitlement adapter. Production mobile builds replace this with Apple/Google
-    /// one-time full-game purchase implementations. Steam/desktop is considered entitled by purchase.
+    /// Desktop/editor entitlement adapter. Mobile and WebGL fail closed until a real platform
+    /// store implementation is configured, so production paid content can never be unlocked by
+    /// a local PlayerPrefs flag.
     /// </summary>
     public sealed class LocalEntitlementStore : IStoreService
     {
-        private const string Key="cd2.full_game_unlocked";
         private readonly bool _desktopEntitled;
         public LocalEntitlementStore(){_desktopEntitled=UnityEngine.Application.isEditor||UnityEngine.Application.platform==RuntimePlatform.WindowsPlayer||UnityEngine.Application.platform==RuntimePlatform.OSXPlayer||UnityEngine.Application.platform==RuntimePlatform.LinuxPlayer;}
-        public bool IsSupported=>true;
-        public bool FullGameUnlocked=>_desktopEntitled||PlayerPrefs.GetInt(Key,0)==1;
+        public bool IsSupported=>_desktopEntitled;
+        public bool FullGameUnlocked=>_desktopEntitled;
         public void RefreshEntitlements(Action<bool> completed=null)=>completed?.Invoke(FullGameUnlocked);
-        public void PurchaseFullGame(Action<bool,string> completed){if(_desktopEntitled){completed?.Invoke(true,"desktop_entitled");return;}PlayerPrefs.SetInt(Key,1);PlayerPrefs.Save();completed?.Invoke(true,"development_unlock");}
+        public void PurchaseFullGame(Action<bool,string> completed){if(_desktopEntitled){completed?.Invoke(true,"desktop_entitled");return;}completed?.Invoke(false,"mobile_store_not_configured");}
     }
 
     /// <summary>Cloud save is deliberately local-first and disabled until a real provider is selected.</summary>
