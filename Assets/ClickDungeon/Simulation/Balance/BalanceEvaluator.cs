@@ -182,7 +182,7 @@ namespace ClickDungeon.Simulation.Balance
             if(command is AttackCommand)return policy==BalancePolicy.Cautious?1000:850;
             if(command is UseItemCommand item)return item.ItemId=="item.healing_potion"?1100:900;
             if(command is TakeForbiddenExitCommand)return policy==BalancePolicy.HardRoute?1200:-200;
-            if(command is TakeSafeExitCommand)return policy==BalancePolicy.Cautious?1050:700;
+            if(command is TakeSafeExitCommand)return policy==BalancePolicy.Cautious?800:700;
             if(command is UnlockVaultCommand)return policy==BalancePolicy.GreedyLoot?1100:650;
             if(command is InteractCommand interact)
             {
