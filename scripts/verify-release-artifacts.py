@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -20,13 +19,6 @@ EXPECTED = (
 
 
 def verify_android_release_signing(artifact_dir: Path, errors: list[str]) -> None:
-    """Reject CI/debug signing at the release boundary.
-
-    Ordinary platform CI is allowed to produce a debug-signed smoke AAB. The
-    manual release gate is stricter: it must see a non-debug signer before an
-    Android artifact can be considered production-ready.
-    """
-
     bundles = sorted(artifact_dir.rglob("*.aab"))
     if len(bundles) != 1:
         errors.append(
@@ -34,28 +26,17 @@ def verify_android_release_signing(artifact_dir: Path, errors: list[str]) -> Non
         )
         return
 
-    keytool = shutil.which("keytool")
-    if keytool is None:
-        errors.append("keytool is unavailable; cannot verify Android release signer")
-        return
-
     result = subprocess.run(
-        [keytool, "-printcert", "-jarfile", str(bundles[0])],
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "verify-android-signer.py"),
+            str(bundles[0]),
+        ],
         cwd=ROOT,
         check=False,
-        capture_output=True,
-        text=True,
     )
-    output = "\n".join(part for part in (result.stdout, result.stderr) if part)
     if result.returncode != 0:
-        errors.append("Android App Bundle signer certificate could not be read")
-        return
-
-    normalized = output.casefold()
-    if "cn=android debug" in normalized:
-        errors.append(
-            "Android App Bundle is signed with the Android Debug certificate; a production upload signer is required"
-        )
+        errors.append("Android App Bundle upload certificate did not match the pinned release signer")
 
 
 def main() -> int:

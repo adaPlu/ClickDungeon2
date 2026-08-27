@@ -164,6 +164,16 @@ if artifact_inspector.exists():
     if 'signing metadata' not in artifact_text or 'META-INF/' not in artifact_text:
         errors.append('inspect-build-artifact.py does not verify Android signing metadata')
 else:errors.append('scripts/inspect-build-artifact.py is missing')
+android_signer=ROOT/'scripts/verify-android-signer.py'
+if not android_signer.exists():errors.append('scripts/verify-android-signer.py is missing')
+else:
+    signer_text=android_signer.read_text()
+    for token in ['60:10:04:96:42:F6:47:80:30:00:BB:52:61:08:A3:16:1D:3F:DD:A2:D2:BF:C0:E4:3B:D3:C7:0D:37:C2:09:10','keytool','jarsigner']:
+        if token not in signer_text:errors.append(f'verify-android-signer.py missing upload certificate gate token {token}')
+
+release_artifacts=(ROOT/'scripts/verify-release-artifacts.py').read_text()
+if 'verify-android-signer.py' not in release_artifacts:
+    errors.append('verify-release-artifacts.py does not gate Android release signer fingerprint')
 
 release_workflow=ROOT/'.github/workflows/release-gate.yml'
 if release_workflow.exists():
@@ -210,6 +220,9 @@ if unity_ci.exists():
         errors.append('unity-platform-ci.yml lacks checks: write permission for Unity test result publishing')
     if 'test-artifacts/unity-import' in unity_ci_text:
         errors.append('unity-platform-ci.yml writes metadata capture into root-owned test-artifacts')
+    for token in ['ANDROID_KEYSTORE_BASE64','ANDROID_KEYSTORE_PASSWORD','ANDROID_KEY_ALIAS','ANDROID_KEY_PASSWORD','verify-android-signer.py']:
+        if token not in unity_ci_text:
+            errors.append(f'unity-platform-ci.yml missing Android release signer gate token {token}')
 
 for token in ['Abyss Depth','ShowInventory','ClickDungeonPresentationAssets','RefreshIntent']:
     if token not in runtime_ui:errors.append(f'Runtime presentation contract missing {token}')

@@ -71,10 +71,26 @@ def test_android_artifact_requires_signing_metadata():
     finally:
         shutil.rmtree(temp,ignore_errors=True)
 
+def test_android_signer_verifier_rejects_unsigned_bundle():
+    temp=Path(tempfile.mkdtemp(prefix='cd2-android-signer-'))
+    try:
+        bundle=temp/'ClickDungeon2.aab'
+        with zipfile.ZipFile(bundle,'w') as archive:
+            archive.writestr('base/manifest/AndroidManifest.xml',b'manifest')
+            archive.writestr('base/dex/classes.dex',b'dex')
+        result=subprocess.run([sys.executable,str(ROOT/'scripts'/'verify-android-signer.py'),str(bundle)],capture_output=True,text=True)
+        output=result.stdout+result.stderr
+        if result.returncode==0 or 'could not read signer certificate fingerprint' not in output:
+            print(output)
+            raise AssertionError('Android signer verifier did not reject unsigned AAB')
+    finally:
+        shutil.rmtree(temp,ignore_errors=True)
+
 def main():
     test_nested_runtime_asset_requires_manifest_coverage()
     test_release_artifacts_require_all_platform_outputs()
     test_android_artifact_requires_signing_metadata()
+    test_android_signer_verifier_rejects_unsigned_bundle()
     print('VALIDATOR TESTS PASSED')
 
 if __name__=='__main__':
