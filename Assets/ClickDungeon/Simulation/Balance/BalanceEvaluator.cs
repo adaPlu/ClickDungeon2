@@ -200,7 +200,7 @@ namespace ClickDungeon.Simulation.Balance
             if(command is RevealTileCommand reveal)
             {
                 var clue=state.Tiles[reveal.TileIndex].Clue;
-                if(policy==BalancePolicy.Cautious)return clue==ClueFamily.Danger?100:clue==ClueFamily.Opportunity?700:clue==ClueFamily.PassageArcane?780:500;
+                if(policy==BalancePolicy.Cautious)return clue==ClueFamily.Danger?175:clue==ClueFamily.Opportunity?700:clue==ClueFamily.PassageArcane?780:500;
                 if(policy==BalancePolicy.GreedyLoot)return clue==ClueFamily.Opportunity?920:clue==ClueFamily.PassageArcane?700:clue==ClueFamily.Danger?450:650;
                 if(policy==BalancePolicy.HardRoute)return clue==ClueFamily.PassageArcane?900:clue==ClueFamily.Opportunity?760:clue==ClueFamily.Danger?600:650;
                 return 650;
