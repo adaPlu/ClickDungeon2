@@ -296,6 +296,23 @@ For Unity Personal with GameCI v4, configure these GitHub repository secrets:
 
 Unity Pro should use GameCI's serial-based configuration with `UNITY_SERIAL` plus `UNITY_EMAIL` and `UNITY_PASSWORD`.
 
+Android release-quality CI also requires the production upload signing key. Configure these GitHub repository secrets:
+
+- `ANDROID_KEYSTORE_BASE64`
+- `ANDROID_KEYSTORE_PASSWORD`
+- `ANDROID_KEY_ALIAS`
+- `ANDROID_KEY_PASSWORD`
+
+Install them from a local keystore with:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/install-android-signing-secrets.ps1 -KeystorePath C:\Path\To\upload.keystore -KeyAlias upload
+```
+
+The installer verifies the selected alias before upload and fails unless the certificate SHA-256 fingerprint is:
+
+`60:10:04:96:42:F6:47:80:30:00:BB:52:61:08:A3:16:1D:3F:DD:A2:D2:BF:C0:E4:3B:D3:C7:0D:37:C2:09:10`
+
 The intended licensed build graph is:
 
 `preflight -> Unity EditMode -> Windows -> Android AAB + WebGL`

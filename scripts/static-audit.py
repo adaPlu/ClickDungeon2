@@ -170,6 +170,13 @@ else:
     signer_text=android_signer.read_text()
     for token in ['60:10:04:96:42:F6:47:80:30:00:BB:52:61:08:A3:16:1D:3F:DD:A2:D2:BF:C0:E4:3B:D3:C7:0D:37:C2:09:10','keytool','jarsigner']:
         if token not in signer_text:errors.append(f'verify-android-signer.py missing upload certificate gate token {token}')
+android_secret_installer=ROOT/'scripts/install-android-signing-secrets.ps1'
+if not android_secret_installer.exists():errors.append('scripts/install-android-signing-secrets.ps1 is missing')
+else:
+    installer_text=android_secret_installer.read_text()
+    for token in ['ANDROID_KEYSTORE_BASE64','ANDROID_KEYSTORE_PASSWORD','ANDROID_KEY_ALIAS','ANDROID_KEY_PASSWORD','gh secret set','keytool','60:10:04:96:42:F6:47:80:30:00:BB:52:61:08:A3:16:1D:3F:DD:A2:D2:BF:C0:E4:3B:D3:C7:0D:37:C2:09:10']:
+        if token not in installer_text:
+            errors.append(f'install-android-signing-secrets.ps1 missing Android secret installer token {token}')
 
 release_artifacts=(ROOT/'scripts/verify-release-artifacts.py').read_text()
 if 'verify-android-signer.py' not in release_artifacts:
