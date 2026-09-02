@@ -233,7 +233,8 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
-      - name: Require Android release signing secrets
+      - name: Prepare optional Android release signing
+        id: android-signing
         shell: bash
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -242,20 +243,28 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           set -euo pipefail
-          missing=0
-          for name in ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
-            if [ -z "${!name}" ]; then
-              echo "::error::$name is required for Android release signing"
-              missing=1
-            fi
-          done
-          if [ "$missing" -ne 0 ]; then
+          configured=0
+          [ -n "$ANDROID_KEYSTORE_BASE64" ] && configured=$((configured + 1))
+          [ -n "$ANDROID_KEYSTORE_PASSWORD" ] && configured=$((configured + 1))
+          [ -n "$ANDROID_KEY_ALIAS" ] && configured=$((configured + 1))
+          [ -n "$ANDROID_KEY_PASSWORD" ] && configured=$((configured + 1))
+
+          if [ "$configured" -eq 0 ]; then
+            echo "release_signing_ready=false" >> "$GITHUB_OUTPUT"
+            echo "Android release signing secrets are absent; producing a debug-signed CI smoke bundle."
+            exit 0
+          fi
+
+          if [ "$configured" -ne 4 ]; then
+            echo "::error::Android signing secrets are partially configured. Configure all four together."
             exit 1
           fi
+
           mkdir -p .ci/android-signing
           printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > .ci/android-signing/upload.keystore
           chmod 600 .ci/android-signing/upload.keystore
           echo "CLICKDUNGEON_ANDROID_KEYSTORE_PATH=.ci/android-signing/upload.keystore" >> "$GITHUB_ENV"
+          echo "release_signing_ready=true" >> "$GITHUB_OUTPUT"
           echo "Android upload keystore materialized for this build."
       - name: Build Android AAB through ClickDungeon BuildAutomation
         uses: game-ci/unity-builder@1d4ee0697f193f54668e98961d79907911f4b4f2
@@ -279,7 +288,11 @@ jobs:
       - name: Inspect Android App Bundle artifact
         run: python3 scripts/inspect-build-artifact.py android Builds/Android
       - name: Verify Android upload certificate
+        if: steps.android-signing.outputs.release_signing_ready == 'true'
         run: python3 scripts/verify-android-signer.py Builds/Android/ClickDungeon2.aab
+      - name: Note debug-signed smoke bundle
+        if: steps.android-signing.outputs.release_signing_ready != 'true'
+        run: echo "Android CI smoke bundle is not release-signed; Release Readiness Gate will reject it."
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
