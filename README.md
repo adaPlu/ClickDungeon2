@@ -311,7 +311,7 @@ powershell -ExecutionPolicy Bypass -File scripts/install-android-signing-secrets
 
 The installer verifies the selected alias before upload and fails unless the certificate SHA-256 fingerprint is:
 
-`60:10:04:96:42:F6:47:80:30:00:BB:52:61:08:A3:16:1D:3F:DD:A2:D2:BF:C0:E4:3B:D3:C7:0D:37:C2:09:10`
+`D8:11:9B:59:52:1A:7F:06:94:90:7C:00:BF:D1:F8:AA:9E:85:46:75:83:27:C9:15:95:0B:4A:E1:E7:14:36:64`
 
 The intended licensed build graph is:
 

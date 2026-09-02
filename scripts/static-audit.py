@@ -168,13 +168,13 @@ android_signer=ROOT/'scripts/verify-android-signer.py'
 if not android_signer.exists():errors.append('scripts/verify-android-signer.py is missing')
 else:
     signer_text=android_signer.read_text()
-    for token in ['60:10:04:96:42:F6:47:80:30:00:BB:52:61:08:A3:16:1D:3F:DD:A2:D2:BF:C0:E4:3B:D3:C7:0D:37:C2:09:10','keytool','jarsigner']:
+    for token in ['D8:11:9B:59:52:1A:7F:06:94:90:7C:00:BF:D1:F8:AA:9E:85:46:75:83:27:C9:15:95:0B:4A:E1:E7:14:36:64','keytool','jarsigner']:
         if token not in signer_text:errors.append(f'verify-android-signer.py missing upload certificate gate token {token}')
 android_secret_installer=ROOT/'scripts/install-android-signing-secrets.ps1'
 if not android_secret_installer.exists():errors.append('scripts/install-android-signing-secrets.ps1 is missing')
 else:
     installer_text=android_secret_installer.read_text()
-    for token in ['ANDROID_KEYSTORE_BASE64','ANDROID_KEYSTORE_PASSWORD','ANDROID_KEY_ALIAS','ANDROID_KEY_PASSWORD','gh secret set','keytool','60:10:04:96:42:F6:47:80:30:00:BB:52:61:08:A3:16:1D:3F:DD:A2:D2:BF:C0:E4:3B:D3:C7:0D:37:C2:09:10']:
+    for token in ['ANDROID_KEYSTORE_BASE64','ANDROID_KEYSTORE_PASSWORD','ANDROID_KEY_ALIAS','ANDROID_KEY_PASSWORD','gh secret set','keytool','D8:11:9B:59:52:1A:7F:06:94:90:7C:00:BF:D1:F8:AA:9E:85:46:75:83:27:C9:15:95:0B:4A:E1:E7:14:36:64']:
         if token not in installer_text:
             errors.append(f'install-android-signing-secrets.ps1 missing Android secret installer token {token}')
 
