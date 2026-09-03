@@ -261,6 +261,7 @@ jobs:
           fi
 
           mkdir -p .ci/android-signing
+          printf '.ci/android-signing/\n' >> .git/info/exclude
           printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > .ci/android-signing/upload.keystore
           chmod 600 .ci/android-signing/upload.keystore
           echo "CLICKDUNGEON_ANDROID_KEYSTORE_PATH=.ci/android-signing/upload.keystore" >> "$GITHUB_ENV"
