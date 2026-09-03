@@ -50,6 +50,15 @@ function Normalize-Fingerprint([string]$Fingerprint) {
     return $parts -join ":"
 }
 
+function Get-Sha256Fingerprint([object[]]$CertOutput) {
+    $certText = $CertOutput -join "`n"
+    $match = [regex]::Match($certText, "SHA256:\s*([0-9A-Fa-f]{2}(?:[:\s]*[0-9A-Fa-f]{2}){31})")
+    if (-not $match.Success) {
+        throw "keytool output did not include a SHA-256 certificate fingerprint for alias $KeyAlias."
+    }
+    return Normalize-Fingerprint $match.Groups[1].Value
+}
+
 $resolvedKeystore = Resolve-Path -LiteralPath $KeystorePath
 $keytool = Require-Command "keytool"
 Require-Command "gh" | Out-Null
@@ -65,8 +74,7 @@ if ($LASTEXITCODE -ne 0) {
     throw "keytool could not read the requested keystore alias."
 }
 
-$actualFingerprint = ($certOutput | Select-String "SHA256:" | Select-Object -First 1).ToString().Split("SHA256:")[1].Trim()
-$actualFingerprint = Normalize-Fingerprint $actualFingerprint
+$actualFingerprint = Get-Sha256Fingerprint $certOutput
 if ($actualFingerprint -ne $expectedFingerprint) {
     throw "Keystore alias fingerprint mismatch. Expected $expectedFingerprint but found $actualFingerprint."
 }
