@@ -227,7 +227,7 @@ if unity_ci.exists():
         errors.append('unity-platform-ci.yml lacks checks: write permission for Unity test result publishing')
     if 'test-artifacts/unity-import' in unity_ci_text:
         errors.append('unity-platform-ci.yml writes metadata capture into root-owned test-artifacts')
-    for token in ['ANDROID_KEYSTORE_BASE64','ANDROID_KEYSTORE_PASSWORD','ANDROID_KEY_ALIAS','ANDROID_KEY_PASSWORD','verify-android-signer.py']:
+    for token in ['ANDROID_KEYSTORE_BASE64','ANDROID_KEYSTORE_PASSWORD','ANDROID_KEY_ALIAS','ANDROID_KEY_PASSWORD','androidExportType: androidAppBundle','androidKeystoreName','androidKeystoreBase64','androidKeystorePass','androidKeyaliasName','androidKeyaliasPass','verify-android-signer.py']:
         if token not in unity_ci_text:
             errors.append(f'unity-platform-ci.yml missing Android release signer gate token {token}')
 

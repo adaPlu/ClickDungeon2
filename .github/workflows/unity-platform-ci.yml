@@ -251,6 +251,7 @@ jobs:
 
           if [ "$configured" -eq 0 ]; then
             echo "release_signing_ready=false" >> "$GITHUB_OUTPUT"
+            echo "keystore_name=" >> "$GITHUB_OUTPUT"
             echo "Android release signing secrets are absent; producing a debug-signed CI smoke bundle."
             exit 0
           fi
@@ -265,6 +266,7 @@ jobs:
           printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > .ci/android-signing/upload.keystore
           chmod 600 .ci/android-signing/upload.keystore
           echo "CLICKDUNGEON_ANDROID_KEYSTORE_PATH=.ci/android-signing/upload.keystore" >> "$GITHUB_ENV"
+          echo "keystore_name=.ci/android-signing/upload.keystore" >> "$GITHUB_OUTPUT"
           echo "release_signing_ready=true" >> "$GITHUB_OUTPUT"
           echo "Android upload keystore materialized for this build."
       - name: Build Android AAB through ClickDungeon BuildAutomation
@@ -280,6 +282,12 @@ jobs:
         with:
           unityVersion: 6000.5.9f1
           targetPlatform: Android
+          androidExportType: androidAppBundle
+          androidKeystoreName: ${{ steps.android-signing.outputs.keystore_name }}
+          androidKeystoreBase64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          androidKeystorePass: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          androidKeyaliasName: ${{ secrets.ANDROID_KEY_ALIAS }}
+          androidKeyaliasPass: ${{ secrets.ANDROID_KEY_PASSWORD }}
           buildMethod: ClickDungeon.EditorTools.BuildAutomation.BuildAndroid
           allowDirtyBuild: false
       - name: Remove Android signing material

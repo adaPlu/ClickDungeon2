@@ -66,10 +66,10 @@ namespace ClickDungeon.EditorTools
                 PlayerSettings.Android.keyaliasName,
                 PlayerSettings.Android.keyaliasPass);
 
-            string path=Environment.GetEnvironmentVariable("CLICKDUNGEON_ANDROID_KEYSTORE_PATH");
-            string storePassword=Environment.GetEnvironmentVariable("CLICKDUNGEON_ANDROID_KEYSTORE_PASSWORD");
-            string alias=Environment.GetEnvironmentVariable("CLICKDUNGEON_ANDROID_KEY_ALIAS");
-            string keyPassword=Environment.GetEnvironmentVariable("CLICKDUNGEON_ANDROID_KEY_PASSWORD");
+            string path=FirstEnvironmentValue("CLICKDUNGEON_ANDROID_KEYSTORE_PATH","ANDROID_KEYSTORE_NAME");
+            string storePassword=FirstEnvironmentValue("CLICKDUNGEON_ANDROID_KEYSTORE_PASSWORD","ANDROID_KEYSTORE_PASS");
+            string alias=FirstEnvironmentValue("CLICKDUNGEON_ANDROID_KEY_ALIAS","ANDROID_KEYALIAS_NAME");
+            string keyPassword=FirstEnvironmentValue("CLICKDUNGEON_ANDROID_KEY_PASSWORD","ANDROID_KEYALIAS_PASS");
 
             bool anyConfigured=!string.IsNullOrWhiteSpace(path)||!string.IsNullOrWhiteSpace(storePassword)||!string.IsNullOrWhiteSpace(alias)||!string.IsNullOrWhiteSpace(keyPassword);
             if(!anyConfigured)
@@ -89,6 +89,17 @@ namespace ClickDungeon.EditorTools
             PlayerSettings.Android.keyaliasPass=keyPassword;
             Debug.Log("Android custom release signing enabled from CI environment.");
             return previous;
+        }
+
+        private static string FirstEnvironmentValue(params string[] names)
+        {
+            foreach(string name in names)
+            {
+                string value=Environment.GetEnvironmentVariable(name);
+                if(!string.IsNullOrWhiteSpace(value))return value;
+            }
+
+            return string.Empty;
         }
 
         public static void RestoreAndroidSigning(AndroidSigningState state)
