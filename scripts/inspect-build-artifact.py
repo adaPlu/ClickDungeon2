@@ -76,6 +76,25 @@ def inspect_android(root: Path) -> None:
     )
 
 
+def inspect_android_apk(root: Path) -> None:
+    apk = nonempty_file(root / "ClickDungeon2.apk", "Android APK")
+    if not zipfile.is_zipfile(apk):
+        fail("Android APK is not a valid ZIP container")
+    with zipfile.ZipFile(apk) as archive:
+        corrupt = archive.testzip()
+        if corrupt:
+            fail(f"Android APK contains a corrupt entry: {corrupt}")
+        names = archive.namelist()
+        if "AndroidManifest.xml" not in names:
+            fail("Android APK does not contain AndroidManifest.xml")
+        if not any(name.endswith(".dex") or name.startswith("lib/") or name.startswith("assets/") for name in names):
+            fail("Android APK does not contain expected application payload")
+    print(
+        "ANDROID APK ARTIFACT OK: "
+        f"bytes={apk.stat().st_size} entries={len(names)} sha256={sha256(apk)}"
+    )
+
+
 def inspect_webgl(root: Path) -> None:
     index = nonempty_file(root / "index.html", "WebGL index.html")
     build_dir = root / "Build"
@@ -104,7 +123,7 @@ def inspect_webgl(root: Path) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate ClickDungeon2 player-build artifact structure.")
-    parser.add_argument("platform", choices=("windows", "android", "webgl"))
+    parser.add_argument("platform", choices=("windows", "android", "android-apk", "webgl"))
     parser.add_argument("root", help="Platform artifact root directory")
     args = parser.parse_args()
     root = Path(args.root)
@@ -114,6 +133,8 @@ def main() -> int:
         inspect_windows(root)
     elif args.platform == "android":
         inspect_android(root)
+    elif args.platform == "android-apk":
+        inspect_android_apk(root)
     else:
         inspect_webgl(root)
     return 0

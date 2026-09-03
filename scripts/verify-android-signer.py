@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify that the Android App Bundle is signed by the pinned upload certificate."""
+"""Verify that an Android release artifact is signed by the pinned upload certificate."""
 
 from __future__ import annotations
 
@@ -41,6 +41,14 @@ def fingerprints_from_keytool(bundle: Path) -> set[str]:
     return found
 
 
+def fingerprints_from_apksigner(bundle: Path) -> set[str]:
+    output = run_tool(["apksigner", "verify", "--print-certs", str(bundle)])
+    found = set()
+    for match in re.finditer(r"SHA-256 digest:\s*([0-9A-Fa-f:]+)", output, re.IGNORECASE):
+        found.add(normalize(match.group(1)))
+    return found
+
+
 def fingerprints_from_jarsigner(bundle: Path) -> set[str]:
     output = run_tool(["jarsigner", "-verify", "-verbose", "-certs", str(bundle)])
     found = set()
@@ -51,20 +59,22 @@ def fingerprints_from_jarsigner(bundle: Path) -> set[str]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Verify ClickDungeon2 Android upload-certificate fingerprint.")
-    parser.add_argument("bundle", help="Path to ClickDungeon2.aab")
+    parser.add_argument("bundle", help="Path to ClickDungeon2 Android release artifact")
     parser.add_argument("--expected", default=EXPECTED_CERT_SHA256, help="Expected SHA-256 certificate fingerprint")
     args = parser.parse_args()
 
     bundle = Path(args.bundle)
     if not bundle.is_file():
-        fail(f"AAB is missing: {bundle}")
+        fail(f"Android artifact is missing: {bundle}")
 
     expected = normalize(args.expected)
     fingerprints = fingerprints_from_keytool(bundle)
     if not fingerprints:
+        fingerprints = fingerprints_from_apksigner(bundle)
+    if not fingerprints:
         fingerprints = fingerprints_from_jarsigner(bundle)
     if not fingerprints:
-        fail("could not read signer certificate fingerprint from AAB; ensure keytool or jarsigner is installed")
+        fail("could not read signer certificate fingerprint from Android artifact; ensure keytool, apksigner, or jarsigner is installed")
     if expected not in fingerprints:
         listed = ", ".join(sorted(fingerprints))
         fail(f"expected {expected}, found {listed}")
