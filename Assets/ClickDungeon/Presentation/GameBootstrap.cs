@@ -96,7 +96,7 @@ namespace ClickDungeon.Presentation
                 else if(evt.Type=="boss.defeated")gained+=Content.Progression.BossRewardForFloor(Session.State.Floor);
                 else if(evt.Type=="floor.entered.forbidden")gained+=Content.Progression.ForbiddenFloorMasteryBonus;
                 else if(evt.Type=="campaign.completed"){gained+=Content.Progression.CampaignCompletionBonus;_account.TotalVictories++;}
-                else if(evt.Type=="abyss.depth.entered"){gained+=Content.Progression.AbyssDepthReward;if(Content.Progression.AbyssMilestoneInterval>0&&evt.Amount%Content.Progression.AbyssMilestoneInterval==0)gained+=Content.Progression.AbyssDepthReward;}
+                else if(evt.Type=="abyss.depth.entered"){gained+=Content.Progression.AbyssDepthReward;if(Content.Progression.AbyssMilestoneInterval>0&&evt.Amount%Content.Progression.AbyssMilestoneInterval==0)gained+=Content.Progression.AbyssMilestoneBonus;}
                 foreach(var achievementId in AchievementEvaluator.Evaluate(Content,Session.State,evt))if(!_account.AchievementIds.Contains(achievementId))_account.AchievementIds.Add(achievementId);
             }
             if(gained>0){_meta.ClassMastery+=gained;UnlockMasteryAbilities();}
