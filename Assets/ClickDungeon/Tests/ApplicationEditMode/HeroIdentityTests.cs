@@ -70,5 +70,24 @@ namespace ClickDungeon.Tests.ApplicationEditMode
             Assert.AreEqual("Shadowcut — Thief", selectionLabel.Invoke(null, new object[] { "shadowcut" }));
             Assert.AreEqual("Emberwisp — Wizard", selectionLabel.Invoke(null, new object[] { "emberwisp" }));
         }
+
+        [Test]
+        public void HeroVisualAssetKeysAreDeterministicAndRejectUnknownInputs()
+        {
+            Type catalog = typeof(SlotMetaState).Assembly.GetType(CatalogTypeName);
+            Assert.NotNull(catalog);
+            MethodInfo assetKey = catalog.GetMethod("VisualAssetKeyForHero", BindingFlags.Public | BindingFlags.Static);
+            Assert.NotNull(assetKey, "Hero-derived filenames and runtime lookups must share one tested asset-key contract.");
+
+            Assert.AreEqual("hero.ironheart.portrait", assetKey.Invoke(null, new object[] { "ironheart", "portrait" }));
+            Assert.AreEqual("hero.ironheart.attack", assetKey.Invoke(null, new object[] { "ironheart", "attack" }));
+            Assert.AreEqual("hero.clickington.roster", assetKey.Invoke(null, new object[] { "clickington", "roster" }));
+            Assert.AreEqual("hero.clickington.defeat", assetKey.Invoke(null, new object[] { "clickington", "defeat" }));
+
+            var unknownHero = Assert.Throws<TargetInvocationException>(()=>assetKey.Invoke(null,new object[]{"not-a-hero","portrait"}));
+            Assert.IsInstanceOf<ArgumentException>(unknownHero.InnerException);
+            var unknownVariant = Assert.Throws<TargetInvocationException>(()=>assetKey.Invoke(null,new object[]{"ironheart","sparkle-wallpaper"}));
+            Assert.IsInstanceOf<ArgumentException>(unknownVariant.InnerException);
+        }
     }
 }
