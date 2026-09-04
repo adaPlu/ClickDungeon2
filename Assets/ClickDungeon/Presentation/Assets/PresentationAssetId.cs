@@ -8,7 +8,7 @@ namespace ClickDungeon.Presentation.Assets
     /// </summary>
     public static class PresentationAssetId
     {
-        private static readonly string[] HeroVariants = { "master", "gameplay", "portrait", "roster", "victory", "defeat" };
+        private static readonly string[] HeroVariants = { "master", "gameplay", "portrait", "roster", "idle", "attack", "hit", "victory", "defeat" };
 
         public static string FromRuntimeArtFile(string file)
         {
