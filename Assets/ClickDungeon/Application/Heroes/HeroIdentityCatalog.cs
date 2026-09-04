@@ -66,6 +66,14 @@ namespace ClickDungeon.Application.Heroes
             return definition?.CampaignId??string.Empty;
         }
 
+        public static string SelectionLabelForHero(string heroId)
+        {
+            var definition=Find(heroId);
+            if(definition==null)return string.Empty;
+            string label=$"{definition.DisplayName} — {definition.ClassId}";
+            return string.IsNullOrEmpty(definition.CampaignId)?label:label+" • Story Campaign";
+        }
+
         public static string StandardHeroId(HeroClassId classId)
         {
             switch(classId)
