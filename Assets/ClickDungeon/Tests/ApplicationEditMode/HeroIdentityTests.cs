@@ -55,5 +55,20 @@ namespace ClickDungeon.Tests.ApplicationEditMode
             Assert.AreEqual(string.Empty, campaignForHero.Invoke(null, new object[] { "ironheart" }));
             Assert.AreEqual("clickington_campaign", campaignForHero.Invoke(null, new object[] { "clickington" }));
         }
+
+        [Test]
+        public void SelectionLabelsExposeHeroIdentityAndClickingtonStoryStatusWithoutCreatingANinthClass()
+        {
+            Type catalog = typeof(SlotMetaState).Assembly.GetType(CatalogTypeName);
+            Assert.NotNull(catalog);
+            MethodInfo selectionLabel = catalog.GetMethod("SelectionLabelForHero", BindingFlags.Public | BindingFlags.Static);
+            Assert.NotNull(selectionLabel, "Menu-facing hero labels must be generated from the identity catalog rather than UI special cases.");
+
+            Assert.AreEqual("Ironheart — Knight", selectionLabel.Invoke(null, new object[] { "ironheart" }));
+            Assert.AreEqual("Sir Clickington — Knight • Story Campaign", selectionLabel.Invoke(null, new object[] { "clickington" }));
+            Assert.AreEqual("Windsong — Ranger", selectionLabel.Invoke(null, new object[] { "windsong" }));
+            Assert.AreEqual("Shadowcut — Thief", selectionLabel.Invoke(null, new object[] { "shadowcut" }));
+            Assert.AreEqual("Emberwisp — Wizard", selectionLabel.Invoke(null, new object[] { "emberwisp" }));
+        }
     }
 }
