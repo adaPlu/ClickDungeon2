@@ -24,6 +24,15 @@ namespace ClickDungeon.Presentation.Assets
         public static Sprite Roster(PresentationAssetDatabase assets, HeroClassId heroClass) =>
             Variant(assets, heroClass, "roster");
 
+        public static Sprite Idle(PresentationAssetDatabase assets, HeroClassId heroClass) =>
+            Variant(assets, heroClass, "idle");
+
+        public static Sprite Attack(PresentationAssetDatabase assets, HeroClassId heroClass) =>
+            Variant(assets, heroClass, "attack");
+
+        public static Sprite Hit(PresentationAssetDatabase assets, HeroClassId heroClass) =>
+            Variant(assets, heroClass, "hit");
+
         public static Sprite Victory(PresentationAssetDatabase assets, HeroClassId heroClass) =>
             Variant(assets, heroClass, "victory");
 
