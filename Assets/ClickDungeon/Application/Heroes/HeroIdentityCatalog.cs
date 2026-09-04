@@ -31,6 +31,11 @@ namespace ClickDungeon.Application.Heroes
             new HeroIdentityDefinition("emberwisp","Emberwisp",HeroClassId.Wizard)
         };
 
+        private static readonly HashSet<string> VisualVariants = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "portrait","roster","select","gameplay","idle","attack","hit","victory","defeat"
+        };
+
         public static IEnumerable<HeroIdentityDefinition> All => Definitions;
 
         public static IEnumerable<HeroIdentityDefinition> ForClass(HeroClassId classId)
@@ -72,6 +77,14 @@ namespace ClickDungeon.Application.Heroes
             if(definition==null)return string.Empty;
             string label=$"{definition.DisplayName} — {definition.ClassId}";
             return string.IsNullOrEmpty(definition.CampaignId)?label:label+" • Story Campaign";
+        }
+
+        public static string VisualAssetKeyForHero(string heroId,string variant)
+        {
+            var definition=Find(heroId);
+            if(definition==null)throw new ArgumentException($"Unknown hero identity '{heroId}'.",nameof(heroId));
+            if(string.IsNullOrWhiteSpace(variant)||!VisualVariants.Contains(variant))throw new ArgumentException($"Unknown hero visual variant '{variant}'.",nameof(variant));
+            return $"hero.{definition.HeroId}.{variant.ToLowerInvariant()}";
         }
 
         public static string StandardHeroId(HeroClassId classId)
