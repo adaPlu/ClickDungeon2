@@ -170,7 +170,7 @@ android_signer=ROOT/'scripts/verify-android-signer.py'
 if not android_signer.exists():errors.append('scripts/verify-android-signer.py is missing')
 else:
     signer_text=android_signer.read_text()
-    for token in ['D8:11:9B:59:52:1A:7F:06:94:90:7C:00:BF:D1:F8:AA:9E:85:46:75:83:27:C9:15:95:0B:4A:E1:E7:14:36:64','keytool','jarsigner']:
+    for token in ['D8:11:9B:59:52:1A:7F:06:94:90:7C:00:BF:D1:F8:AA:9E:85:46:75:83:27:C9:15:95:0B:4A:E1:E7:14:36:64','keytool','apksigner','ANDROID_HOME','ANDROID_SDK_ROOT','jarsigner']:
         if token not in signer_text:errors.append(f'verify-android-signer.py missing upload certificate gate token {token}')
 android_secret_installer=ROOT/'scripts/install-android-signing-secrets.ps1'
 if not android_secret_installer.exists():errors.append('scripts/install-android-signing-secrets.ps1 is missing')

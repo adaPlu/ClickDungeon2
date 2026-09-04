@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import argparse
+import os
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -33,6 +35,34 @@ def run_tool(args: list[str]) -> str:
     return result.stdout + result.stderr
 
 
+def find_apksigner() -> str | None:
+    executable = shutil.which("apksigner") or shutil.which("apksigner.bat")
+    if executable:
+        return executable
+
+    sdk_roots = [
+        os.environ.get("ANDROID_HOME"),
+        os.environ.get("ANDROID_SDK_ROOT"),
+    ]
+    local_app_data = os.environ.get("LOCALAPPDATA")
+    if local_app_data:
+        sdk_roots.append(str(Path(local_app_data) / "Android" / "Sdk"))
+
+    candidates = []
+    for sdk_root in sdk_roots:
+        if not sdk_root:
+            continue
+        build_tools = Path(sdk_root) / "build-tools"
+        if not build_tools.is_dir():
+            continue
+        candidates.extend(build_tools.glob("*/apksigner"))
+        candidates.extend(build_tools.glob("*/apksigner.bat"))
+
+    if not candidates:
+        return None
+    return str(sorted(candidates, reverse=True)[0])
+
+
 def fingerprints_from_keytool(bundle: Path) -> set[str]:
     output = run_tool(["keytool", "-printcert", "-jarfile", str(bundle)])
     found = set()
@@ -42,7 +72,10 @@ def fingerprints_from_keytool(bundle: Path) -> set[str]:
 
 
 def fingerprints_from_apksigner(bundle: Path) -> set[str]:
-    output = run_tool(["apksigner", "verify", "--print-certs", str(bundle)])
+    apksigner = find_apksigner()
+    if not apksigner:
+        return set()
+    output = run_tool([apksigner, "verify", "--print-certs", str(bundle)])
     found = set()
     for match in re.finditer(r"SHA-256 digest:\s*([0-9A-Fa-f:]+)", output, re.IGNORECASE):
         found.add(normalize(match.group(1)))
