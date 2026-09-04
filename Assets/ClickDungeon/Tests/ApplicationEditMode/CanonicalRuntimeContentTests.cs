@@ -59,6 +59,27 @@ namespace ClickDungeon.Tests.ApplicationEditMode
             }
         }
 
+        [Test]
+        public void CanonicalHeroesPreserveStableClassIdsAndExposeApprovedHeroIdentities()
+        {
+            string contentDir=FindContentDirectory();
+            GameContent content=new JsonContentCatalogLoader().LoadFromDirectory(contentDir);
+
+            AssertHeroIdentity(content,HeroClassId.Knight,"Ironheart","Knight","control_danger");
+            AssertHeroIdentity(content,HeroClassId.Thief,"Shadowcut","Thief","control_information");
+            AssertHeroIdentity(content,HeroClassId.Wizard,"Emberwisp","Wizard","control_board");
+            AssertHeroIdentity(content,HeroClassId.Ranger,"Windsong","Ranger","control_distance");
+        }
+
+        private static void AssertHeroIdentity(GameContent content,HeroClassId classId,string heroName,string className,string identity)
+        {
+            var hero=content.Hero(classId);
+            Assert.AreEqual(classId,hero.ClassId,$"{classId} stable class id");
+            Assert.AreEqual(heroName,hero.DisplayName,$"{classId} approved hero identity");
+            Assert.AreEqual(className,hero.ClassDisplayName,$"{classId} class display name");
+            Assert.AreEqual(identity,hero.Identity,$"{classId} gameplay identity");
+        }
+
         private static void AssertRange(BalanceRangeDefinition range,int min,int max,string label)
         {
             Assert.NotNull(range,label);Assert.AreEqual(min,range.Min,label+" min");Assert.AreEqual(max,range.Max,label+" max");
