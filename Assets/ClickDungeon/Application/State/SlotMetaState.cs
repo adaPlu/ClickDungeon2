@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace ClickDungeon.Application.State
 {
@@ -7,6 +8,8 @@ namespace ClickDungeon.Application.State
     public sealed class SlotMetaState
     {
         public string HeroClassId = "Knight";
+        [JsonProperty(DefaultValueHandling=DefaultValueHandling.Ignore)]
+        public string HeroId;
         public int ClassMastery;
         public List<string> UnlockedAbilityIds = new List<string>();
         public int BestFloor;

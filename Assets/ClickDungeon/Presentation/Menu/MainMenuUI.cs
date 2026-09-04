@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using ClickDungeon.Application.Persistence;
 using ClickDungeon.Application.Content;
 using ClickDungeon.Application.State;
+using ClickDungeon.Application.Heroes;
 using ClickDungeon.Simulation.Content;
 using ClickDungeon.Application.Services;
 using ClickDungeon.Presentation.Assets;
@@ -67,7 +68,12 @@ namespace ClickDungeon.Presentation.Menu
             AddText("CLICKDUNGEON",54,110);AddText("Read the dungeon. Reveal the danger. Risk the deeper path.",24,100);
             for(int slot=1;slot<=4;slot++){int captured=slot;string label=SlotLabel(slot);AddButton(label,()=>SelectSlot(captured),92);}
             _status=AddText($"Select a slot.  Achievements {_account.AchievementIds.Count}/{new System.Collections.Generic.List<AchievementDefinition>(_content.Achievements).Count}",22,120);
-            AddText("NEW RUN",30,64);foreach(HeroClassId cls in Enum.GetValues(typeof(HeroClassId))){HeroClassId captured=cls;AddButton(cls.ToString(),()=>StartNew(captured),74);}
+            AddText("NEW RUN",30,64);
+            foreach(var hero in HeroIdentityCatalog.All)
+            {
+                string heroId=hero.HeroId;
+                AddButton(HeroIdentityCatalog.SelectionLabelForHero(heroId),()=>StartNew(heroId),74);
+            }
             AddButton("Continue Selected Slot",Continue,82);AddButton("Achievements",ShowAchievements,74);AddButton("Enter the Abyss",StartAbyss,82);if(!_services.Store.FullGameUnlocked)AddButton("Unlock Full Game",UnlockFullGame,82);AddButton("Delete Selected Slot",DeleteSelected,70);
         }
 
@@ -84,14 +90,14 @@ namespace ClickDungeon.Presentation.Menu
         {
             try
             {
-                var doc=_saves.LoadSlot(slot);if(doc?.payload==null)return $"Slot {slot} — Empty";var meta=doc.payload.Meta;string complete=meta.CampaignCompleted?" ✓":"";return $"Slot {slot} — {meta.HeroClassId}{complete} — Mastery {meta.ClassMastery} — Floor {meta.BestFloor} — Abyss {meta.BestAbyssDepth}";
+                var doc=_saves.LoadSlot(slot);if(doc?.payload==null)return $"Slot {slot} — Empty";var meta=doc.payload.Meta;HeroClassId cls;if(!Enum.TryParse(meta.HeroClassId,true,out cls))cls=HeroClassId.Knight;string heroId=HeroIdentityCatalog.ResolveHeroId(cls,meta.HeroId);string heroName=HeroIdentityCatalog.DisplayNameForHero(heroId);string complete=meta.CampaignCompleted?" ✓":"";return $"Slot {slot} — {heroName} ({cls}){complete} — Mastery {meta.ClassMastery} — Floor {meta.BestFloor} — Abyss {meta.BestAbyssDepth}";
             }
             catch(Exception ex){Debug.LogWarning($"Slot {slot} preview failed: {ex.Message}");return $"Slot {slot} — Recovery Required";}
         }
         private void SelectSlot(int slot){_selectedSlot=slot;_status.text=$"Selected slot {slot}.";}
-        private void StartNew(HeroClassId cls)
+        private void StartNew(string heroId)
         {
-            PlayerPrefs.SetInt("cd2.slot",_selectedSlot);PlayerPrefs.SetInt("cd2.continue",0);PlayerPrefs.SetInt("cd2.abyss",0);PlayerPrefs.SetInt("cd2.class",(int)cls);PlayerPrefs.SetString("cd2.seed",unchecked((uint)DateTime.UtcNow.Ticks).ToString());PlayerPrefs.Save();SceneManager.LoadScene("Game");
+            HeroClassId cls=HeroIdentityCatalog.ClassForHero(heroId);PlayerPrefs.SetInt("cd2.slot",_selectedSlot);PlayerPrefs.SetInt("cd2.continue",0);PlayerPrefs.SetInt("cd2.abyss",0);PlayerPrefs.SetInt("cd2.class",(int)cls);PlayerPrefs.SetString("cd2.hero",heroId);PlayerPrefs.SetString("cd2.seed",unchecked((uint)DateTime.UtcNow.Ticks).ToString());PlayerPrefs.Save();SceneManager.LoadScene("Game");
         }
         private void Continue()
         {
@@ -103,7 +109,7 @@ namespace ClickDungeon.Presentation.Menu
             try
             {
                 var doc=_saves.LoadSlot(_selectedSlot);var meta=doc?.payload?.Meta;if(meta==null||!meta.CampaignCompleted){_status.text="Complete Floor 50 on this slot to unlock the Abyss.";return;}
-                HeroClassId cls;if(!Enum.TryParse(meta.HeroClassId,out cls))cls=HeroClassId.Knight;PlayerPrefs.SetInt("cd2.slot",_selectedSlot);PlayerPrefs.SetInt("cd2.continue",0);PlayerPrefs.SetInt("cd2.abyss",1);PlayerPrefs.SetInt("cd2.class",(int)cls);PlayerPrefs.SetString("cd2.seed",unchecked((uint)DateTime.UtcNow.Ticks).ToString());PlayerPrefs.Save();SceneManager.LoadScene("Game");
+                HeroClassId cls;if(!Enum.TryParse(meta.HeroClassId,true,out cls))cls=HeroClassId.Knight;string heroId=HeroIdentityCatalog.ResolveHeroId(cls,meta.HeroId);PlayerPrefs.SetInt("cd2.slot",_selectedSlot);PlayerPrefs.SetInt("cd2.continue",0);PlayerPrefs.SetInt("cd2.abyss",1);PlayerPrefs.SetInt("cd2.class",(int)cls);PlayerPrefs.SetString("cd2.hero",heroId);PlayerPrefs.SetString("cd2.seed",unchecked((uint)DateTime.UtcNow.Ticks).ToString());PlayerPrefs.Save();SceneManager.LoadScene("Game");
             }
             catch(Exception ex){_status.text=$"Abyss unavailable: {ex.Message}";}
         }

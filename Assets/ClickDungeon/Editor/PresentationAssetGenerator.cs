@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using ClickDungeon.Application.Heroes;
 using ClickDungeon.Presentation.Assets;
 
 namespace ClickDungeon.EditorTools
@@ -15,6 +16,7 @@ namespace ClickDungeon.EditorTools
         public const string AssetPath=OutputDirectory+"/ClickDungeonPresentationAssets.asset";
         private const string RuntimeArt="Assets/ClickDungeon/Art/Runtime";
         private const string RuntimeAudio="Assets/ClickDungeon/Audio/Runtime";
+        private static readonly string[] HeroDerivedVariants={"portrait","roster","select","gameplay","idle","attack","hit","victory","defeat"};
 
         [MenuItem("ClickDungeon/Art/Generate Presentation Asset Database")]
         public static void GenerateMenu()=>Generate(true);
@@ -66,7 +68,17 @@ namespace ClickDungeon.EditorTools
             string n=file.Replace("_placeholder",string.Empty);
             if(n.StartsWith("monster_")&&n.EndsWith("_core"))return "monster."+n.Substring(8,n.Length-13);
             if(n.StartsWith("boss_")&&n.EndsWith("_core"))return "boss."+n.Substring(5,n.Length-10);
-            if(n.StartsWith("hero_")&&n.EndsWith("_core"))return "hero."+n.Substring(5,n.Length-10);
+            if(n.StartsWith("hero_"))
+            {
+                if(n.EndsWith("_core"))return "hero."+n.Substring(5,n.Length-10);
+                foreach(string variant in HeroDerivedVariants)
+                {
+                    string suffix="_"+variant;if(!n.EndsWith(suffix,StringComparison.OrdinalIgnoreCase))continue;
+                    string heroId=n.Substring(5,n.Length-5-suffix.Length);
+                    try{return HeroIdentityCatalog.VisualAssetKeyForHero(heroId,variant);}
+                    catch(ArgumentException){return string.Empty;}
+                }
+            }
             if(n.StartsWith("biome_")&&n.EndsWith("_master"))return "biome."+n.Substring(6,n.Length-13);
             if(n.StartsWith("trap_"))return "trap."+n.Substring(5);
             if(n=="clue_danger")return "clue.danger";if(n=="clue_opportunity")return "clue.opportunity";if(n=="clue_passage")return "clue.passage";

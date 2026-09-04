@@ -8,6 +8,7 @@ using ClickDungeon.Application.Persistence;
 using ClickDungeon.Application.State;
 using ClickDungeon.Application.Services;
 using ClickDungeon.Application.Replay;
+using ClickDungeon.Application.Heroes;
 using ClickDungeon.Simulation;
 using ClickDungeon.Simulation.Commands;
 using ClickDungeon.Simulation.Content;
@@ -28,6 +29,7 @@ namespace ClickDungeon.Presentation
         private int _slot;
         private long _revision;
         private SlotMetaState _meta;
+        private string _heroId;
         private AccountRepository _accounts;
         private AccountState _account;
         private bool _gameOverRecorded;
@@ -40,6 +42,8 @@ namespace ClickDungeon.Presentation
         private const int FreeIntroLastFloor = 5;
         public GameSession Session { get; private set; }
         public GameContent Content { get; private set; }
+        public string HeroId => _heroId;
+        public string CampaignId => HeroIdentityCatalog.CampaignForHero(_heroId);
 
         private void Awake()
         {
@@ -47,19 +51,19 @@ namespace ClickDungeon.Presentation
             var generator=new FloorGenerator(Content);
             if(shouldContinue&&TryLoadExisting(out var loaded))
             {
-                ContentMigrationService.Apply(loaded,Content);_meta=loaded.Meta??new SlotMetaState();Session=new GameSession(loaded.ActiveRun,generator,Content);ApplyEntitlementLimit(Session.State);
+                ContentMigrationService.Apply(loaded,Content);_meta=loaded.Meta??new SlotMetaState();Session=new GameSession(loaded.ActiveRun,generator,Content);_heroId=HeroIdentityCatalog.ResolveHeroId(Session.State.HeroClass,_meta.HeroId);_meta.HeroClassId=Session.State.HeroClass.ToString();_meta.HeroId=_heroId;ApplyEntitlementLimit(Session.State);
             }
             else
             {
                 startedFresh=true;
                 var cls=(HeroClassId)PlayerPrefs.GetInt("cd2.class",(int)editorHeroClass);uint seed=ParseSeed(PlayerPrefs.GetString("cd2.seed",editorSeed.ToString()),editorSeed);
-                _meta=LoadMetaOrCreate(cls);_meta.HeroClassId=cls.ToString();var unlocked=unlockAllAbilitiesForDevelopment?Content.Hero(cls).AbilityIds:UnlockedForMeta(cls,_meta);
+                _meta=LoadMetaOrCreate(cls);string requestedHeroId=PlayerPrefs.GetString("cd2.hero",_meta.HeroId??string.Empty);_heroId=HeroIdentityCatalog.ResolveHeroId(cls,requestedHeroId);_meta.HeroClassId=cls.ToString();_meta.HeroId=_heroId;var unlocked=unlockAllAbilitiesForDevelopment?Content.Hero(cls).AbilityIds:UnlockedForMeta(cls,_meta);
                 var state=startAbyss&&_meta.CampaignCompleted&&_services.Store.FullGameUnlocked?generator.CreateAbyssRun(seed,cls,unlocked):generator.CreateNewRun(seed,cls,unlocked);ApplyEntitlementLimit(state);Session=new GameSession(state,generator,Content);_account.TotalRuns++;_accounts.Save(_account);SaveCurrent();
             }
             _playStartedAt=Time.realtimeSinceStartup;_playSecondsBase=_meta.PlaySeconds;
             if(startedFresh){_replayRecorder=new ReplayRecorder(Session.State);_replayRepository=new ReplayRepository();}
-            var audio=gameObject.AddComponent<GameEventAudioRouter>();audio.Initialize();_musicAndAmbience=gameObject.AddComponent<MusicAndAmbienceController>();_musicAndAmbience.Initialize(Content,Session.State);var ui=gameObject.AddComponent<RuntimeGameUI>();ui.Initialize(Session,Content);ui.CommandExecuted+=OnCommandExecuted;ui.CommandResolved+=OnCommandResolved;ui.CommandResolved+=r=>audio.Present(r.Events);ui.StateChanged+=OnStateChanged;ui.ReturnToMenuRequested+=()=>SceneManager.LoadScene("Main");
-            Debug.Log($"ClickDungeon2 slot={_slot} seed={Session.State.RootSeed} class={Session.State.HeroClass} floor={Session.State.Floor}");
+            var audio=gameObject.AddComponent<GameEventAudioRouter>();audio.Initialize();_musicAndAmbience=gameObject.AddComponent<MusicAndAmbienceController>();_musicAndAmbience.Initialize(Content,Session.State);var ui=gameObject.AddComponent<RuntimeGameUI>();ui.Initialize(Session,Content,_heroId);ui.CommandExecuted+=OnCommandExecuted;ui.CommandResolved+=OnCommandResolved;ui.CommandResolved+=r=>audio.Present(r.Events);ui.StateChanged+=OnStateChanged;ui.ReturnToMenuRequested+=()=>SceneManager.LoadScene("Main");
+            Debug.Log($"ClickDungeon slot={_slot} seed={Session.State.RootSeed} hero={_heroId} class={Session.State.HeroClass} floor={Session.State.Floor}");
         }
 
         private void ApplyEntitlementLimit(RunState state)
@@ -112,7 +116,7 @@ namespace ClickDungeon.Presentation
         private SlotMetaState LoadMetaOrCreate(HeroClassId cls)
         {
             try{var doc=_saves.LoadSlot(_slot);if(doc?.payload?.Meta!=null)return doc.payload.Meta;}catch(Exception ex){Debug.LogWarning($"Existing slot metadata could not be reused: {ex.Message}");}
-            string now=DateTimeOffset.UtcNow.ToString("O");return new SlotMetaState{HeroClassId=cls.ToString(),CreatedAt=now,LastPlayedAt=now};
+            string now=DateTimeOffset.UtcNow.ToString("O");return new SlotMetaState{HeroClassId=cls.ToString(),HeroId=HeroIdentityCatalog.StandardHeroId(cls),CreatedAt=now,LastPlayedAt=now};
         }
 
         private string[] UnlockedForMeta(HeroClassId cls,SlotMetaState meta)
@@ -140,9 +144,9 @@ namespace ClickDungeon.Presentation
             }
         }
         private void OnStateChanged(){UpdateMeta();SaveCurrent();_musicAndAmbience?.Refresh(Session.State);}
-        private void UpdateMeta(){var s=Session.State;_meta.HeroClassId=s.HeroClass.ToString();_meta.BestFloor=Math.Max(_meta.BestFloor,s.Mode==RunMode.Campaign?s.Floor:_meta.BestFloor);_meta.BestAbyssDepth=Math.Max(_meta.BestAbyssDepth,s.AbyssDepth);_meta.CampaignCompleted|=s.CampaignCompleted;_meta.LastPlayedAt=DateTimeOffset.UtcNow.ToString("O");_meta.PlaySeconds=_playSecondsBase+Math.Max(0,(long)(Time.realtimeSinceStartup-_playStartedAt));foreach(var a in s.AbilityStates)if(!_meta.UnlockedAbilityIds.Contains(a.AbilityId))_meta.UnlockedAbilityIds.Add(a.AbilityId);}
+        private void UpdateMeta(){var s=Session.State;_meta.HeroClassId=s.HeroClass.ToString();_heroId=HeroIdentityCatalog.ResolveHeroId(s.HeroClass,_heroId??_meta.HeroId);_meta.HeroId=_heroId;_meta.BestFloor=Math.Max(_meta.BestFloor,s.Mode==RunMode.Campaign?s.Floor:_meta.BestFloor);_meta.BestAbyssDepth=Math.Max(_meta.BestAbyssDepth,s.AbyssDepth);_meta.CampaignCompleted|=s.CampaignCompleted;_meta.LastPlayedAt=DateTimeOffset.UtcNow.ToString("O");_meta.PlaySeconds=_playSecondsBase+Math.Max(0,(long)(Time.realtimeSinceStartup-_playStartedAt));foreach(var a in s.AbilityStates)if(!_meta.UnlockedAbilityIds.Contains(a.AbilityId))_meta.UnlockedAbilityIds.Add(a.AbilityId);}
         private void SaveCurrent(){UpdateMeta();_revision++;_saves.SaveSlot(_slot,new SlotSavePayload{Meta=_meta,ActiveRun=Session.State},_revision);}
-        private static SlotMetaState NewMeta(RunState state){string now=DateTimeOffset.UtcNow.ToString("O");return new SlotMetaState{HeroClassId=state.HeroClass.ToString(),BestFloor=state.Floor,CreatedAt=now,LastPlayedAt=now,UnlockedAbilityIds=state.AbilityStates.Select(a=>a.AbilityId).ToList()};}
+        private static SlotMetaState NewMeta(RunState state){string now=DateTimeOffset.UtcNow.ToString("O");return new SlotMetaState{HeroClassId=state.HeroClass.ToString(),HeroId=HeroIdentityCatalog.StandardHeroId(state.HeroClass),BestFloor=state.Floor,CreatedAt=now,LastPlayedAt=now,UnlockedAbilityIds=state.AbilityStates.Select(a=>a.AbilityId).ToList()};}
         private static uint ParseSeed(string text,uint fallback)=>uint.TryParse(text,out var seed)?seed:fallback;
 
         private static GameContent LoadContent()
