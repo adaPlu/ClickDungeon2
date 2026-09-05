@@ -20,6 +20,7 @@ namespace ClickDungeon.Simulation
         private readonly GameContent _content;
         private readonly AbilityResolver _abilities;
         private readonly LootResolver _loot;
+        private const int ChestOpenInteractionsRequired=3;
         public RunState State { get; }
 
         public GameSession(RunState state, FloorGenerator generator, GameContent content=null)
@@ -104,7 +105,7 @@ namespace ClickDungeon.Simulation
                 case TileContentKind.Gold:State.Gold+=Math.Max(1,tile.Amount);ResolveTile(tile);events.Add(new GameEvent("gold.collected",index,tile.ContentId,tile.Amount));break;
                 case TileContentKind.SmallKey:State.SmallKeys++;ResolveTile(tile);events.Add(new GameEvent("key.small.collected",index));break;
                 case TileContentKind.BigKey:if(State.BigKeys>=_content.Balance.BigKeyMaxCarry)return CommandResult.Reject("key.big.carry_limit");State.BigKeys++;ResolveTile(tile);events.Add(new GameEvent("key.big.collected",index));break;
-                case TileContentKind.Chest:if(State.SmallKeys<=0)return CommandResult.Reject("key.small.required");State.SmallKeys--;AwardLoot("loot.chest.standard",index,events);ResolveTile(tile);events.Add(new GameEvent("chest.opened",index,tile.ContentId));break;
+                case TileContentKind.Chest:return InteractChest(index,tile,events);
                 case TileContentKind.Consumable:AddOwnedItem(tile.ContentId,string.Empty);ResolveTile(tile);events.Add(new GameEvent("item.collected",index,tile.ContentId));break;
                 case TileContentKind.Equipment:AddOwnedItem(tile.ContentId,string.Empty);ResolveTile(tile);events.Add(new GameEvent("item.collected",index,tile.ContentId));break;
                 case TileContentKind.Merchant:events.Add(new GameEvent("merchant.opened",index,tile.ContentId));return CommandResult.Accept(events);
@@ -112,6 +113,20 @@ namespace ClickDungeon.Simulation
                 default:return CommandResult.Reject("tile.requires_specific_command");
             }
             GainRecharge(1,events);return CommandResult.Accept(events);
+        }
+
+        private CommandResult InteractChest(int index,TileState tile,List<GameEvent> events)
+        {
+            if(State.SmallKeys<=0)return CommandResult.Reject("key.small.required");
+            tile.InteractionProgress=Math.Min(ChestOpenInteractionsRequired,tile.InteractionProgress+1);
+            events.Add(new GameEvent("chest.opening.progress",index,tile.ContentId,tile.InteractionProgress));
+            if(tile.InteractionProgress<ChestOpenInteractionsRequired)return CommandResult.Accept(events);
+            State.SmallKeys--;
+            AwardLoot("loot.chest.standard",index,events);
+            ResolveTile(tile);
+            events.Add(new GameEvent("chest.opened",index,tile.ContentId));
+            GainRecharge(1,events);
+            return CommandResult.Accept(events);
         }
 
         private CommandResult Attack(int index,List<GameEvent> events)
