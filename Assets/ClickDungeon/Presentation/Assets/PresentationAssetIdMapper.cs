@@ -66,6 +66,26 @@ namespace ClickDungeon.Presentation.Assets
     }
 
     /// <summary>
+    /// Resolves presentation keys from the selected hero identity, not the legacy class ID.
+    /// This prevents heroes that share mechanics, such as Ironheart and Sir Clickington, from
+    /// silently collapsing to the same generic Knight artwork.
+    /// </summary>
+    public static class HeroPresentationAssetResolver
+    {
+        public static string PortraitAssetId(string heroId)=>AssetId(heroId,"portrait");
+        public static string SelectionAssetId(string heroId)=>AssetId(heroId,"select");
+        public static string RosterAssetId(string heroId)=>AssetId(heroId,"roster");
+        public static string GameplayAssetId(string heroId)=>AssetId(heroId,"gameplay");
+
+        private static string AssetId(string heroId,string variant)
+        {
+            if(string.IsNullOrWhiteSpace(heroId))return string.Empty;
+            try{return HeroIdentityCatalog.VisualAssetKeyForHero(heroId,variant);}
+            catch(ArgumentException){return string.Empty;}
+        }
+    }
+
+    /// <summary>
     /// Converts simulation tile state into the one canonical sprite ID that the board should display.
     /// This deliberately contains presentation policy only; it never changes simulation state.
     /// </summary>
