@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using ClickDungeon.Presentation.Assets;
 using NUnit.Framework;
 
@@ -32,6 +34,48 @@ namespace ClickDungeon.Tests.PresentationEditMode
         public void ModularDungeonContractMapsToStablePresentationIds(string file,string expected)
         {
             Assert.That(PresentationAssetIdMapper.SpriteId(file),Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void ModularRoomLayoutDefinesDeterministicReusableGeometry()
+        {
+            var assembly=typeof(PresentationAssetIdMapper).Assembly;
+            var layout=assembly.GetType("ClickDungeon.Presentation.Assets.DungeonRoomPresentationLayout");
+            Assert.That(layout,Is.Not.Null,"The runtime board needs one engine-free modular room layout contract.");
+
+            var floor=layout.GetMethod("FloorIdForCell");
+            Assert.That(floor,Is.Not.Null);
+            Assert.That(floor.Invoke(null,new object[]{0}),Is.EqualTo("dungeon.floor.stone"));
+            Assert.That(floor.Invoke(null,new object[]{6}),Is.EqualTo("dungeon.floor.cracked"));
+            Assert.That(floor.Invoke(null,new object[]{12}),Is.EqualTo("dungeon.floor.cracked"));
+            Assert.That(floor.Invoke(null,new object[]{24}),Is.EqualTo("dungeon.floor.stone"));
+
+            var edgeType=assembly.GetType("ClickDungeon.Presentation.Assets.DungeonRoomEdge");
+            var wallRotation=layout.GetMethod("WallRotationDegrees");
+            Assert.That(edgeType,Is.Not.Null);Assert.That(wallRotation,Is.Not.Null);
+            Assert.That(wallRotation.Invoke(null,new[]{Enum.Parse(edgeType,"Top")}),Is.EqualTo(0));
+            Assert.That(wallRotation.Invoke(null,new[]{Enum.Parse(edgeType,"Right")}),Is.EqualTo(90));
+            Assert.That(wallRotation.Invoke(null,new[]{Enum.Parse(edgeType,"Bottom")}),Is.EqualTo(180));
+            Assert.That(wallRotation.Invoke(null,new[]{Enum.Parse(edgeType,"Left")}),Is.EqualTo(270));
+
+            var torch=layout.GetMethod("HasTorchAtCell");
+            Assert.That(torch,Is.Not.Null);
+            Assert.That(torch.Invoke(null,new object[]{1}),Is.EqualTo(true));
+            Assert.That(torch.Invoke(null,new object[]{3}),Is.EqualTo(true));
+            Assert.That(torch.Invoke(null,new object[]{2}),Is.EqualTo(false));
+        }
+
+        [Test]
+        public void RuntimeBoardSourceConsumesModularRoomLayoutContract()
+        {
+            string root=Directory.GetCurrentDirectory();
+            while(!File.Exists(Path.Combine(root,"ProjectSettings","ProjectVersion.txt"))&&Directory.GetParent(root)!=null)root=Directory.GetParent(root).FullName;
+            string path=Path.Combine(root,"Assets","ClickDungeon","Presentation","UI","RuntimeGameUI.cs");
+            Assert.That(File.Exists(path),Is.True);
+            string source=File.ReadAllText(path);
+            Assert.That(source,Does.Contain("DungeonRoomPresentationLayout.FloorIdForCell(index)"));
+            Assert.That(source,Does.Contain("AddRoomDecorations"));
+            Assert.That(source,Does.Contain("DungeonRoomPresentationLayout.HasTorchAtCell(index)"));
         }
 
         [TestCase(null)]
