@@ -175,7 +175,7 @@ namespace ClickDungeon.Presentation.UI
             if(tile.Visibility==TileVisibility.Hidden)text="?";else if(tile.Visibility==TileVisibility.Clued)text=ClueText(tile.Clue);else if(tile.Visibility==TileVisibility.Identified)text=IdentifiedText(tile);else text=RevealedText(tile);
             if(threatened&&tile.Occupancy!=OccupancyKind.Monster)text="⚠\n"+text;if(tile.Terrain!=TerrainKind.Normal)text=TerrainMark(tile.Terrain)+"\n"+text;if(index==Index(_session.State.PlayerPosition))text="◆\n"+text;label.text=text;
             var floor=_tileFloors[index];floor.sprite=_assets?.SpriteFor(DungeonRoomPresentationLayout.FloorIdForCell(index));floor.enabled=floor.sprite!=null;
-            var icon=_tileIcons[index];string assetId=AssetIdFor(tile);icon.sprite=_assets?.SpriteFor(assetId);icon.enabled=icon.sprite!=null;_tileStateOverlays[index].color=TileOverlayColor(tile,threatened,index==Index(_session.State.PlayerPosition));button.interactable=!_session.State.GameOver&&!_session.State.CampaignCompleted;
+            var icon=_tileIcons[index];string assetId=TilePresentationAssetResolver.PrimaryAssetId(tile);icon.sprite=_assets?.SpriteFor(assetId);icon.enabled=icon.sprite!=null;_tileStateOverlays[index].color=TileOverlayColor(tile,threatened,index==Index(_session.State.PlayerPosition));button.interactable=!_session.State.GameOver&&!_session.State.CampaignCompleted;
         }
 
         private void RefreshIntent()
@@ -196,13 +196,6 @@ namespace ClickDungeon.Presentation.UI
             if(player)return new Color(.08f,.48f,.22f,.30f);if(threatened)return new Color(.55f,.08f,.10f,.34f);
             if(tile.Visibility==TileVisibility.Clued)return tile.Clue==ClueFamily.Danger?new Color(.42f,.08f,.08f,.28f):tile.Clue==ClueFamily.Opportunity?new Color(.45f,.35f,.05f,.24f):new Color(.08f,.18f,.46f,.25f);
             if(tile.Visibility==TileVisibility.Identified)return new Color(.08f,.22f,.32f,.22f);if(tile.Visibility==TileVisibility.Hidden)return new Color(.02f,.03f,.05f,.48f);return new Color(.02f,.02f,.03f,.10f);
-        }
-        private static string AssetIdFor(TileState tile)
-        {
-            if(tile.Visibility==TileVisibility.Hidden)return string.Empty;
-            if(tile.Visibility==TileVisibility.Clued)return tile.Clue==ClueFamily.Danger?"clue.danger":tile.Clue==ClueFamily.Opportunity?"clue.opportunity":tile.Clue==ClueFamily.PassageArcane?"clue.passage":string.Empty;
-            if(tile.Content==TileContentKind.BigKey)return "key.big";if(tile.Content==TileContentKind.SmallKey)return "key.small";if(tile.Content==TileContentKind.Gold)return "currency.gold";
-            return tile.ContentId;
         }
         private void OnTilePressed(int index)
         {
