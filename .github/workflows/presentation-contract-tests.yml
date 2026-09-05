@@ -1,0 +1,47 @@
+name: Presentation Contract Tests
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  presentation-contract-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9
+        with:
+          dotnet-version: 8.0.x
+      - name: Run engine-free presentation ID contract tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .ci/presentation-contract-tests
+          cat > .ci/presentation-contract-tests/PresentationContractTests.csproj <<'EOF'
+          <Project Sdk="Microsoft.NET.Sdk">
+            <PropertyGroup>
+              <TargetFramework>net8.0</TargetFramework>
+              <ImplicitUsings>disable</ImplicitUsings>
+              <Nullable>disable</Nullable>
+              <LangVersion>latest</LangVersion>
+              <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+              <IsTestProject>true</IsTestProject>
+            </PropertyGroup>
+            <ItemGroup>
+              <Compile Include="../../Assets/ClickDungeon/Simulation/**/*.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Application/Heroes/HeroIdentityCatalog.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Presentation/Assets/PresentationAssetIdMapper.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/PresentationAssetIdMapperTests.cs" />
+              <PackageReference Include="NUnit" Version="3.14.0" />
+              <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+              <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+            </ItemGroup>
+          </Project>
+          EOF
+          dotnet test .ci/presentation-contract-tests/PresentationContractTests.csproj --configuration Release --nologo --logger "console;verbosity=normal"

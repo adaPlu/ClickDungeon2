@@ -1,7 +1,7 @@
 using ClickDungeon.Presentation.Assets;
 using NUnit.Framework;
 
-namespace ClickDungeon.Tests.EditMode
+namespace ClickDungeon.Tests.PresentationEditMode
 {
     public sealed class PresentationAssetIdMapperTests
     {
