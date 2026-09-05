@@ -14,6 +14,7 @@ namespace ClickDungeon.Simulation.Model
         public string ContentId = string.Empty;
         public string VariantId = string.Empty;
         public int Amount;
+        public int InteractionProgress;
         public int MonsterHp;
         public int MonsterMaxHp;
         public int MonsterAttack;
