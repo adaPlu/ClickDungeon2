@@ -1,0 +1,142 @@
+{
+  "schema": "clickdungeon.gameplay_art_bindings.v1",
+  "game": "ClickDungeon",
+  "policy": {
+    "player_facing_brand": "ClickDungeon",
+    "canonical_rule": "Gameplay IDs remain authoritative. Presentation assets bind to gameplay IDs; art filenames and display names must not create new gameplay IDs implicitly.",
+    "duplicate_rule": "Reuse an existing canonical runtime asset when one already exists. Candidate art from extraction packs must be explicitly bound before import.",
+    "fallback_rule": "Legacy procedural runtime art may remain as a fallback until an approved illustrated replacement is imported and registered."
+  },
+  "heroes": [
+    {
+      "hero_id": "ironheart",
+      "class_id": "Knight",
+      "campaign_id": "",
+      "canonical_keys": [
+        "hero.ironheart.portrait",
+        "hero.ironheart.roster",
+        "hero.ironheart.select",
+        "hero.ironheart.gameplay",
+        "hero.ironheart.idle",
+        "hero.ironheart.attack",
+        "hero.ironheart.hit",
+        "hero.ironheart.victory",
+        "hero.ironheart.defeat"
+      ],
+      "current_fallback_key": "hero.knight",
+      "status": "approved_identity_binary_import_pending"
+    },
+    {
+      "hero_id": "clickington",
+      "class_id": "Knight",
+      "campaign_id": "clickington_campaign",
+      "canonical_keys": [
+        "hero.clickington.portrait",
+        "hero.clickington.roster",
+        "hero.clickington.select",
+        "hero.clickington.gameplay",
+        "hero.clickington.idle",
+        "hero.clickington.attack",
+        "hero.clickington.hit",
+        "hero.clickington.victory",
+        "hero.clickington.defeat"
+      ],
+      "current_fallback_key": "hero.knight",
+      "status": "approved_identity_binary_import_pending"
+    }
+  ],
+  "items": [
+    {
+      "gameplay_id": "item.healing_potion",
+      "display_name": "Healing Potion",
+      "presentation_key": "item.healing_potion",
+      "runtime_file": "healing_potion.png",
+      "status": "existing_canonical_reuse"
+    },
+    {
+      "gameplay_id": "item.trap_disarm_kit",
+      "display_name": "Trap Disarm Kit",
+      "presentation_key": "item.trap_disarm_kit",
+      "runtime_file": "trap_disarm_kit.png",
+      "status": "existing_canonical_reuse"
+    },
+    {
+      "gameplay_id": "item.iron_sword",
+      "display_name": "Iron Sword",
+      "candidate_extracted_asset_id": "art.item.weapon.iron_sword_01",
+      "candidate_runtime_file": "runtime_256/art_item_weapon_iron_sword_01.png",
+      "status": "candidate_requires_explicit_import_binding"
+    },
+    {
+      "gameplay_id": "item.rusty_sword",
+      "display_name": "Rusty Sword",
+      "status": "unresolved_no_exact_extracted_match"
+    },
+    {
+      "gameplay_id": "item.steel_blade",
+      "display_name": "Steel Blade",
+      "status": "unresolved_no_exact_extracted_match"
+    },
+    {
+      "gameplay_id": "item.leather_armor",
+      "display_name": "Leather Armor",
+      "status": "unresolved_no_exact_extracted_match"
+    },
+    {
+      "gameplay_id": "item.chainmail",
+      "display_name": "Chainmail",
+      "status": "unresolved_no_exact_extracted_match"
+    },
+    {
+      "gameplay_id": "item.plate_mail",
+      "display_name": "Plate Mail",
+      "status": "unresolved_no_exact_extracted_match"
+    }
+  ],
+  "monsters": [
+    {
+      "gameplay_id": "monster.slime",
+      "content_display_name": "Cave Slime",
+      "current_presentation_key": "monster.slime",
+      "runtime_file": "monster_slime_core.png",
+      "approved_visual_identity": "Crowned Slime",
+      "status": "legacy_runtime_present_approved_replacement_pending"
+    }
+  ],
+  "environment": [
+    {
+      "gameplay_id": "biome.cavern",
+      "current_presentation_key": "biome.cavern",
+      "runtime_file": "biome_cavern_master.png",
+      "status": "backdrop_present_modular_room_kit_pending"
+    },
+    {
+      "presentation_key": "environment.cavern.floor",
+      "status": "missing_runtime_asset"
+    },
+    {
+      "presentation_key": "environment.cavern.wall",
+      "status": "missing_runtime_asset"
+    },
+    {
+      "presentation_key": "environment.cavern.corner",
+      "status": "missing_runtime_asset"
+    },
+    {
+      "presentation_key": "environment.cavern.torch",
+      "status": "missing_runtime_asset"
+    },
+    {
+      "presentation_key": "environment.cavern.pit",
+      "status": "missing_runtime_asset"
+    },
+    {
+      "presentation_key": "environment.cavern.spikes",
+      "status": "missing_runtime_asset"
+    },
+    {
+      "presentation_key": "environment.cavern.lock",
+      "status": "missing_runtime_asset"
+    }
+  ]
+}
