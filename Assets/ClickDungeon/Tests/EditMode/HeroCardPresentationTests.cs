@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using NUnit.Framework;
 using ClickDungeon.Application.Heroes;
 using ClickDungeon.Presentation.Menu;
@@ -29,3 +30,4 @@ public sealed class HeroCardPresentationTests
         CollectionAssert.AreEqual(new[]{"hero.clickington.roster","hero.clickington.portrait","hero.clickington.select","hero.knight"},card.SpriteKeys);
     }
 }
+#endif
