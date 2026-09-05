@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using ClickDungeon.Application.Heroes;
 using ClickDungeon.Presentation.Assets;
 
 namespace ClickDungeon.EditorTools
@@ -16,7 +15,6 @@ namespace ClickDungeon.EditorTools
         public const string AssetPath=OutputDirectory+"/ClickDungeonPresentationAssets.asset";
         private const string RuntimeArt="Assets/ClickDungeon/Art/Runtime";
         private const string RuntimeAudio="Assets/ClickDungeon/Audio/Runtime";
-        private static readonly string[] HeroDerivedVariants={"portrait","roster","select","gameplay","idle","attack","hit","victory","defeat"};
 
         [MenuItem("ClickDungeon/Art/Generate Presentation Asset Database")]
         public static void GenerateMenu()=>Generate(true);
@@ -35,7 +33,7 @@ namespace ClickDungeon.EditorTools
             {
                 foreach(string guid in AssetDatabase.FindAssets("t:Texture2D",new[]{RuntimeArt}))
                 {
-                    string path=AssetDatabase.GUIDToAssetPath(guid);string id=SpriteId(Path.GetFileNameWithoutExtension(path));if(string.IsNullOrEmpty(id))continue;
+                    string path=AssetDatabase.GUIDToAssetPath(guid);string id=PresentationAssetIdMapper.SpriteId(Path.GetFileNameWithoutExtension(path));if(string.IsNullOrEmpty(id))continue;
                     Sprite sprite=ChooseSprite(path);if(sprite!=null&&!sprites.Any(x=>x.Id==id))sprites.Add(new PresentationAssetDatabase.SpriteEntry{Id=id,Sprite=sprite});
                 }
             }
@@ -61,32 +59,6 @@ namespace ClickDungeon.EditorTools
         {
             var all=AssetDatabase.LoadAllAssetsAtPath(path).OfType<Sprite>().ToArray();if(all.Length==0)return AssetDatabase.LoadAssetAtPath<Sprite>(path);
             return all.FirstOrDefault(s=>s.name=="Idle_1")??all.FirstOrDefault(s=>s.name=="Move_1")??all.FirstOrDefault(s=>s.name=="Attack_1")??all[0];
-        }
-
-        private static string SpriteId(string file)
-        {
-            string n=file.Replace("_placeholder",string.Empty);
-            if(n.StartsWith("monster_")&&n.EndsWith("_core"))return "monster."+n.Substring(8,n.Length-13);
-            if(n.StartsWith("boss_")&&n.EndsWith("_core"))return "boss."+n.Substring(5,n.Length-10);
-            if(n.StartsWith("hero_"))
-            {
-                if(n.EndsWith("_core"))return "hero."+n.Substring(5,n.Length-10);
-                foreach(string variant in HeroDerivedVariants)
-                {
-                    string suffix="_"+variant;if(!n.EndsWith(suffix,StringComparison.OrdinalIgnoreCase))continue;
-                    string heroId=n.Substring(5,n.Length-5-suffix.Length);
-                    try{return HeroIdentityCatalog.VisualAssetKeyForHero(heroId,variant);}
-                    catch(ArgumentException){return string.Empty;}
-                }
-            }
-            if(n.StartsWith("biome_")&&n.EndsWith("_master"))return "biome."+n.Substring(6,n.Length-13);
-            if(n.StartsWith("trap_"))return "trap."+n.Substring(5);
-            if(n=="clue_danger")return "clue.danger";if(n=="clue_opportunity")return "clue.opportunity";if(n=="clue_passage")return "clue.passage";
-            if(n=="gold")return "currency.gold";if(n=="small_key"||n=="key_big")return n=="small_key"?"key.small":"key.big";if(n=="big_key")return "key.big";
-            if(n=="chest_closed")return "chest.standard";if(n=="chest_open")return "chest.open";if(n=="sealed_vault")return "vault.sealed";
-            if(n=="safe_exit")return "exit.safe";if(n=="exit_forbidden"||n=="forbidden_exit")return "exit.forbidden";if(n=="merchant")return "merchant.standard";
-            if(n=="healing_potion")return "item.healing_potion";if(n=="trap_disarm_kit")return "item.trap_disarm_kit";if(n=="shrine_hp")return "shrine.choice";
-            return string.Empty;
         }
 
         private static string AudioId(string file)
