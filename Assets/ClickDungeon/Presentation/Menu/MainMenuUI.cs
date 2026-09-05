@@ -27,6 +27,7 @@ namespace ClickDungeon.Presentation.Menu
         private AccountRepository _accounts;
         private AccountState _account;
         private GameContent _content;
+        private PresentationAssetDatabase _assets;
 
         private void Start()
         {
@@ -36,6 +37,7 @@ namespace ClickDungeon.Presentation.Menu
             _services=new ServiceRegistry();
             _services.Store.RefreshEntitlements();
             _content=LoadContent();
+            _assets=Resources.Load<PresentationAssetDatabase>("ClickDungeonPresentationAssets");
             EnsureEventSystem();
             Build();
             ApplySafeArea();
@@ -72,7 +74,7 @@ namespace ClickDungeon.Presentation.Menu
             foreach(var hero in HeroIdentityCatalog.All)
             {
                 string heroId=hero.HeroId;
-                AddButton(HeroIdentityCatalog.SelectionLabelForHero(heroId),()=>StartNew(heroId),74);
+                AddHeroButton(heroId,HeroIdentityCatalog.SelectionLabelForHero(heroId),()=>StartNew(heroId),96);
             }
             AddButton("Continue Selected Slot",Continue,82);AddButton("Achievements",ShowAchievements,74);AddButton("Enter the Abyss",StartAbyss,82);if(!_services.Store.FullGameUnlocked)AddButton("Unlock Full Game",UnlockFullGame,82);AddButton("Delete Selected Slot",DeleteSelected,70);
         }
@@ -84,7 +86,7 @@ namespace ClickDungeon.Presentation.Menu
 
         private void StartMenuMusic()
         {
-            var assets=Resources.Load<PresentationAssetDatabase>("ClickDungeonPresentationAssets");var clip=assets?.AudioFor("music.menu");if(clip==null)return;var source=gameObject.AddComponent<AudioSource>();source.clip=clip;source.loop=true;source.volume=.5f;source.spatialBlend=0f;source.Play();
+            var clip=_assets?.AudioFor("music.menu");if(clip==null)return;var source=gameObject.AddComponent<AudioSource>();source.clip=clip;source.loop=true;source.volume=.5f;source.spatialBlend=0f;source.Play();
         }
         private string SlotLabel(int slot)
         {
@@ -129,6 +131,13 @@ namespace ClickDungeon.Presentation.Menu
 
         private TMP_Text AddText(string value,float size,float height){var rt=CreateRect("Text",_root);var t=rt.gameObject.AddComponent<TextMeshProUGUI>();t.text=value;t.fontSize=size;t.alignment=TextAlignmentOptions.Center;t.color=Color.white;var e=rt.gameObject.AddComponent<LayoutElement>();e.preferredHeight=height;return t;}
         private void AddButton(string value,UnityEngine.Events.UnityAction action,float height){var rt=CreateRect(value,_root);var image=rt.gameObject.AddComponent<Image>();image.color=new Color(.13f,.14f,.18f,.95f);var b=rt.gameObject.AddComponent<Button>();b.targetGraphic=image;b.onClick.AddListener(action);var label=CreateRect("Label",rt).gameObject.AddComponent<TextMeshProUGUI>();label.text=value;label.fontSize=24;label.alignment=TextAlignmentOptions.Center;label.color=Color.white;Stretch(label.rectTransform);var e=rt.gameObject.AddComponent<LayoutElement>();e.preferredHeight=height;}
+        private void AddHeroButton(string heroId,string value,UnityEngine.Events.UnityAction action,float height)
+        {
+            var rt=CreateRect("Hero_"+heroId,_root);var background=rt.gameObject.AddComponent<Image>();background.color=new Color(.13f,.14f,.18f,.95f);var button=rt.gameObject.AddComponent<Button>();button.targetGraphic=background;button.onClick.AddListener(action);
+            var artRt=CreateRect("HeroArt",rt);artRt.anchorMin=new Vector2(.02f,.08f);artRt.anchorMax=new Vector2(.28f,.92f);artRt.offsetMin=Vector2.zero;artRt.offsetMax=Vector2.zero;var art=artRt.gameObject.AddComponent<Image>();string selectionId=HeroPresentationAssetResolver.SelectionAssetId(heroId);art.sprite=_assets?.SpriteFor(selectionId)??_assets?.SpriteFor(HeroPresentationAssetResolver.PortraitAssetId(heroId));art.enabled=art.sprite!=null;art.preserveAspect=true;art.raycastTarget=false;
+            var label=CreateRect("Label",rt).gameObject.AddComponent<TextMeshProUGUI>();label.text=value;label.fontSize=24;label.alignment=TextAlignmentOptions.Center;label.color=Color.white;label.rectTransform.anchorMin=new Vector2(.30f,0f);label.rectTransform.anchorMax=Vector2.one;label.rectTransform.offsetMin=Vector2.zero;label.rectTransform.offsetMax=Vector2.zero;
+            var e=rt.gameObject.AddComponent<LayoutElement>();e.preferredHeight=height;
+        }
         private static RectTransform CreateRect(string name,Transform parent){var go=new GameObject(name,typeof(RectTransform));go.transform.SetParent(parent,false);return go.GetComponent<RectTransform>();}
         private static void Stretch(RectTransform rt){rt.anchorMin=Vector2.zero;rt.anchorMax=Vector2.one;rt.offsetMin=Vector2.zero;rt.offsetMax=Vector2.zero;}
         private static void EnsureEventSystem(){if(FindObjectOfType<EventSystem>()==null)new GameObject("EventSystem",typeof(EventSystem),typeof(StandaloneInputModule));}
