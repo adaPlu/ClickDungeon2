@@ -162,7 +162,7 @@ namespace ClickDungeon.Presentation.UI
         {
             if(_session==null)return;var s=_session.State;
             string depthLabel=s.Mode==RunMode.Abyss?$"Abyss Depth {s.AbyssDepth}":$"Floor {s.Floor}";string heroName=HeroIdentityCatalog.DisplayNameForHero(_heroId);if(string.IsNullOrEmpty(heroName))heroName=_content.Hero(s.HeroClass).DisplayName;if(string.IsNullOrEmpty(heroName))heroName=s.HeroClass.ToString();string biomeName=_content.Biome(s.BiomeId).DisplayName;if(string.IsNullOrEmpty(biomeName))biomeName=ShortId(s.BiomeId);
-            if(_heroPortrait!=null){_heroPortrait.sprite=_assets?.SpriteFor("hero."+_heroId+".portrait")??_assets?.SpriteFor("hero."+_heroId)??_assets?.SpriteFor("hero."+s.HeroClass.ToString().ToLowerInvariant());}
+            if(_heroPortrait!=null){string portraitId=HeroPresentationAssetResolver.PortraitAssetId(_heroId);_heroPortrait.sprite=_assets?.SpriteFor(portraitId);_heroPortrait.enabled=_heroPortrait.sprite!=null;}
             _hud.text=$"{heroName}  HP {s.Hp}/{s.MaxHp}  ATK {s.Attack}  DEF {s.Defense}\n{depthLabel}  {biomeName}  Gold {s.Gold}  Keys {s.SmallKeys}/{s.BigKeys}";
             if(_biomeBackdrop!=null)_biomeBackdrop.sprite=_assets?.SpriteFor(s.BiomeId);
             for(int i=0;i<RunState.BoardSize*RunState.BoardSize;i++)RefreshTile(i);RefreshIntent();RebuildAbilities();
