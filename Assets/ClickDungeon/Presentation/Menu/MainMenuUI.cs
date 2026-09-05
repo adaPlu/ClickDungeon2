@@ -27,6 +27,7 @@ namespace ClickDungeon.Presentation.Menu
         private AccountRepository _accounts;
         private AccountState _account;
         private GameContent _content;
+        private PresentationAssetDatabase _assets;
 
         private void Start()
         {
@@ -36,6 +37,7 @@ namespace ClickDungeon.Presentation.Menu
             _services=new ServiceRegistry();
             _services.Store.RefreshEntitlements();
             _content=LoadContent();
+            _assets=Resources.Load<PresentationAssetDatabase>("ClickDungeonPresentationAssets");
             EnsureEventSystem();
             Build();
             ApplySafeArea();
@@ -68,13 +70,48 @@ namespace ClickDungeon.Presentation.Menu
             AddText("CLICKDUNGEON",54,110);AddText("Read the dungeon. Reveal the danger. Risk the deeper path.",24,100);
             for(int slot=1;slot<=4;slot++){int captured=slot;string label=SlotLabel(slot);AddButton(label,()=>SelectSlot(captured),92);}
             _status=AddText($"Select a slot.  Achievements {_account.AchievementIds.Count}/{new System.Collections.Generic.List<AchievementDefinition>(_content.Achievements).Count}",22,120);
-            AddText("NEW RUN",30,64);
-            foreach(var hero in HeroIdentityCatalog.All)
-            {
-                string heroId=hero.HeroId;
-                AddButton(HeroIdentityCatalog.SelectionLabelForHero(heroId),()=>StartNew(heroId),74);
-            }
+            AddText("NEW RUN — CHOOSE YOUR HERO",30,64);
+            foreach(var hero in HeroIdentityCatalog.All)AddHeroCard(hero);
             AddButton("Continue Selected Slot",Continue,82);AddButton("Achievements",ShowAchievements,74);AddButton("Enter the Abyss",StartAbyss,82);if(!_services.Store.FullGameUnlocked)AddButton("Unlock Full Game",UnlockFullGame,82);AddButton("Delete Selected Slot",DeleteSelected,70);
+        }
+
+        private void AddHeroCard(HeroIdentityDefinition hero)
+        {
+            HeroCardDescriptor card=HeroCardPresentation.Describe(hero);
+            var rt=CreateRect("HeroCard_"+card.HeroId,_root);
+            var background=rt.gameObject.AddComponent<Image>();background.color=new Color(.075f,.08f,.12f,.98f);
+            var outline=rt.gameObject.AddComponent<Outline>();outline.effectColor=new Color(.55f,.42f,.18f,.85f);outline.effectDistance=new Vector2(2,-2);
+            var button=rt.gameObject.AddComponent<Button>();button.targetGraphic=background;button.onClick.AddListener(()=>StartNew(card.HeroId));
+            var element=rt.gameObject.AddComponent<LayoutElement>();element.preferredHeight=150;
+
+            var portraitFrame=CreateRect("PortraitFrame",rt);portraitFrame.anchorMin=new Vector2(.015f,.08f);portraitFrame.anchorMax=new Vector2(.22f,.92f);portraitFrame.offsetMin=Vector2.zero;portraitFrame.offsetMax=Vector2.zero;
+            var portraitBack=portraitFrame.gameObject.AddComponent<Image>();portraitBack.color=new Color(.025f,.025f,.04f,1f);
+            var portraitRt=CreateRect("Portrait",portraitFrame);portraitRt.anchorMin=new Vector2(.05f,.05f);portraitRt.anchorMax=new Vector2(.95f,.95f);portraitRt.offsetMin=Vector2.zero;portraitRt.offsetMax=Vector2.zero;
+            var portrait=portraitRt.gameObject.AddComponent<Image>();portrait.preserveAspect=true;portrait.raycastTarget=false;portrait.sprite=ResolveHeroCardSprite(card);portrait.enabled=portrait.sprite!=null;
+
+            var nameRt=CreateRect("Name",rt);nameRt.anchorMin=new Vector2(.25f,.47f);nameRt.anchorMax=new Vector2(.97f,.91f);nameRt.offsetMin=Vector2.zero;nameRt.offsetMax=Vector2.zero;
+            var name=nameRt.gameObject.AddComponent<TextMeshProUGUI>();name.text=card.DisplayName;name.fontSize=30;name.fontStyle=FontStyles.Bold;name.alignment=TextAlignmentOptions.Left;name.color=new Color(.96f,.91f,.77f,1f);name.raycastTarget=false;
+
+            var classRt=CreateRect("Class",rt);classRt.anchorMin=new Vector2(.25f,.10f);classRt.anchorMax=new Vector2(.65f,.50f);classRt.offsetMin=Vector2.zero;classRt.offsetMax=Vector2.zero;
+            var classText=classRt.gameObject.AddComponent<TextMeshProUGUI>();classText.text=card.ClassLabel;classText.fontSize=20;classText.alignment=TextAlignmentOptions.Left;classText.color=new Color(.74f,.76f,.84f,1f);classText.raycastTarget=false;
+
+            if(!string.IsNullOrEmpty(card.Badge))
+            {
+                var badgeRt=CreateRect("Badge",rt);badgeRt.anchorMin=new Vector2(.64f,.10f);badgeRt.anchorMax=new Vector2(.97f,.45f);badgeRt.offsetMin=Vector2.zero;badgeRt.offsetMax=Vector2.zero;
+                var badgeBack=badgeRt.gameObject.AddComponent<Image>();badgeBack.color=new Color(.30f,.20f,.42f,.96f);badgeBack.raycastTarget=false;
+                var badgeLabel=CreateRect("Label",badgeRt).gameObject.AddComponent<TextMeshProUGUI>();badgeLabel.text=card.Badge;badgeLabel.fontSize=15;badgeLabel.fontStyle=FontStyles.Bold;badgeLabel.alignment=TextAlignmentOptions.Center;badgeLabel.color=Color.white;badgeLabel.raycastTarget=false;Stretch(badgeLabel.rectTransform);
+            }
+        }
+
+        private Sprite ResolveHeroCardSprite(HeroCardDescriptor card)
+        {
+            if(_assets==null||card==null)return null;
+            foreach(string key in card.SpriteKeys)
+            {
+                var sprite=_assets.SpriteFor(key);
+                if(sprite!=null)return sprite;
+            }
+            return null;
         }
 
         private void ApplySafeArea()
@@ -84,7 +121,7 @@ namespace ClickDungeon.Presentation.Menu
 
         private void StartMenuMusic()
         {
-            var assets=Resources.Load<PresentationAssetDatabase>("ClickDungeonPresentationAssets");var clip=assets?.AudioFor("music.menu");if(clip==null)return;var source=gameObject.AddComponent<AudioSource>();source.clip=clip;source.loop=true;source.volume=.5f;source.spatialBlend=0f;source.Play();
+            var clip=_assets?.AudioFor("music.menu");if(clip==null)return;var source=gameObject.AddComponent<AudioSource>();source.clip=clip;source.loop=true;source.volume=.5f;source.spatialBlend=0f;source.Play();
         }
         private string SlotLabel(int slot)
         {
