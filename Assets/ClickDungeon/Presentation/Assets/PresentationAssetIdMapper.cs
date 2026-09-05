@@ -1,5 +1,6 @@
 using System;
 using ClickDungeon.Application.Heroes;
+using ClickDungeon.Simulation.Model;
 
 namespace ClickDungeon.Presentation.Assets
 {
@@ -43,6 +44,8 @@ namespace ClickDungeon.Presentation.Assets
             if(n=="dungeon_lock")return "dungeon.lock";
             if(n=="dungeon_shadow")return "dungeon.shadow";
 
+            // The kit is an item whose filename happens to begin with trap_. Handle it before hazard sprites.
+            if(n=="trap_disarm_kit")return "item.trap_disarm_kit";
             if(n.StartsWith("trap_"))return "trap."+n.Substring(5);
             if(n=="clue_danger")return "clue.danger";
             if(n=="clue_opportunity")return "clue.opportunity";
@@ -57,9 +60,66 @@ namespace ClickDungeon.Presentation.Assets
             if(n=="exit_forbidden"||n=="forbidden_exit")return "exit.forbidden";
             if(n=="merchant")return "merchant.standard";
             if(n=="healing_potion")return "item.healing_potion";
-            if(n=="trap_disarm_kit")return "item.trap_disarm_kit";
             if(n=="shrine_hp")return "shrine.choice";
             return string.Empty;
+        }
+    }
+
+    /// <summary>
+    /// Converts simulation tile state into the one canonical sprite ID that the board should display.
+    /// This deliberately contains presentation policy only; it never changes simulation state.
+    /// </summary>
+    public static class TilePresentationAssetResolver
+    {
+        public static string PrimaryAssetId(TileState tile)
+        {
+            if(tile==null)return string.Empty;
+            if(tile.Visibility==TileVisibility.Hidden)return string.Empty;
+            if(tile.Visibility==TileVisibility.Clued)return ClueAssetId(tile.Clue);
+
+            // A resolved chest is the one interactable with an approved post-resolution visual.
+            // Other resolved content disappears from the active-content layer instead of remaining
+            // visually collectible, locked, dangerous, or alive.
+            if(tile.Resolution!=TileResolution.Available)
+                return tile.Content==TileContentKind.Chest&&tile.Visibility==TileVisibility.Revealed?"chest.open":string.Empty;
+
+            switch(tile.Content)
+            {
+                case TileContentKind.Empty:return string.Empty;
+                case TileContentKind.Gold:return "currency.gold";
+                case TileContentKind.SmallKey:return "key.small";
+                case TileContentKind.BigKey:return "key.big";
+                case TileContentKind.Chest:return "chest.standard";
+                case TileContentKind.SealedVault:return "vault.sealed";
+                case TileContentKind.SafeExit:return "exit.safe";
+                case TileContentKind.ForbiddenExit:return "exit.forbidden";
+                case TileContentKind.Trap:return CanonicalTrapAssetId(tile.ContentId);
+                default:return tile.ContentId??string.Empty;
+            }
+        }
+
+        private static string ClueAssetId(ClueFamily clue)
+        {
+            switch(clue)
+            {
+                case ClueFamily.Danger:return "clue.danger";
+                case ClueFamily.Opportunity:return "clue.opportunity";
+                case ClueFamily.PassageArcane:return "clue.passage";
+                default:return string.Empty;
+            }
+        }
+
+        private static string CanonicalTrapAssetId(string contentId)
+        {
+            switch(contentId)
+            {
+                case "trap.fire":
+                case "trap.poison":
+                case "trap.acid":
+                case "trap.freeze":
+                case "trap.pitfall":return contentId;
+                default:return string.Empty;
+            }
         }
     }
 }
