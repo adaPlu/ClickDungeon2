@@ -21,6 +21,15 @@ namespace ClickDungeon.Tests.PresentationEditMode
             Assert.That(PresentationAssetIdMapper.SpriteId(file),Is.EqualTo(expected));
         }
 
+        [TestCase("hero_ironheart_portrait","hero.ironheart.portrait")]
+        [TestCase("hero_ironheart_select","hero.ironheart.select")]
+        [TestCase("hero_clickington_portrait","hero.clickington.portrait")]
+        [TestCase("hero_clickington_select","hero.clickington.select")]
+        public void NamedHeroDerivedAssetsMapToIdentitySpecificKeys(string file,string expected)
+        {
+            Assert.That(PresentationAssetIdMapper.SpriteId(file),Is.EqualTo(expected));
+        }
+
         [TestCase("dungeon_floor_stone","dungeon.floor.stone")]
         [TestCase("dungeon_floor_cracked","dungeon.floor.cracked")]
         [TestCase("dungeon_wall_top","dungeon.wall.top")]
@@ -123,6 +132,35 @@ namespace ClickDungeon.Tests.PresentationEditMode
             Assert.That(source,Does.Not.Contain("private static string AssetIdFor(TileState tile)"));
         }
 
+        [Test]
+        public void HeroPresentationResolverKeepsIronheartAndClickingtonVisuallyDistinct()
+        {
+            var assembly=typeof(PresentationAssetIdMapper).Assembly;
+            var resolver=assembly.GetType("ClickDungeon.Presentation.Assets.HeroPresentationAssetResolver");
+            Assert.That(resolver,Is.Not.Null,"Named Knight identities need a presentation resolver so Sir Clickington cannot silently collapse to Ironheart or the legacy Knight core.");
+
+            var portrait=resolver.GetMethod("PortraitAssetId");
+            var selection=resolver.GetMethod("SelectionAssetId");
+            Assert.That(portrait,Is.Not.Null);Assert.That(selection,Is.Not.Null);
+            Assert.That(portrait.Invoke(null,new object[]{"ironheart"}),Is.EqualTo("hero.ironheart.portrait"));
+            Assert.That(portrait.Invoke(null,new object[]{"clickington"}),Is.EqualTo("hero.clickington.portrait"));
+            Assert.That(selection.Invoke(null,new object[]{"ironheart"}),Is.EqualTo("hero.ironheart.select"));
+            Assert.That(selection.Invoke(null,new object[]{"clickington"}),Is.EqualTo("hero.clickington.select"));
+            Assert.That(portrait.Invoke(null,new object[]{"ironheart"}),Is.Not.EqualTo(portrait.Invoke(null,new object[]{"clickington"})));
+        }
+
+        [Test]
+        public void RuntimeAndMenuUseIdentitySpecificHeroVisualKeys()
+        {
+            string runtime=RuntimeBoardSource();
+            Assert.That(runtime,Does.Contain("HeroPresentationAssetResolver.PortraitAssetId(_heroId)"));
+            Assert.That(runtime,Does.Not.Contain("s.HeroClass.ToString().ToLowerInvariant()"),"Runtime identity art must not silently fall back to the generic class core for Sir Clickington.");
+
+            string menu=MainMenuSource();
+            Assert.That(menu,Does.Contain("HeroPresentationAssetResolver.SelectionAssetId(heroId)"));
+            Assert.That(menu,Does.Contain("AddHeroButton"),"Hero selection needs an identity-specific visual slot instead of text-only buttons.");
+        }
+
         [TestCase(null)]
         [TestCase("")]
         [TestCase("unapproved_unmapped_sprite")]
@@ -141,11 +179,14 @@ namespace ClickDungeon.Tests.PresentationEditMode
             return (string)method.Invoke(null,new object[]{tile});
         }
 
-        private static string RuntimeBoardSource()
+        private static string RuntimeBoardSource()=>SourceFile("Presentation","UI","RuntimeGameUI.cs");
+        private static string MainMenuSource()=>SourceFile("Presentation","Menu","MainMenuUI.cs");
+
+        private static string SourceFile(params string[] relative)
         {
             string root=Directory.GetCurrentDirectory();
             while(!File.Exists(Path.Combine(root,"ProjectSettings","ProjectVersion.txt"))&&Directory.GetParent(root)!=null)root=Directory.GetParent(root).FullName;
-            string path=Path.Combine(root,"Assets","ClickDungeon","Presentation","UI","RuntimeGameUI.cs");
+            string path=Path.Combine(root,"Assets","ClickDungeon",Path.Combine(relative));
             Assert.That(File.Exists(path),Is.True);
             return File.ReadAllText(path);
         }
