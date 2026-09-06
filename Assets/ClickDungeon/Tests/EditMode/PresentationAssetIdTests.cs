@@ -8,6 +8,8 @@ namespace ClickDungeon.Tests.EditMode
     public sealed class PresentationAssetIdTests
     {
         [TestCase("hero_ranger_core", "hero.ranger")]
+        [TestCase("hero_ironheart_portrait", "hero.ironheart.portrait")]
+        [TestCase("hero_clickington_gameplay", "hero.clickington.gameplay")]
         [TestCase("hero_ranger_portrait", "hero.ranger.portrait")]
         [TestCase("hero_ranger_roster", "hero.ranger.roster")]
         [TestCase("hero_ranger_gameplay", "hero.ranger.gameplay")]
@@ -38,8 +40,18 @@ namespace ClickDungeon.Tests.EditMode
             Assert.That(PresentationAssetId.FromRuntimeArtFile(fileName), Is.EqualTo(expected));
         }
 
+        [TestCase(HeroClassId.Knight, "ironheart")]
+        [TestCase(HeroClassId.Ranger, "windsong")]
+        [TestCase(HeroClassId.Thief, "shadowcut")]
+        [TestCase(HeroClassId.Wizard, "emberwisp")]
+        public void StandardClassesResolveToApprovedHeroIdentities(HeroClassId heroClass, string expectedHeroId)
+        {
+            Assert.That(HeroPresentationAssets.StandardHeroId(heroClass), Is.EqualTo(expectedHeroId));
+            Assert.That(HeroPresentationAssets.BaseId(heroClass), Is.EqualTo("hero." + expectedHeroId));
+        }
+
         [Test]
-        public void HeroPortraitPrefersDedicatedPortraitThenFallsBackToCore()
+        public void HeroPortraitPrefersApprovedIdentityThenFallsBackToLegacyClassCore()
         {
             var db = ScriptableObject.CreateInstance<PresentationAssetDatabase>();
             var coreTexture = new Texture2D(2, 2);
@@ -53,7 +65,7 @@ namespace ClickDungeon.Tests.EditMode
                     new[]
                     {
                         new PresentationAssetDatabase.SpriteEntry { Id = "hero.ranger", Sprite = core },
-                        new PresentationAssetDatabase.SpriteEntry { Id = "hero.ranger.portrait", Sprite = portrait }
+                        new PresentationAssetDatabase.SpriteEntry { Id = "hero.windsong.portrait", Sprite = portrait }
                     },
                     null);
 
@@ -71,6 +83,43 @@ namespace ClickDungeon.Tests.EditMode
                 Object.DestroyImmediate(portrait);
                 Object.DestroyImmediate(coreTexture);
                 Object.DestroyImmediate(portraitTexture);
+                Object.DestroyImmediate(db);
+            }
+        }
+
+        [Test]
+        public void ClickingtonCanUseKnightMechanicsWithoutUsingIronheartArt()
+        {
+            var db = ScriptableObject.CreateInstance<PresentationAssetDatabase>();
+            var knightTexture = new Texture2D(2, 2);
+            var ironheartTexture = new Texture2D(2, 2);
+            var clickingtonTexture = new Texture2D(2, 2);
+            var knight = Sprite.Create(knightTexture, new Rect(0, 0, 2, 2), new Vector2(.5f, .5f));
+            var ironheart = Sprite.Create(ironheartTexture, new Rect(0, 0, 2, 2), new Vector2(.5f, .5f));
+            var clickington = Sprite.Create(clickingtonTexture, new Rect(0, 0, 2, 2), new Vector2(.5f, .5f));
+
+            try
+            {
+                db.Replace(
+                    new[]
+                    {
+                        new PresentationAssetDatabase.SpriteEntry { Id = "hero.knight", Sprite = knight },
+                        new PresentationAssetDatabase.SpriteEntry { Id = "hero.ironheart.portrait", Sprite = ironheart },
+                        new PresentationAssetDatabase.SpriteEntry { Id = "hero.clickington.portrait", Sprite = clickington }
+                    },
+                    null);
+
+                Assert.That(HeroPresentationAssets.Portrait(db, HeroClassId.Knight), Is.SameAs(ironheart));
+                Assert.That(HeroPresentationAssets.Portrait(db, "clickington", HeroClassId.Knight), Is.SameAs(clickington));
+            }
+            finally
+            {
+                Object.DestroyImmediate(knight);
+                Object.DestroyImmediate(ironheart);
+                Object.DestroyImmediate(clickington);
+                Object.DestroyImmediate(knightTexture);
+                Object.DestroyImmediate(ironheartTexture);
+                Object.DestroyImmediate(clickingtonTexture);
                 Object.DestroyImmediate(db);
             }
         }
