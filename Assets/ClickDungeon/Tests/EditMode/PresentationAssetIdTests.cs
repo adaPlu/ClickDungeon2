@@ -74,5 +74,42 @@ namespace ClickDungeon.Tests.EditMode
                 Object.DestroyImmediate(db);
             }
         }
+
+        [Test]
+        public void MonsterStatePrefersDedicatedStateThenFallsBackToCore()
+        {
+            var db = ScriptableObject.CreateInstance<PresentationAssetDatabase>();
+            var coreTexture = new Texture2D(2, 2);
+            var attackTexture = new Texture2D(2, 2);
+            var core = Sprite.Create(coreTexture, new Rect(0, 0, 2, 2), new Vector2(.5f, .5f));
+            var attack = Sprite.Create(attackTexture, new Rect(0, 0, 2, 2), new Vector2(.5f, .5f));
+
+            try
+            {
+                db.Replace(
+                    new[]
+                    {
+                        new PresentationAssetDatabase.SpriteEntry { Id = "monster.crowned_slime", Sprite = core },
+                        new PresentationAssetDatabase.SpriteEntry { Id = "monster.crowned_slime.attack", Sprite = attack }
+                    },
+                    null);
+
+                Assert.That(MonsterPresentationAssets.Attack(db, "crowned_slime"), Is.SameAs(attack));
+
+                db.Replace(
+                    new[] { new PresentationAssetDatabase.SpriteEntry { Id = "monster.crowned_slime", Sprite = core } },
+                    null);
+
+                Assert.That(MonsterPresentationAssets.Attack(db, "crowned_slime"), Is.SameAs(core));
+            }
+            finally
+            {
+                Object.DestroyImmediate(core);
+                Object.DestroyImmediate(attack);
+                Object.DestroyImmediate(coreTexture);
+                Object.DestroyImmediate(attackTexture);
+                Object.DestroyImmediate(db);
+            }
+        }
     }
 }
