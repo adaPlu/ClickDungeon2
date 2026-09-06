@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ClickDungeon.Application.State;
 using ClickDungeon.Application.Versioning;
+using ClickDungeon.Application.Heroes;
 using ClickDungeon.Simulation.Model;
 
 namespace ClickDungeon.Application.Persistence
@@ -47,6 +48,7 @@ namespace ClickDungeon.Application.Persistence
                 Meta = new SlotMetaState
                 {
                     HeroClassId = run.HeroClass.ToString(),
+                    HeroId = HeroIdentityCatalog.StandardHeroId(run.HeroClass),
                     BestFloor = run.Floor,
                     CampaignCompleted = run.CampaignCompleted,
                     CreatedAt = now,

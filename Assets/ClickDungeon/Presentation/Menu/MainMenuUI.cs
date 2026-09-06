@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using ClickDungeon.Application.Persistence;
 using ClickDungeon.Application.Content;
 using ClickDungeon.Application.State;
+using ClickDungeon.Application.Heroes;
 using ClickDungeon.Simulation.Content;
 using ClickDungeon.Application.Services;
 using ClickDungeon.Presentation.Assets;
@@ -26,6 +27,7 @@ namespace ClickDungeon.Presentation.Menu
         private AccountRepository _accounts;
         private AccountState _account;
         private GameContent _content;
+        private PresentationAssetDatabase _assets;
 
         private void Start()
         {
@@ -35,6 +37,7 @@ namespace ClickDungeon.Presentation.Menu
             _services=new ServiceRegistry();
             _services.Store.RefreshEntitlements();
             _content=LoadContent();
+            _assets=Resources.Load<PresentationAssetDatabase>("ClickDungeonPresentationAssets");
             EnsureEventSystem();
             Build();
             ApplySafeArea();
@@ -67,7 +70,12 @@ namespace ClickDungeon.Presentation.Menu
             AddText("CLICKDUNGEON",54,110);AddText("Read the dungeon. Reveal the danger. Risk the deeper path.",24,100);
             for(int slot=1;slot<=4;slot++){int captured=slot;string label=SlotLabel(slot);AddButton(label,()=>SelectSlot(captured),92);}
             _status=AddText($"Select a slot.  Achievements {_account.AchievementIds.Count}/{new System.Collections.Generic.List<AchievementDefinition>(_content.Achievements).Count}",22,120);
-            AddText("NEW RUN",30,64);foreach(HeroClassId cls in Enum.GetValues(typeof(HeroClassId))){HeroClassId captured=cls;AddButton(cls.ToString(),()=>StartNew(captured),74);}
+            AddText("NEW RUN",30,64);
+            foreach(var hero in HeroIdentityCatalog.All)
+            {
+                string heroId=hero.HeroId;
+                AddHeroButton(heroId,HeroIdentityCatalog.SelectionLabelForHero(heroId),()=>StartNew(heroId),96);
+            }
             AddButton("Continue Selected Slot",Continue,82);AddButton("Achievements",ShowAchievements,74);AddButton("Enter the Abyss",StartAbyss,82);if(!_services.Store.FullGameUnlocked)AddButton("Unlock Full Game",UnlockFullGame,82);AddButton("Delete Selected Slot",DeleteSelected,70);
         }
 
@@ -78,20 +86,20 @@ namespace ClickDungeon.Presentation.Menu
 
         private void StartMenuMusic()
         {
-            var assets=Resources.Load<PresentationAssetDatabase>("ClickDungeonPresentationAssets");var clip=assets?.AudioFor("music.menu");if(clip==null)return;var source=gameObject.AddComponent<AudioSource>();source.clip=clip;source.loop=true;source.volume=.5f;source.spatialBlend=0f;source.Play();
+            var clip=_assets?.AudioFor("music.menu");if(clip==null)return;var source=gameObject.AddComponent<AudioSource>();source.clip=clip;source.loop=true;source.volume=.5f;source.spatialBlend=0f;source.Play();
         }
         private string SlotLabel(int slot)
         {
             try
             {
-                var doc=_saves.LoadSlot(slot);if(doc?.payload==null)return $"Slot {slot} — Empty";var meta=doc.payload.Meta;string complete=meta.CampaignCompleted?" ✓":"";return $"Slot {slot} — {meta.HeroClassId}{complete} — Mastery {meta.ClassMastery} — Floor {meta.BestFloor} — Abyss {meta.BestAbyssDepth}";
+                var doc=_saves.LoadSlot(slot);if(doc?.payload==null)return $"Slot {slot} — Empty";var meta=doc.payload.Meta;HeroClassId cls;if(!Enum.TryParse(meta.HeroClassId,true,out cls))cls=HeroClassId.Knight;string heroId=HeroIdentityCatalog.ResolveHeroId(cls,meta.HeroId);string heroName=HeroIdentityCatalog.DisplayNameForHero(heroId);string complete=meta.CampaignCompleted?" ✓":"";return $"Slot {slot} — {heroName} ({cls}){complete} — Mastery {meta.ClassMastery} — Floor {meta.BestFloor} — Abyss {meta.BestAbyssDepth}";
             }
             catch(Exception ex){Debug.LogWarning($"Slot {slot} preview failed: {ex.Message}");return $"Slot {slot} — Recovery Required";}
         }
         private void SelectSlot(int slot){_selectedSlot=slot;_status.text=$"Selected slot {slot}.";}
-        private void StartNew(HeroClassId cls)
+        private void StartNew(string heroId)
         {
-            PlayerPrefs.SetInt("cd2.slot",_selectedSlot);PlayerPrefs.SetInt("cd2.continue",0);PlayerPrefs.SetInt("cd2.abyss",0);PlayerPrefs.SetInt("cd2.class",(int)cls);PlayerPrefs.SetString("cd2.seed",unchecked((uint)DateTime.UtcNow.Ticks).ToString());PlayerPrefs.Save();SceneManager.LoadScene("Game");
+            HeroClassId cls=HeroIdentityCatalog.ClassForHero(heroId);PlayerPrefs.SetInt("cd2.slot",_selectedSlot);PlayerPrefs.SetInt("cd2.continue",0);PlayerPrefs.SetInt("cd2.abyss",0);PlayerPrefs.SetInt("cd2.class",(int)cls);PlayerPrefs.SetString("cd2.hero",heroId);PlayerPrefs.SetString("cd2.seed",unchecked((uint)DateTime.UtcNow.Ticks).ToString());PlayerPrefs.Save();SceneManager.LoadScene("Game");
         }
         private void Continue()
         {
@@ -103,7 +111,7 @@ namespace ClickDungeon.Presentation.Menu
             try
             {
                 var doc=_saves.LoadSlot(_selectedSlot);var meta=doc?.payload?.Meta;if(meta==null||!meta.CampaignCompleted){_status.text="Complete Floor 50 on this slot to unlock the Abyss.";return;}
-                HeroClassId cls;if(!Enum.TryParse(meta.HeroClassId,out cls))cls=HeroClassId.Knight;PlayerPrefs.SetInt("cd2.slot",_selectedSlot);PlayerPrefs.SetInt("cd2.continue",0);PlayerPrefs.SetInt("cd2.abyss",1);PlayerPrefs.SetInt("cd2.class",(int)cls);PlayerPrefs.SetString("cd2.seed",unchecked((uint)DateTime.UtcNow.Ticks).ToString());PlayerPrefs.Save();SceneManager.LoadScene("Game");
+                HeroClassId cls;if(!Enum.TryParse(meta.HeroClassId,true,out cls))cls=HeroClassId.Knight;string heroId=HeroIdentityCatalog.ResolveHeroId(cls,meta.HeroId);PlayerPrefs.SetInt("cd2.slot",_selectedSlot);PlayerPrefs.SetInt("cd2.continue",0);PlayerPrefs.SetInt("cd2.abyss",1);PlayerPrefs.SetInt("cd2.class",(int)cls);PlayerPrefs.SetString("cd2.hero",heroId);PlayerPrefs.SetString("cd2.seed",unchecked((uint)DateTime.UtcNow.Ticks).ToString());PlayerPrefs.Save();SceneManager.LoadScene("Game");
             }
             catch(Exception ex){_status.text=$"Abyss unavailable: {ex.Message}";}
         }
@@ -123,6 +131,13 @@ namespace ClickDungeon.Presentation.Menu
 
         private TMP_Text AddText(string value,float size,float height){var rt=CreateRect("Text",_root);var t=rt.gameObject.AddComponent<TextMeshProUGUI>();t.text=value;t.fontSize=size;t.alignment=TextAlignmentOptions.Center;t.color=Color.white;var e=rt.gameObject.AddComponent<LayoutElement>();e.preferredHeight=height;return t;}
         private void AddButton(string value,UnityEngine.Events.UnityAction action,float height){var rt=CreateRect(value,_root);var image=rt.gameObject.AddComponent<Image>();image.color=new Color(.13f,.14f,.18f,.95f);var b=rt.gameObject.AddComponent<Button>();b.targetGraphic=image;b.onClick.AddListener(action);var label=CreateRect("Label",rt).gameObject.AddComponent<TextMeshProUGUI>();label.text=value;label.fontSize=24;label.alignment=TextAlignmentOptions.Center;label.color=Color.white;Stretch(label.rectTransform);var e=rt.gameObject.AddComponent<LayoutElement>();e.preferredHeight=height;}
+        private void AddHeroButton(string heroId,string value,UnityEngine.Events.UnityAction action,float height)
+        {
+            var rt=CreateRect("Hero_"+heroId,_root);var background=rt.gameObject.AddComponent<Image>();background.color=new Color(.13f,.14f,.18f,.95f);var button=rt.gameObject.AddComponent<Button>();button.targetGraphic=background;button.onClick.AddListener(action);
+            var artRt=CreateRect("HeroArt",rt);artRt.anchorMin=new Vector2(.02f,.08f);artRt.anchorMax=new Vector2(.28f,.92f);artRt.offsetMin=Vector2.zero;artRt.offsetMax=Vector2.zero;var art=artRt.gameObject.AddComponent<Image>();string selectionId=HeroPresentationAssetResolver.SelectionAssetId(heroId);art.sprite=_assets?.SpriteFor(selectionId)??_assets?.SpriteFor(HeroPresentationAssetResolver.PortraitAssetId(heroId));art.enabled=art.sprite!=null;art.preserveAspect=true;art.raycastTarget=false;
+            var label=CreateRect("Label",rt).gameObject.AddComponent<TextMeshProUGUI>();label.text=value;label.fontSize=24;label.alignment=TextAlignmentOptions.Center;label.color=Color.white;label.rectTransform.anchorMin=new Vector2(.30f,0f);label.rectTransform.anchorMax=Vector2.one;label.rectTransform.offsetMin=Vector2.zero;label.rectTransform.offsetMax=Vector2.zero;
+            var e=rt.gameObject.AddComponent<LayoutElement>();e.preferredHeight=height;
+        }
         private static RectTransform CreateRect(string name,Transform parent){var go=new GameObject(name,typeof(RectTransform));go.transform.SetParent(parent,false);return go.GetComponent<RectTransform>();}
         private static void Stretch(RectTransform rt){rt.anchorMin=Vector2.zero;rt.anchorMax=Vector2.one;rt.offsetMin=Vector2.zero;rt.offsetMax=Vector2.zero;}
         private static void EnsureEventSystem(){if(FindObjectOfType<EventSystem>()==null)new GameObject("EventSystem",typeof(EventSystem),typeof(StandaloneInputModule));}

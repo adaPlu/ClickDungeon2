@@ -9,6 +9,7 @@ namespace ClickDungeon.EditorTools
     public static class PixelAssetImporter
     {
         private const string RuntimeArt="Assets/ClickDungeon/Art/Runtime";
+        private static readonly string[] HeroDerivedVariants={"portrait","roster","select","gameplay","idle","attack","hit","victory","defeat"};
 
         [MenuItem("ClickDungeon/Art/Configure Pixel Imports")]
         public static void ConfigureAll()

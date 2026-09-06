@@ -8,7 +8,7 @@ namespace ClickDungeon.Presentation.Assets
     /// </summary>
     public static class PresentationAssetId
     {
-        private static readonly string[] HeroVariants = { "master", "gameplay", "portrait", "roster", "idle", "attack", "hit", "victory", "defeat" };
+        private static readonly string[] HeroVariants = { "master", "select", "gameplay", "portrait", "roster", "idle", "attack", "hit", "victory", "defeat" };
         private static readonly string[] MonsterVariants =
         {
             "master", "gameplay", "portrait", "roster", "spawn", "idle", "attack", "hit", "victory", "defeat",
@@ -31,6 +31,16 @@ namespace ClickDungeon.Presentation.Assets
 
             if (n.StartsWith("biome_", StringComparison.Ordinal) && n.EndsWith("_master", StringComparison.Ordinal))
                 return "biome." + n.Substring(6, n.Length - 13);
+
+            if (n.StartsWith("dungeon_floor_", StringComparison.Ordinal)) return "dungeon.floor." + n.Substring(14);
+            if (n.StartsWith("dungeon_wall_", StringComparison.Ordinal)) return "dungeon.wall." + n.Substring(13);
+            if (n.StartsWith("dungeon_corner_", StringComparison.Ordinal)) return "dungeon.corner." + n.Substring(15);
+            if (n == "dungeon_torch") return "dungeon.torch";
+            if (n == "dungeon_door_locked") return "dungeon.door.locked";
+            if (n == "dungeon_lock") return "dungeon.lock";
+            if (n == "dungeon_shadow") return "dungeon.shadow";
+
+            if (n == "trap_disarm_kit") return "item.trap_disarm_kit";
             if (n.StartsWith("trap_", StringComparison.Ordinal)) return "trap." + n.Substring(5);
 
             if (n == "clue_danger") return "clue.danger";
@@ -46,7 +56,6 @@ namespace ClickDungeon.Presentation.Assets
             if (n == "exit_forbidden" || n == "forbidden_exit") return "exit.forbidden";
             if (n == "merchant") return "merchant.standard";
             if (n == "healing_potion") return "item.healing_potion";
-            if (n == "trap_disarm_kit") return "item.trap_disarm_kit";
             if (n == "iron_sword") return "item.iron_sword";
             if (n == "shrine_hp") return "shrine.choice";
             return string.Empty;

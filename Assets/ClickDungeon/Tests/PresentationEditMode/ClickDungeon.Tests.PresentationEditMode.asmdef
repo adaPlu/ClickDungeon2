@@ -1,0 +1,7 @@
+{
+  "name": "ClickDungeon.Tests.PresentationEditMode",
+  "references": ["ClickDungeon.Simulation", "ClickDungeon.Application", "ClickDungeon.Presentation"],
+  "optionalUnityReferences": ["TestAssemblies"],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": false
+}

@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using UnityEngine;
 using ClickDungeon.Application.State;
 using ClickDungeon.Application.Versioning;
+using ClickDungeon.Application.Heroes;
 using ClickDungeon.Simulation.Model;
 using ClickDungeon.Application.Platform;
 
@@ -57,7 +58,7 @@ namespace ClickDungeon.Application.Persistence
         public void Save(int slot, RunState state, long revision)
         {
             var now=DateTimeOffset.UtcNow.ToString("O");
-            SaveSlot(slot,new SlotSavePayload{ActiveRun=state,Meta=new SlotMetaState{HeroClassId=state.HeroClass.ToString(),BestFloor=state.Floor,CampaignCompleted=state.CampaignCompleted,CreatedAt=now,LastPlayedAt=now}},revision);
+            SaveSlot(slot,new SlotSavePayload{ActiveRun=state,Meta=new SlotMetaState{HeroClassId=state.HeroClass.ToString(),HeroId=HeroIdentityCatalog.StandardHeroId(state.HeroClass),BestFloor=state.Floor,CampaignCompleted=state.CampaignCompleted,CreatedAt=now,LastPlayedAt=now}},revision);
         }
         public SaveDocument Load(int slot) => LoadSlot(slot);
 
