@@ -44,6 +44,32 @@ def test_nested_runtime_asset_requires_manifest_coverage():
     finally:
         shutil.rmtree(temp,ignore_errors=True)
 
+def test_gameplay_art_bindings_reject_unknown_item_id():
+    temp=Path(tempfile.mkdtemp(prefix='cd2-art-bindings-'))
+    try:
+        source=temp/'Assets'/'ClickDungeon'/'Art'/'Source'
+        content=temp/'Assets'/'ClickDungeon'/'Content'/'Json'
+        source.mkdir(parents=True,exist_ok=True)
+        content.mkdir(parents=True,exist_ok=True)
+        (content/'items.json').write_text(json.dumps({'items':[{'id':'item.real'}]}),encoding='utf-8')
+        (content/'monsters.json').write_text(json.dumps({'monsters':[{'id':'monster.real'}]}),encoding='utf-8')
+        (content/'biomes.json').write_text(json.dumps({'biomes':[{'id':'biome.real'}]}),encoding='utf-8')
+        (source/'gameplay_art_bindings.json').write_text(json.dumps({
+            'schema':'clickdungeon.gameplay_art_bindings.v1',
+            'game':'ClickDungeon',
+            'items':[{'gameplay_id':'item.missing','status':'unresolved'}],
+            'monsters':[],
+            'heroes':[],
+            'environment':[]
+        }),encoding='utf-8')
+        result=subprocess.run([sys.executable,str(ROOT/'scripts'/'validate-gameplay-art-bindings.py'),str(temp)],capture_output=True,text=True)
+        output=result.stdout+result.stderr
+        if result.returncode==0 or 'unknown item gameplay_id item.missing' not in output:
+            print(output)
+            raise AssertionError('gameplay art binding validator did not reject an unknown item ID')
+    finally:
+        shutil.rmtree(temp,ignore_errors=True)
+
 def test_release_artifacts_require_all_platform_outputs():
     temp=Path(tempfile.mkdtemp(prefix='cd2-release-artifacts-'))
     try:
@@ -102,6 +128,7 @@ def test_android_signer_verifier_rejects_unsigned_bundle():
 
 def main():
     test_nested_runtime_asset_requires_manifest_coverage()
+    test_gameplay_art_bindings_reject_unknown_item_id()
     test_release_artifacts_require_all_platform_outputs()
     test_android_artifact_requires_signing_metadata()
     test_android_apk_artifact_requires_manifest()

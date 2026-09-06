@@ -157,8 +157,9 @@ namespace ClickDungeon.Tests.PresentationEditMode
             Assert.That(runtime,Does.Not.Contain("s.HeroClass.ToString().ToLowerInvariant()"),"Runtime identity art must not silently fall back to the generic class core for Sir Clickington.");
 
             string menu=MainMenuSource();
-            Assert.That(menu,Does.Contain("HeroPresentationAssetResolver.SelectionAssetId(heroId)"));
-            Assert.That(menu,Does.Contain("AddHeroButton"),"Hero selection needs an identity-specific visual slot instead of text-only buttons.");
+            Assert.That(menu,Does.Contain("AddHeroCard(hero)"));
+            Assert.That(menu,Does.Contain("HeroCardPresentation.Describe(hero)"),"Hero selection needs an identity-specific visual card instead of text-only buttons.");
+            Assert.That(menu,Does.Contain("ResolveHeroCardSprite(card)"));
         }
 
         [TestCase(null)]

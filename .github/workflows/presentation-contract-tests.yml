@@ -36,6 +36,7 @@ jobs:
             <ItemGroup>
               <Compile Include="../../Assets/ClickDungeon/Simulation/**/*.cs" />
               <Compile Include="../../Assets/ClickDungeon/Application/Heroes/HeroIdentityCatalog.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Presentation/Assets/PresentationAssetId.cs" />
               <Compile Include="../../Assets/ClickDungeon/Presentation/Assets/PresentationAssetIdMapper.cs" />
               <Compile Include="../../Assets/ClickDungeon/Presentation/Assets/DungeonRoomPresentationLayout.cs" />
               <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/PresentationAssetIdMapperTests.cs" />
