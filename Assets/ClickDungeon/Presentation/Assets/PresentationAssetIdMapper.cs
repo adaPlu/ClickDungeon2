@@ -114,6 +114,8 @@ namespace ClickDungeon.Presentation.Assets
                 case TileContentKind.SafeExit:return "exit.safe";
                 case TileContentKind.ForbiddenExit:return "exit.forbidden";
                 case TileContentKind.Trap:return CanonicalTrapAssetId(tile.ContentId);
+                case TileContentKind.Monster:return CanonicalActorAssetId(tile.ContentId,"monster.");
+                case TileContentKind.Boss:return CanonicalActorAssetId(tile.ContentId,"boss.");
                 default:return tile.ContentId??string.Empty;
             }
         }
@@ -140,6 +142,12 @@ namespace ClickDungeon.Presentation.Assets
                 case "trap.pitfall":return contentId;
                 default:return string.Empty;
             }
+        }
+
+        private static string CanonicalActorAssetId(string contentId,string expectedPrefix)
+        {
+            if(string.IsNullOrEmpty(contentId))return string.Empty;
+            return contentId.StartsWith(expectedPrefix,StringComparison.Ordinal)?contentId:string.Empty;
         }
     }
 }
