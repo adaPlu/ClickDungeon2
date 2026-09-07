@@ -33,7 +33,13 @@ namespace ClickDungeon.Presentation.Assets
         public const string ShadowId="dungeon.shadow";
         public const string LockedDoorId="dungeon.door.locked";
         public const string LockId="dungeon.lock";
+        public const string PitTrapId="trap.pitfall";
+        public const string BombTrapId="trap.bomb";
         public const string SpikeTrapId="trap.spikes";
+        public const string StairUpId="dungeon.stair.up";
+        public const string LockedStairUpId="dungeon.stair.up.locked";
+        public const string StairDownId="dungeon.stair.down";
+        public const string LockedStairDownId="dungeon.stair.down.locked";
 
         public static string FloorIdForCell(int index)
         {
