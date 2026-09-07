@@ -39,6 +39,10 @@ namespace ClickDungeon.Presentation.Assets
             if (n == "dungeon_door_locked") return "dungeon.door.locked";
             if (n == "dungeon_lock") return "dungeon.lock";
             if (n == "dungeon_shadow") return "dungeon.shadow";
+            if (n == "dungeon_stair_up") return "dungeon.stair.up";
+            if (n == "dungeon_stair_up_locked") return "dungeon.stair.up.locked";
+            if (n == "dungeon_stair_down") return "dungeon.stair.down";
+            if (n == "dungeon_stair_down_locked") return "dungeon.stair.down.locked";
 
             if (n == "trap_disarm_kit") return "item.trap_disarm_kit";
             if (n.StartsWith("trap_", StringComparison.Ordinal)) return "trap." + n.Substring(5);
