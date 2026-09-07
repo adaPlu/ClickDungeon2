@@ -1,1 +1,2287 @@
-{"assets":[{"asset_id":"art.biome.arcane_nexus.master","filename":"biome_arcane_nexus_master.png","prompt_ref":"procedural release biome master","sha256":"3f83e0c366f04e85ff2bc3f6060e9a0c3abec6e277ef811ebfc46f126c806cdd","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.biome.ash_wastes.master","filename":"biome_ash_wastes_master.png","prompt_ref":"procedural release biome master","sha256":"c4a9960b3f91eccdc6c21d40138f89f68df762087dee7dde77962d9d7c993284","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.biome.cavern.master","filename":"biome_cavern_master.png","prompt_ref":"procedural release biome master","sha256":"e18c182cea0788227fc32a5709d9f7b3fdad9b2ce1dd92942c6f5e749ce7cb5a","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.biome.crypt.master","filename":"biome_crypt_master.png","prompt_ref":"procedural release biome master","sha256":"b1486a60f1fe22edb0e005490d9f5b018f1f86e8d8538f255a713d51773a4b0b","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.biome.frozen_ruins.master","filename":"biome_frozen_ruins_master.png","prompt_ref":"procedural release biome master","sha256":"ef11129c75b86e2c59e17b8c95ee88d58e28f519f0f2cc3d9be766d2118e287c","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.biome.lava_field.master","filename":"biome_lava_field_master.png","prompt_ref":"procedural release biome master","sha256":"c9c5235cf507b40bc1c69608f931ddb695a164965171d0242a71225291894ce6","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.biome.mire.master","filename":"biome_mire_master.png","prompt_ref":"procedural release biome master","sha256":"f3463bf672620bfe155c6022648af16bf37726bf4e902bd8a8385f9f5e04ad6a","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.biome.storm_plateau.master","filename":"biome_storm_plateau_master.png","prompt_ref":"procedural release biome master","sha256":"b4e516c5e1336fbfb1baefd78bab705c13fff511ea02fcb14c3e9f64b6b6bbf5","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.biome.sunken_temple.master","filename":"biome_sunken_temple_master.png","prompt_ref":"procedural release biome master","sha256":"24e02707c83a0b8a77d7f8c22e04d821128aa6a4082aab8ef366f8df218625bd","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.biome.thorn_wilds.master","filename":"biome_thorn_wilds_master.png","prompt_ref":"procedural release biome master","sha256":"5583b157803cccd4792110704d21fc3df7a24fb88d8ac4bccce9468e083a36bc","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.boss.archdemon_overlord.core","filename":"boss_archdemon_overlord_core.png","prompt_ref":"procedural release sprite sheet: boss core","sha256":"d5f8785e5fc146ac3e14847b4f5c0a8733c1bd4946f6ce0d60064801d33eb208","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.boss.frostbog_colossus.core","filename":"boss_frostbog_colossus_core.png","prompt_ref":"procedural release sprite sheet: boss core","sha256":"8260445593bd86aea8ac8f39ebacd5e7c9393e7dc956fd0ac90522b2fbd54092","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.boss.lich_sovereign.core","filename":"boss_lich_sovereign_core.png","prompt_ref":"procedural release sprite sheet: boss core","sha256":"ac6744cfd836858a4274f373183aa616eadf1e3dab14ff0fce32f05f303a1319","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.boss.primal_ancient_wyrm.core","filename":"boss_primal_ancient_wyrm_core.png","prompt_ref":"procedural release sprite sheet: boss core","sha256":"ee78446b674735bbf17ab904f572ca6c5d45ed26069d6477915d45e30c6fa33f","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.boss.rootbound_leviathan.core","filename":"boss_rootbound_leviathan_core.png","prompt_ref":"procedural release sprite sheet: boss core","sha256":"ad86ed95349e9dd54f1c57b9d34084d7d638ebc4dfb21c2103724cddb3e4b5b5","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.hero.knight.core","filename":"hero_knight_core.png","prompt_ref":"procedural release sprite sheet: hero core","sha256":"92783104fb3e286847cfd77497c15d38fb4b83c96599450faa597593a62695b4","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.hero.ranger.core","filename":"hero_ranger_core.png","prompt_ref":"procedural release sprite sheet: hero core","sha256":"7500df08adbaee8fc98e3f52f7ac5f1753b56ee4fbea2d6be2a1490c904382ed","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.hero.thief.core","filename":"hero_thief_core.png","prompt_ref":"procedural release sprite sheet: hero core","sha256":"ff1cc1845c1f37ae12d47641f5c7e29f3bb501231ef90311b0a239f8c4961141","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.hero.wizard.core","filename":"hero_wizard_core.png","prompt_ref":"procedural release sprite sheet: hero core","sha256":"9d6fea269806d426225ed389fd99abaeb7f9c76368d0fe76c3a98dadecb126e6","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.icon.big_key","filename":"big_key.png","prompt_ref":"procedural release icon","sha256":"a047c07642a275e6563d25698de39908f0c245c3cd0dc361ec98894b3ec9a5a7","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.icon.chest_closed","filename":"chest_closed.png","prompt_ref":"procedural release icon","sha256":"874c327d6f85dc635d817c5af87c296b6c3ac6693e29ed966fa84c55a036c32d","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.icon.chest_open","filename":"chest_open.png","prompt_ref":"procedural release icon","sha256":"d3f2924f246f73147d0c0e29904457a4d056c2e62591eed10f8ea579d45c22fc","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.icon.clue_danger","filename":"clue_danger.png","prompt_ref":"procedural release icon","sha256":"07e56a535524dab270180a9116eebdc12ee851e71f65d48c38182e4a79775de4","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.icon.clue_opportunity","filename":"clue_opportunity.png","prompt_ref":"procedural release icon","sha256":"213f298720b4e1533683412e87e018225e6eb18e5dc7dca43a71f541084b459e","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.icon.clue_passage","filename":"clue_passage.png","prompt_ref":"procedural release icon","sha256":"70f44c5823b101362e51707dcae80fc7389936b5bfd47410ae5fbce6eda8e42c","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.icon.forbidden_exit","filename":"forbidden_exit.png","prompt_ref":"procedural release icon","sha256":"1ebdeb39330d4c383d1fd00196720b6052cf79ab0b962be50055f3f7f9eb5e94","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.icon.gold","filename":"gold.png","prompt_ref":"procedural release icon","sha256":"06c046801a5a61bc6d4b13432f7d375e8d4e6ef53d92079f9a0700e3c53d23e4","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.icon.healing_potion","filename":"healing_potion.png","prompt_ref":"procedural release icon","sha256":"acf6d9df54124d0214a44ae271cf57fa4bbe9db5b89e10bb985482c7f5d2ebc6","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.icon.merchant","filename":"merchant.png","prompt_ref":"procedural release icon","sha256":"a3fb239a212274ff6a991298327fe1a747bab9c94127119a591565052a0e3801","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.icon.safe_exit","filename":"safe_exit.png","prompt_ref":"procedural release icon","sha256":"fa940dcd6cfe5fdfcdcb13839189a8f9db18781981a5337c854dcd6183320e66","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.icon.sealed_vault","filename":"sealed_vault.png","prompt_ref":"procedural release icon","sha256":"ca70b05562082625364a3a0fe9fad10e5f27c9b0428830d94c605392db42d695","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.icon.shrine_attack","filename":"shrine_attack.png","prompt_ref":"procedural release icon","sha256":"f7eaae7db95416ceba610ec712d466764cddf41ed461cfa225f7887fe09903c9","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.icon.shrine_defense","filename":"shrine_defense.png","prompt_ref":"procedural release icon","sha256":"2716e6512d9c36ba03a097e97fb701b0ec8e6f1db8d6ef06d2b1113141c392ba","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.icon.shrine_hp","filename":"shrine_hp.png","prompt_ref":"procedural release icon","sha256":"1989fda170c99cc753acc28b0f5529648119980ffeadce52d1c20e3f16d4ee95","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.icon.small_key","filename":"small_key.png","prompt_ref":"procedural release icon","sha256":"2e9fd05ce3e37a75de9aea3eac6da07d538e5f8a72d9efc4ecc8440346949f3f","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.icon.trap_disarm_kit","filename":"trap_disarm_kit.png","prompt_ref":"procedural release icon","sha256":"a16226ae234aec8ce7d79f6745779671f66c876b5915c52c1b12378a1123f924","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.monster.ancient_wyrm.core","filename":"monster_ancient_wyrm_core.png","prompt_ref":"procedural release sprite sheet: monster core","sha256":"76c1ae84e3b4ab7795458298aa67b776f4b8a1221602be811a2c97ffb593a76d","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.monster.archdemon.core","filename":"monster_archdemon_core.png","prompt_ref":"procedural release sprite sheet: monster core","sha256":"e697235f3bf7f73df6151783a1a3672f3c5c3cf0ff7670b3209f329bcc571d29","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.monster.bandit.core","filename":"monster_bandit_core.png","prompt_ref":"procedural release sprite sheet: monster core","sha256":"61850369ccf0c40deee8620ef9b73be44bf7ac67b21d4dcd0689fb629159e138","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.monster.bat.core","filename":"monster_bat_core.png","prompt_ref":"procedural release sprite sheet: monster core","sha256":"aa401a33d1094dfbe9d9c1ea0371e22f729c94617f3e6f364ed0cffd7322a263","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.monster.cultist.core","filename":"monster_cultist_core.png","prompt_ref":"procedural release sprite sheet: monster core","sha256":"7632fc4aa1d8805711a00040e7178197dd4e335bf5ba309d9060fc5281534450","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.monster.demon.core","filename":"monster_demon_core.png","prompt_ref":"procedural release sprite sheet: monster core","sha256":"fd4b42a96b57739f8d0c2bdd26bd7eafc5fb2354982dc8d38d588991b439c4e3","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.monster.dragon.core","filename":"monster_dragon_core.png","prompt_ref":"procedural release sprite sheet: monster core","sha256":"aceb35420eed91af4b4b9247bc968089005a479763910ae10d9020eca112b1d1","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.monster.goblin.core","filename":"monster_goblin_core.png","prompt_ref":"procedural release sprite sheet: monster core","sha256":"eedadfa8fcc117ff87acd7a24f2ad6e58331f6fbf89ceb6e397ffe2826f3fd5e","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.monster.golem.core","filename":"monster_golem_core.png","prompt_ref":"procedural release sprite sheet: monster core","sha256":"2e25a6ca54e9f0a6935291dacc9099ca32c8d08365afd8656f60922a4402ac78","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.monster.hellhound.core","filename":"monster_hellhound_core.png","prompt_ref":"procedural release sprite sheet: monster core","sha256":"318c72a855be95303136a6e29b2d285fd1a7275f17177f53b0dabac2c2e077d2","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.monster.lich.core","filename":"monster_lich_core.png","prompt_ref":"procedural release sprite sheet: monster core","sha256":"1b9454e6ffdc1fcb0ad4c4352e91de45405d611e4ee70d60654059245d719768","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.monster.orc.core","filename":"monster_orc_core.png","prompt_ref":"procedural release sprite sheet: monster core","sha256":"6e55790ec3d584aa5ce168702503e86db307e3d8e392eea3d825622cde08637d","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.monster.rat.core","filename":"monster_rat_core.png","prompt_ref":"procedural release sprite sheet: monster core","sha256":"276988aa971323a8f1ec8da0f6bab8dbdfe4cec6a76a1cb9ecf2486facc54f94","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.monster.revenant.core","filename":"monster_revenant_core.png","prompt_ref":"procedural release sprite sheet: monster core","sha256":"f6fea3938522a46024dbf2762a67130c627af08621a540e955ac8c01e2c168b7","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.monster.skeleton.core","filename":"monster_skeleton_core.png","prompt_ref":"procedural release sprite sheet: monster core","sha256":"e42f03f7a8859e87ea77927921f0983cbbf7fcd6caebc74840329e77a2c78cbf","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.monster.slime.core","filename":"monster_slime_core.png","prompt_ref":"procedural release sprite sheet: monster core","sha256":"9c9b337674f6ab81e35ede5dc9763f77dbfb87023dbb7280f20f99a52d0ff319","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.monster.spider.core","filename":"monster_spider_core.png","prompt_ref":"procedural release sprite sheet: monster core","sha256":"43e2facd28d4e99cee9999d9c3f59cc2c96d4e903bb484ad6c47c2e840bad1de","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.monster.troll.core","filename":"monster_troll_core.png","prompt_ref":"procedural release sprite sheet: monster core","sha256":"cc5e44e6f08582c33c9f5564642acd2101a706b7efc73b30cb0931f5d98db95a","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.monster.vampire.core","filename":"monster_vampire_core.png","prompt_ref":"procedural release sprite sheet: monster core","sha256":"8da2c515974d2c605e327732952b24962fac0580c2e22e0c3b5c50381b2108ef","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.monster.warlock.core","filename":"monster_warlock_core.png","prompt_ref":"procedural release sprite sheet: monster core","sha256":"f775ae156aec8ef9ee24808e12228b9df607b24b09be239c19963b2fa13e2bf3","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.monster.witch.core","filename":"monster_witch_core.png","prompt_ref":"procedural release sprite sheet: monster core","sha256":"47e6284ef9ad79ee97207f2b8e51110a02414a926fe55a295d89b628d465f893","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.monster.wolf.core","filename":"monster_wolf_core.png","prompt_ref":"procedural release sprite sheet: monster core","sha256":"ed513cd54dea016f88df65047442e9e9e3350586fe16a4db7bcf03292925f383","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.monster.wraith.core","filename":"monster_wraith_core.png","prompt_ref":"procedural release sprite sheet: monster core","sha256":"4d323ad9209d885e6c89b76c59d32917635740be9299d2e57aaf20cd59d8091b","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.trap.acid","filename":"trap_acid.png","prompt_ref":"procedural release icon: trap","sha256":"acb7c843b40221eae5e4ffc33010bbce50a372ef95d4acd5bfaca69876f9199a","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.trap.fire","filename":"trap_fire.png","prompt_ref":"procedural release icon: trap","sha256":"7774736030aeccd951c3e3a37803834787489c760097cc23b9ea85ac54d01df5","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.trap.freeze","filename":"trap_freeze.png","prompt_ref":"procedural release icon: trap","sha256":"18f6b545ffd2f66d735902d55207934cb9348784214dbbd517aa78337634e14b","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.trap.pitfall","filename":"trap_pitfall.png","prompt_ref":"procedural release icon: trap","sha256":"d37d52e33ea32cb33e31808147935370d1372468aba0283828ff77026d176409","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.trap.poison","filename":"trap_poison.png","prompt_ref":"procedural release icon: trap","sha256":"8a161a053b6686d168cef90bf4bed715cc55ca2fdfc75dc7c29d2e4418edda86","status":"production","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."},{"asset_id":"art.dungeon.corner.stone","filename":"dungeon_corner_tl.png","prompt_ref":"deterministic modular room art: reusable stone corner","sha256":"963d0feca46f9e9ff18bcfbd2474618a56bbe7ab4d21615fe8d735e86a0f6aa1","status":"production","usage_terms":"Original ClickDungeon art created in-project for the modular 5×5 room system; no third-party stock, trademarks, or copied external game art."},{"asset_id":"art.dungeon.door.locked","filename":"dungeon_door_locked.png","prompt_ref":"deterministic modular room art: locked dungeon door","sha256":"c2123be4a301554b5ad8a73cb7d463e8750b94f5444fc3cc557ea39daa3a77d2","status":"production","usage_terms":"Original ClickDungeon art created in-project for the modular 5×5 room system; no third-party stock, trademarks, or copied external game art."},{"asset_id":"art.dungeon.floor.cracked","filename":"dungeon_floor_cracked.png","prompt_ref":"deterministic modular room art: cracked stone floor","sha256":"b15c1b5c7963805cc7af08a43025dab4833b2e0d42f09c98f29c723f3bb10a74","status":"production","usage_terms":"Original ClickDungeon art created in-project for the modular 5×5 room system; no third-party stock, trademarks, or copied external game art."},{"asset_id":"art.dungeon.floor.stone","filename":"dungeon_floor_stone.png","prompt_ref":"deterministic modular room art: stone floor","sha256":"0b816cf8a056f297816e6f70afe4fb652dbc017132576080f10d5b586091c5ad","status":"production","usage_terms":"Original ClickDungeon art created in-project for the modular 5×5 room system; no third-party stock, trademarks, or copied external game art."},{"asset_id":"art.dungeon.lock","filename":"dungeon_lock.png","prompt_ref":"deterministic modular room art: lock","sha256":"796bad400c40c69797c2ab9731b1b35c08eb0bf18a5969a297f3a73a2dfb15ed","status":"production","usage_terms":"Original ClickDungeon art created in-project for the modular 5×5 room system; no third-party stock, trademarks, or copied external game art."},{"asset_id":"art.dungeon.shadow","filename":"dungeon_shadow.png","prompt_ref":"deterministic modular room art: room shadow overlay","sha256":"e4dd5f6637412f0f7ff9f4e4fe79fe8c73410a9345ec648facdb9964db02719d","status":"production","usage_terms":"Original ClickDungeon art created in-project for the modular 5×5 room system; no third-party stock, trademarks, or copied external game art."},{"asset_id":"art.dungeon.torch","filename":"dungeon_torch.png","prompt_ref":"deterministic modular room art: wall torch","sha256":"50869bbdb51ede8ecc426708482e6400d369f5a26ab968d0d4beee32fc880656","status":"production","usage_terms":"Original ClickDungeon art created in-project for the modular 5×5 room system; no third-party stock, trademarks, or copied external game art."},{"asset_id":"art.dungeon.wall.stone","filename":"dungeon_wall_top.png","prompt_ref":"deterministic modular room art: reusable stone wall","sha256":"6007d2874b1b73290717a94de1fff9993cc306b1561942088ac4678c389a2e6d","status":"production","usage_terms":"Original ClickDungeon art created in-project for the modular 5×5 room system; no third-party stock, trademarks, or copied external game art."},{"asset_id":"art.trap.spikes","filename":"trap_spikes.png","prompt_ref":"deterministic modular room art: spike trap","sha256":"1e7bfb4c56cda68e60086bc7fc5b6d4b6cb1330a9c6f449400311b2e9ff52fb1","status":"production","usage_terms":"Original ClickDungeon art created in-project for the modular 5×5 room system; no third-party stock, trademarks, or copied external game art."}],"generated_by":"scripts/generate-release-assets.py","schema":"clickdungeon.asset_manifest.v1","usage_terms":"Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."}
+{
+  "assets": [
+    {
+      "asset_id": "art.biome.arcane_nexus.master",
+      "filename": "biome_arcane_nexus_master.png",
+      "prompt_ref": "procedural release biome master",
+      "sha256": "3f83e0c366f04e85ff2bc3f6060e9a0c3abec6e277ef811ebfc46f126c806cdd",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.biome.ash_wastes.master",
+      "filename": "biome_ash_wastes_master.png",
+      "prompt_ref": "procedural release biome master",
+      "sha256": "c4a9960b3f91eccdc6c21d40138f89f68df762087dee7dde77962d9d7c993284",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.biome.cavern.master",
+      "filename": "biome_cavern_master.png",
+      "prompt_ref": "procedural release biome master",
+      "sha256": "e18c182cea0788227fc32a5709d9f7b3fdad9b2ce1dd92942c6f5e749ce7cb5a",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.biome.crypt.master",
+      "filename": "biome_crypt_master.png",
+      "prompt_ref": "procedural release biome master",
+      "sha256": "b1486a60f1fe22edb0e005490d9f5b018f1f86e8d8538f255a713d51773a4b0b",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.biome.frozen_ruins.master",
+      "filename": "biome_frozen_ruins_master.png",
+      "prompt_ref": "procedural release biome master",
+      "sha256": "ef11129c75b86e2c59e17b8c95ee88d58e28f519f0f2cc3d9be766d2118e287c",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.biome.lava_field.master",
+      "filename": "biome_lava_field_master.png",
+      "prompt_ref": "procedural release biome master",
+      "sha256": "c9c5235cf507b40bc1c69608f931ddb695a164965171d0242a71225291894ce6",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.biome.mire.master",
+      "filename": "biome_mire_master.png",
+      "prompt_ref": "procedural release biome master",
+      "sha256": "f3463bf672620bfe155c6022648af16bf37726bf4e902bd8a8385f9f5e04ad6a",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.biome.storm_plateau.master",
+      "filename": "biome_storm_plateau_master.png",
+      "prompt_ref": "procedural release biome master",
+      "sha256": "b4e516c5e1336fbfb1baefd78bab705c13fff511ea02fcb14c3e9f64b6b6bbf5",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.biome.sunken_temple.master",
+      "filename": "biome_sunken_temple_master.png",
+      "prompt_ref": "procedural release biome master",
+      "sha256": "24e02707c83a0b8a77d7f8c22e04d821128aa6a4082aab8ef366f8df218625bd",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.biome.thorn_wilds.master",
+      "filename": "biome_thorn_wilds_master.png",
+      "prompt_ref": "procedural release biome master",
+      "sha256": "5583b157803cccd4792110704d21fc3df7a24fb88d8ac4bccce9468e083a36bc",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.boss.archdemon_overlord.core",
+      "filename": "boss_archdemon_overlord_core.png",
+      "prompt_ref": "procedural release sprite sheet: boss core",
+      "sha256": "d5f8785e5fc146ac3e14847b4f5c0a8733c1bd4946f6ce0d60064801d33eb208",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.boss.frostbog_colossus.core",
+      "filename": "boss_frostbog_colossus_core.png",
+      "prompt_ref": "procedural release sprite sheet: boss core",
+      "sha256": "8260445593bd86aea8ac8f39ebacd5e7c9393e7dc956fd0ac90522b2fbd54092",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.boss.lich_sovereign.core",
+      "filename": "boss_lich_sovereign_core.png",
+      "prompt_ref": "procedural release sprite sheet: boss core",
+      "sha256": "ac6744cfd836858a4274f373183aa616eadf1e3dab14ff0fce32f05f303a1319",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.boss.primal_ancient_wyrm.core",
+      "filename": "boss_primal_ancient_wyrm_core.png",
+      "prompt_ref": "procedural release sprite sheet: boss core",
+      "sha256": "ee78446b674735bbf17ab904f572ca6c5d45ed26069d6477915d45e30c6fa33f",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.boss.rootbound_leviathan.core",
+      "filename": "boss_rootbound_leviathan_core.png",
+      "prompt_ref": "procedural release sprite sheet: boss core",
+      "sha256": "ad86ed95349e9dd54f1c57b9d34084d7d638ebc4dfb21c2103724cddb3e4b5b5",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.dungeon.corner.stone",
+      "filename": "dungeon_corner_tl.png",
+      "prompt_ref": "deterministic modular room art: reusable stone corner",
+      "sha256": "963d0feca46f9e9ff18bcfbd2474618a56bbe7ab4d21615fe8d735e86a0f6aa1",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon art created in-project for the modular 5\u00d75 room system; no third-party stock, trademarks, or copied external game art."
+    },
+    {
+      "asset_id": "art.dungeon.door.locked",
+      "filename": "dungeon_door_locked.png",
+      "prompt_ref": "deterministic modular room art: locked dungeon door",
+      "sha256": "c2123be4a301554b5ad8a73cb7d463e8750b94f5444fc3cc557ea39daa3a77d2",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon art created in-project for the modular 5\u00d75 room system; no third-party stock, trademarks, or copied external game art."
+    },
+    {
+      "asset_id": "art.dungeon.floor.cracked",
+      "filename": "dungeon_floor_cracked.png",
+      "prompt_ref": "deterministic modular room art: cracked stone floor",
+      "sha256": "b15c1b5c7963805cc7af08a43025dab4833b2e0d42f09c98f29c723f3bb10a74",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon art created in-project for the modular 5\u00d75 room system; no third-party stock, trademarks, or copied external game art."
+    },
+    {
+      "asset_id": "art.dungeon.floor.stone",
+      "filename": "dungeon_floor_stone.png",
+      "prompt_ref": "deterministic modular room art: stone floor",
+      "sha256": "0b816cf8a056f297816e6f70afe4fb652dbc017132576080f10d5b586091c5ad",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon art created in-project for the modular 5\u00d75 room system; no third-party stock, trademarks, or copied external game art."
+    },
+    {
+      "asset_id": "art.dungeon.lock",
+      "filename": "dungeon_lock.png",
+      "prompt_ref": "deterministic modular room art: lock",
+      "sha256": "796bad400c40c69797c2ab9731b1b35c08eb0bf18a5969a297f3a73a2dfb15ed",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon art created in-project for the modular 5\u00d75 room system; no third-party stock, trademarks, or copied external game art."
+    },
+    {
+      "asset_id": "art.dungeon.shadow",
+      "filename": "dungeon_shadow.png",
+      "prompt_ref": "deterministic modular room art: room shadow overlay",
+      "sha256": "e4dd5f6637412f0f7ff9f4e4fe79fe8c73410a9345ec648facdb9964db02719d",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon art created in-project for the modular 5\u00d75 room system; no third-party stock, trademarks, or copied external game art."
+    },
+    {
+      "asset_id": "art.dungeon.torch",
+      "filename": "dungeon_torch.png",
+      "prompt_ref": "deterministic modular room art: wall torch",
+      "sha256": "50869bbdb51ede8ecc426708482e6400d369f5a26ab968d0d4beee32fc880656",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon art created in-project for the modular 5\u00d75 room system; no third-party stock, trademarks, or copied external game art."
+    },
+    {
+      "asset_id": "art.dungeon.wall.stone",
+      "filename": "dungeon_wall_top.png",
+      "prompt_ref": "deterministic modular room art: reusable stone wall",
+      "sha256": "6007d2874b1b73290717a94de1fff9993cc306b1561942088ac4678c389a2e6d",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon art created in-project for the modular 5\u00d75 room system; no third-party stock, trademarks, or copied external game art."
+    },
+    {
+      "asset_id": "art.hero.knight.core",
+      "filename": "hero_knight_core.png",
+      "prompt_ref": "procedural release sprite sheet: hero core",
+      "sha256": "92783104fb3e286847cfd77497c15d38fb4b83c96599450faa597593a62695b4",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.hero.ranger.core",
+      "filename": "hero_ranger_core.png",
+      "prompt_ref": "procedural release sprite sheet: hero core",
+      "sha256": "7500df08adbaee8fc98e3f52f7ac5f1753b56ee4fbea2d6be2a1490c904382ed",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.hero.thief.core",
+      "filename": "hero_thief_core.png",
+      "prompt_ref": "procedural release sprite sheet: hero core",
+      "sha256": "ff1cc1845c1f37ae12d47641f5c7e29f3bb501231ef90311b0a239f8c4961141",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.hero.wizard.core",
+      "filename": "hero_wizard_core.png",
+      "prompt_ref": "procedural release sprite sheet: hero core",
+      "sha256": "9d6fea269806d426225ed389fd99abaeb7f9c76368d0fe76c3a98dadecb126e6",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.icon.big_key",
+      "filename": "big_key.png",
+      "prompt_ref": "procedural release icon",
+      "sha256": "a047c07642a275e6563d25698de39908f0c245c3cd0dc361ec98894b3ec9a5a7",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.icon.chest_closed",
+      "filename": "chest_closed.png",
+      "prompt_ref": "procedural release icon",
+      "sha256": "874c327d6f85dc635d817c5af87c296b6c3ac6693e29ed966fa84c55a036c32d",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.icon.chest_open",
+      "filename": "chest_open.png",
+      "prompt_ref": "procedural release icon",
+      "sha256": "d3f2924f246f73147d0c0e29904457a4d056c2e62591eed10f8ea579d45c22fc",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.icon.clue_danger",
+      "filename": "clue_danger.png",
+      "prompt_ref": "procedural release icon",
+      "sha256": "07e56a535524dab270180a9116eebdc12ee851e71f65d48c38182e4a79775de4",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.icon.clue_opportunity",
+      "filename": "clue_opportunity.png",
+      "prompt_ref": "procedural release icon",
+      "sha256": "213f298720b4e1533683412e87e018225e6eb18e5dc7dca43a71f541084b459e",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.icon.clue_passage",
+      "filename": "clue_passage.png",
+      "prompt_ref": "procedural release icon",
+      "sha256": "70f44c5823b101362e51707dcae80fc7389936b5bfd47410ae5fbce6eda8e42c",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.icon.forbidden_exit",
+      "filename": "forbidden_exit.png",
+      "prompt_ref": "procedural release icon",
+      "sha256": "1ebdeb39330d4c383d1fd00196720b6052cf79ab0b962be50055f3f7f9eb5e94",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.icon.gold",
+      "filename": "gold.png",
+      "prompt_ref": "procedural release icon",
+      "sha256": "06c046801a5a61bc6d4b13432f7d375e8d4e6ef53d92079f9a0700e3c53d23e4",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.icon.healing_potion",
+      "filename": "healing_potion.png",
+      "prompt_ref": "procedural release icon",
+      "sha256": "acf6d9df54124d0214a44ae271cf57fa4bbe9db5b89e10bb985482c7f5d2ebc6",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.icon.merchant",
+      "filename": "merchant.png",
+      "prompt_ref": "procedural release icon",
+      "sha256": "a3fb239a212274ff6a991298327fe1a747bab9c94127119a591565052a0e3801",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.icon.safe_exit",
+      "filename": "safe_exit.png",
+      "prompt_ref": "procedural release icon",
+      "sha256": "fa940dcd6cfe5fdfcdcb13839189a8f9db18781981a5337c854dcd6183320e66",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.icon.sealed_vault",
+      "filename": "sealed_vault.png",
+      "prompt_ref": "procedural release icon",
+      "sha256": "ca70b05562082625364a3a0fe9fad10e5f27c9b0428830d94c605392db42d695",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.icon.shrine_attack",
+      "filename": "shrine_attack.png",
+      "prompt_ref": "procedural release icon",
+      "sha256": "f7eaae7db95416ceba610ec712d466764cddf41ed461cfa225f7887fe09903c9",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.icon.shrine_defense",
+      "filename": "shrine_defense.png",
+      "prompt_ref": "procedural release icon",
+      "sha256": "2716e6512d9c36ba03a097e97fb701b0ec8e6f1db8d6ef06d2b1113141c392ba",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.icon.shrine_hp",
+      "filename": "shrine_hp.png",
+      "prompt_ref": "procedural release icon",
+      "sha256": "1989fda170c99cc753acc28b0f5529648119980ffeadce52d1c20e3f16d4ee95",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.icon.small_key",
+      "filename": "small_key.png",
+      "prompt_ref": "procedural release icon",
+      "sha256": "2e9fd05ce3e37a75de9aea3eac6da07d538e5f8a72d9efc4ecc8440346949f3f",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.icon.trap_disarm_kit",
+      "filename": "trap_disarm_kit.png",
+      "prompt_ref": "procedural release icon",
+      "sha256": "a16226ae234aec8ce7d79f6745779671f66c876b5915c52c1b12378a1123f924",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.item.amulet.amulet_01",
+      "filename": "Items/art_item_amulet_amulet_01.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 4 column 1; source-alpha component extraction",
+      "sha256": "9a930ecee98947de556f2f5a60bd1295b1f9832bd354371ccc9f9b5fcff85125",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.amulet.amulet_02",
+      "filename": "Items/art_item_amulet_amulet_02.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 4 column 2; source-alpha component extraction",
+      "sha256": "807a7f3ae3666965fc0659e986509012a5a102f351312045c52f5293cbb990c9",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.amulet.amulet_03",
+      "filename": "Items/art_item_amulet_amulet_03.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 4 column 3; source-alpha component extraction",
+      "sha256": "49b4acf9684cc1dc80b3a43db8e927db5b57d109f48e07dab55a5380faf48ab5",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.amulet.amulet_04",
+      "filename": "Items/art_item_amulet_amulet_04.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 4 column 4; source-alpha component extraction",
+      "sha256": "55430223195b625b934ed525c081f88550b827c3e95aeb8c8e6e0d75d1832980",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.amulet.amulet_05",
+      "filename": "Items/art_item_amulet_amulet_05.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 4 column 5; source-alpha component extraction",
+      "sha256": "c001441a43bdc52f9615b0e0bc17c0e01f5a96036fd5c87db5cbda8e20ad25f4",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.amulet.amulet_06",
+      "filename": "Items/art_item_amulet_amulet_06.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 4 column 6; source-alpha component extraction",
+      "sha256": "9c0548a0ab383c91aa8ded7c0594b61ee15b66097c075002d99d531f23a73326",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.amulet.amulet_07",
+      "filename": "Items/art_item_amulet_amulet_07.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 4 column 7; source-alpha component extraction",
+      "sha256": "52fdda312dfa4bce0d4f606cd3da098e5fb11ff30aed0641bc1df84f18864a4f",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.amulet.amulet_08",
+      "filename": "Items/art_item_amulet_amulet_08.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 4 column 8; source-alpha component extraction",
+      "sha256": "17e35b52d402bb9836f8d363b38db52aa51bddccba7043d18c841118b5a79b9c",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.amulet.amulet_09",
+      "filename": "Items/art_item_amulet_amulet_09.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 5 column 1; source-alpha component extraction",
+      "sha256": "0cc11cde18f80b2600b8ee306b47e39a431e90b80e568d3ea2b46174f1208d9b",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.amulet.amulet_10",
+      "filename": "Items/art_item_amulet_amulet_10.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 5 column 2; source-alpha component extraction",
+      "sha256": "c89fe0ea7407c7af8136bd3283657e53a13d39a8a277fac91b5672f6b7495216",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.amulet.amulet_11",
+      "filename": "Items/art_item_amulet_amulet_11.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 5 column 3; source-alpha component extraction",
+      "sha256": "5b862ba024bb2e7d9ffd45d32cf2e4fed134c0cab209906242d536407bcbb606",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.amulet.amulet_12",
+      "filename": "Items/art_item_amulet_amulet_12.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 5 column 4; source-alpha component extraction",
+      "sha256": "ec7135de10a21aabfb7357f5a88178818d5052026c594a1dcebc6ab85b996e95",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.amulet.amulet_13",
+      "filename": "Items/art_item_amulet_amulet_13.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 5 column 5; source-alpha component extraction",
+      "sha256": "6456dba408f15126d046b060d8ae01cd4445e97cfe390ad79d160e4ecd75b671",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.amulet.amulet_14",
+      "filename": "Items/art_item_amulet_amulet_14.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 5 column 6; source-alpha component extraction",
+      "sha256": "69e5b38b5337c9d555c22ebe56a0265b1d0364436420a99deed1695a53337aa7",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.amulet.amulet_15",
+      "filename": "Items/art_item_amulet_amulet_15.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 5 column 7; source-alpha component extraction",
+      "sha256": "db75168c581e10fbb205aff6b1e7f15ab420a2d5a18386fb914fc0d6aae58ca5",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.amulet.amulet_16",
+      "filename": "Items/art_item_amulet_amulet_16.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 5 column 8; source-alpha component extraction",
+      "sha256": "620526b337bbf0445e5fcc346bfdb814c2be5877ac24c37a9724a43aed88d79a",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.amulet.celestial_orb_01",
+      "filename": "Items/art_item_amulet_celestial_orb_01.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 1 column 9; source-alpha component extraction",
+      "sha256": "2a47d016ee8dd2151d77830c253933c652856a2c6acd91e50c6cfeb4588c5421",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.amulet.red_relic_01",
+      "filename": "Items/art_item_amulet_red_relic_01.png",
+      "prompt_ref": "ClickDungeon item individualization from enchanted_quest_relics_icon_collection.png row 2 column 5; source-alpha component extraction",
+      "sha256": "91d6289a8221858657e975dc72e6551abe5916fdc8d1d2b3a36ed7c702814eb9",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.armor.plate_01",
+      "filename": "Items/art_item_armor_plate_01.png",
+      "prompt_ref": "ClickDungeon item individualization from Armor.png row 1 column 1; source-alpha component extraction",
+      "sha256": "63093da705b969a26c54300e7b6a9c7d195e5887efd9dcd253a3fd7882ac1a0b",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.armor.plate_02",
+      "filename": "Items/art_item_armor_plate_02.png",
+      "prompt_ref": "ClickDungeon item individualization from Armor.png row 1 column 2; source-alpha component extraction",
+      "sha256": "bcfe3417b8c25b9c8863738a55059b6d2284d58546353f7537a8f6ab8ccf8c7a",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.armor.plate_03",
+      "filename": "Items/art_item_armor_plate_03.png",
+      "prompt_ref": "ClickDungeon item individualization from Armor.png row 1 column 3; source-alpha component extraction",
+      "sha256": "f074d0d18e44e8795783fe942055d78bbfa597b0ceb7dd1c6f346c4bd129b01b",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.armor.plate_04",
+      "filename": "Items/art_item_armor_plate_04.png",
+      "prompt_ref": "ClickDungeon item individualization from Armor.png row 1 column 4; source-alpha component extraction",
+      "sha256": "ee2ad80af15f7f0371674b4f04be8923c465032b3a5ed2ca155706fb204e3032",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.armor.plate_05",
+      "filename": "Items/art_item_armor_plate_05.png",
+      "prompt_ref": "ClickDungeon item individualization from Armor.png row 1 column 5; source-alpha component extraction",
+      "sha256": "8c6ad161c262399d6bd0ddddcb5d2587a4935ed9c59c38c886a7cb005be62974",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.armor.plate_06",
+      "filename": "Items/art_item_armor_plate_06.png",
+      "prompt_ref": "ClickDungeon item individualization from Armor.png row 1 column 6; source-alpha component extraction",
+      "sha256": "f623d5b461d99a7325e5600cdf78a98a14aa468009ff996d12bf7a97f083be6e",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.armor.plate_07",
+      "filename": "Items/art_item_armor_plate_07.png",
+      "prompt_ref": "ClickDungeon item individualization from Armor.png row 2 column 1; source-alpha component extraction",
+      "sha256": "c3ac9e03eb788477bc31d39239f3b32ad45a45f1517c53cb5fe64d3bafae5ea2",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.armor.plate_08",
+      "filename": "Items/art_item_armor_plate_08.png",
+      "prompt_ref": "ClickDungeon item individualization from Armor.png row 2 column 2; source-alpha component extraction",
+      "sha256": "49646dc4e85d0a3c232724b1848b0824e0593da2151ce7ef72f45bcada1d904a",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.armor.plate_09",
+      "filename": "Items/art_item_armor_plate_09.png",
+      "prompt_ref": "ClickDungeon item individualization from Armor.png row 2 column 3; source-alpha component extraction",
+      "sha256": "67e046ef7d93fb748d88de57bc497b5021809ada27a262c9a406618b3a92c234",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.armor.plate_10",
+      "filename": "Items/art_item_armor_plate_10.png",
+      "prompt_ref": "ClickDungeon item individualization from Armor.png row 2 column 4; source-alpha component extraction",
+      "sha256": "c76b4ba4e5e857520cecbda0be5de8b8462769bff98917cd01e08fb900dc5cda",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.armor.plate_11",
+      "filename": "Items/art_item_armor_plate_11.png",
+      "prompt_ref": "ClickDungeon item individualization from Armor.png row 2 column 5; source-alpha component extraction",
+      "sha256": "2aa52e3fa030d9b3b8ee042f9c51f333bdf6e4f31cab93247d89214dce2f78c0",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.armor.plate_12",
+      "filename": "Items/art_item_armor_plate_12.png",
+      "prompt_ref": "ClickDungeon item individualization from Armor.png row 2 column 6; source-alpha component extraction",
+      "sha256": "c314f20f7ce8895805269340b62a82b0dfd0d5d8d9d697439be839859fbb67cf",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.armor.plate_13",
+      "filename": "Items/art_item_armor_plate_13.png",
+      "prompt_ref": "ClickDungeon item individualization from Armor.png row 3 column 1; source-alpha component extraction",
+      "sha256": "2e7e2de521afdc89b7ada2d6c1b78999d881f1fa01237eebdfbbd770b3ca6714",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.armor.plate_14",
+      "filename": "Items/art_item_armor_plate_14.png",
+      "prompt_ref": "ClickDungeon item individualization from Armor.png row 3 column 2; source-alpha component extraction",
+      "sha256": "41bf5217f88f244b1ff1d08e66f8a690f4910e77162e942ee2bafac8fc313026",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.armor.plate_15",
+      "filename": "Items/art_item_armor_plate_15.png",
+      "prompt_ref": "ClickDungeon item individualization from Armor.png row 3 column 3; source-alpha component extraction",
+      "sha256": "4fe7e2b89b2068f189905fea4ba7d09f613a16b5dd5fd45985a29457d8fb7e6d",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.armor.plate_16",
+      "filename": "Items/art_item_armor_plate_16.png",
+      "prompt_ref": "ClickDungeon item individualization from Armor.png row 3 column 4; source-alpha component extraction",
+      "sha256": "8bef5d3c7f3bc7f100fec2d17cd78f28171f9c03135db7faf41f36bb1e59eefd",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.armor.plate_17",
+      "filename": "Items/art_item_armor_plate_17.png",
+      "prompt_ref": "ClickDungeon item individualization from Armor.png row 3 column 5; source-alpha component extraction",
+      "sha256": "aade22e5d230a6d9833de784cb99a64779eac9bae4ab921323ab480779e60cdf",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.armor.plate_18",
+      "filename": "Items/art_item_armor_plate_18.png",
+      "prompt_ref": "ClickDungeon item individualization from Armor.png row 5 column 1; source-alpha component extraction",
+      "sha256": "0cada14eb853e11c417ac4b849ac2b8e5bd542dbcd3e4170c5793a988f9adfe6",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.armor.plate_19",
+      "filename": "Items/art_item_armor_plate_19.png",
+      "prompt_ref": "ClickDungeon item individualization from Armor.png row 5 column 2; source-alpha component extraction",
+      "sha256": "11151866088c55d4b901b69705156ad338aa2531b32d8f3f87649b7968783796",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.armor.plate_20",
+      "filename": "Items/art_item_armor_plate_20.png",
+      "prompt_ref": "ClickDungeon item individualization from Armor.png row 5 column 6; source-alpha component extraction",
+      "sha256": "56f2710d0212c1fff44f1ee049085aad1b3012267291a0023de7586bf03e17f8",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.armor.void_plate",
+      "filename": "Items/art_item_armor_void_plate.png",
+      "prompt_ref": "ClickDungeon item individualization from legendary_fantasy_arsenal_collection.png row 1 column 2; source-alpha component extraction",
+      "sha256": "b9cf42cf6d782e07f10f9979879c3983c5ab70e87c3294a081d1315bbe94a3d7",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.bomb.spiked_01",
+      "filename": "Items/art_item_bomb_spiked_01.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 2 column 6; source-alpha component extraction",
+      "sha256": "fbc1f4ae5065cd23c7d77d1cdb18ef4810f238ba93f472bdbd0e170df32bae15",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.boots.boots_01",
+      "filename": "Items/art_item_boots_boots_01.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 3 column 1; source-alpha component extraction",
+      "sha256": "ccb0fe1b1146f481fcf87189c40572d7c0d5f7efebbfe56a77febf39b56ec7d2",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.boots.boots_02",
+      "filename": "Items/art_item_boots_boots_02.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 3 column 2; source-alpha component extraction",
+      "sha256": "84b895d12dfcada448ba64fb85b3e3c1c64097bdc7adef2afe62df2c31fb9692",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.boots.boots_03",
+      "filename": "Items/art_item_boots_boots_03.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 3 column 3; source-alpha component extraction",
+      "sha256": "954f8bc13e70ad7fafe203a4f1a5af80da374beabb94c164848622e5abe92f1d",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.boots.boots_04",
+      "filename": "Items/art_item_boots_boots_04.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 3 column 4; source-alpha component extraction",
+      "sha256": "b14546cdace0c8d81241a1004d20c21ae50d4baecf7107b44ef53721102672f1",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.boots.boots_05",
+      "filename": "Items/art_item_boots_boots_05.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 3 column 5; source-alpha component extraction",
+      "sha256": "2ca7f2ee58c89ab2c5fa5779766917b97cb089cc17caad2de66c60209f85a3c8",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.boots.boots_06",
+      "filename": "Items/art_item_boots_boots_06.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 3 column 6; source-alpha component extraction",
+      "sha256": "2de47c2339c9b74f18ff02e5f4e2749e886e9e1717a7f2d019c787228ef48d47",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.boots.boots_07",
+      "filename": "Items/art_item_boots_boots_07.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 3 column 7; source-alpha component extraction",
+      "sha256": "2b26900b568639047497dd0702ea1459ee9f1a4566a6863c666681ffbc0a49c0",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.boots.boots_08",
+      "filename": "Items/art_item_boots_boots_08.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 3 column 8; source-alpha component extraction",
+      "sha256": "f58a81a4c3c1a8f48ab3aa5ad8fe9f68657c0992f915464ccc66ffef138855f8",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.boots.boots_09",
+      "filename": "Items/art_item_boots_boots_09.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 3 column 9; source-alpha component extraction",
+      "sha256": "44e86d94cc644ae5f6a7799396aace87d943b5924431434aaaf220ab590714dc",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.boots.boots_10",
+      "filename": "Items/art_item_boots_boots_10.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 4 column 1; source-alpha component extraction",
+      "sha256": "7380dc1452a79b7b3a15e73578ecf84f2d14c5ecfb8343041151278cfd5b8926",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.boots.boots_11",
+      "filename": "Items/art_item_boots_boots_11.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 4 column 2; source-alpha component extraction",
+      "sha256": "22cd40a8aeb164601526a037adf0a8d287b531d7d4132f7792e1a0d24497b43d",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.boots.boots_12",
+      "filename": "Items/art_item_boots_boots_12.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 4 column 3; source-alpha component extraction",
+      "sha256": "6271cce7c16e7e9df52351724eacf245410f3ca107eb513e5bf6b1a2e85dd4c8",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.boots.boots_13",
+      "filename": "Items/art_item_boots_boots_13.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 4 column 4; source-alpha component extraction",
+      "sha256": "2d23d713538730fdae1c9d6f574b9d919d03a7a0ce626a16e3951374157ffaee",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.boots.boots_14",
+      "filename": "Items/art_item_boots_boots_14.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 4 column 5; source-alpha component extraction",
+      "sha256": "306939cecb93fde74f167ae1823ed6376586a50f2eb676dae501a628381bd06e",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.boots.boots_15",
+      "filename": "Items/art_item_boots_boots_15.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 4 column 6; source-alpha component extraction",
+      "sha256": "047963c4a78b3ae648c497aa1c0e0e59b2a0b3886a97fe0358ca92c089f453a7",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.boots.boots_16",
+      "filename": "Items/art_item_boots_boots_16.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 4 column 7; source-alpha component extraction",
+      "sha256": "48a8e57bc9fa027b10d7381473a0183a3b6d76ecad26811ff11ca2a535ce36da",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.boots.boots_17",
+      "filename": "Items/art_item_boots_boots_17.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 4 column 8; source-alpha component extraction",
+      "sha256": "975f8c7eba80ae59ba217ea5d3cbb5ff648d948a146d86265958dc786bed9ff8",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.boots.boots_18",
+      "filename": "Items/art_item_boots_boots_18.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 4 column 9; source-alpha component extraction",
+      "sha256": "1ca9a2afe044cbb04f768c5b9e2543924c7cea9836c0b205a627d604c07f01d4",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.boots.boots_of_swiftness",
+      "filename": "Items/art_item_boots_boots_of_swiftness.png",
+      "prompt_ref": "ClickDungeon item individualization from legendary_fantasy_arsenal_collection.png row 2 column 3; source-alpha component extraction",
+      "sha256": "cf11ac98d58cb4080bdf92e43f96f7253796d7345c0f80501d2ed72228388d35",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.boots.boots_void_variant_01",
+      "filename": "Items/art_item_boots_boots_void_variant_01.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 1 column 8; source-alpha component extraction",
+      "sha256": "bd13da426a0c61236f80f74094ca47fc8ce3bfd1eb4812a44a83a75105375809",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.boots.boots_void_variant_02",
+      "filename": "Items/art_item_boots_boots_void_variant_02.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 2 column 7; source-alpha component extraction",
+      "sha256": "644cf17247d660f2e35b2dfe2dd1cd498c1194f93379258fb76f3e590566b772",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.chest.common_closed_02",
+      "filename": "Items/art_item_chest_common_closed_02.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_treasure_chests_and_gemstones.png row 1 column 2; source-alpha component extraction",
+      "sha256": "1c7a5954a31c4c58c71be4e6066bfab90c400101b0ae5cd729777fcf0e7e6670",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.chest.common_closed_03",
+      "filename": "Items/art_item_chest_common_closed_03.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_treasure_chests_and_gemstones.png row 2 column 1; source-alpha component extraction",
+      "sha256": "11a059fbada1700b65eb010eb59e5458925538db0598c0a3a9dde7e373d8a5bc",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.chest.gem_chest_01",
+      "filename": "Items/art_item_chest_gem_chest_01.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 5 column 5; source-alpha component extraction",
+      "sha256": "69e11d89aa2619e52aa8be795b305c1c956fbd544a30f1413f38d63e0b2270c3",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.chest.gold_closed_01",
+      "filename": "Items/art_item_chest_gold_closed_01.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_treasure_chests_and_gemstones.png row 1 column 3; source-alpha component extraction",
+      "sha256": "e4c0c63d14df2bcd65b061d8ae29018bba5f79c422b443bc65d27cc1dde0f3a3",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.chest.gold_closed_02",
+      "filename": "Items/art_item_chest_gold_closed_02.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_treasure_chests_and_gemstones.png row 2 column 2; source-alpha component extraction",
+      "sha256": "cec9a1f542f7647b769f602f48b031cd3c09f7c25979dcb9616ad2c14d207ae8",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.chest.gold_open_02",
+      "filename": "Items/art_item_chest_gold_open_02.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_treasure_chests_and_gemstones.png row 2 column 4; source-alpha component extraction",
+      "sha256": "654ed23a42d708fa5ebc94c2c98295baa1470a29fc621056797375d7dd824d8e",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.chest.legendary_open_01",
+      "filename": "Items/art_item_chest_legendary_open_01.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_treasure_chests_and_gemstones.png row 1 column 5; source-alpha component extraction",
+      "sha256": "61d3e355224c734fc8475ac18317dfeeb2bd0a3f032342762f906b17d33cea97",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.chest.legendary_open_02",
+      "filename": "Items/art_item_chest_legendary_open_02.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_treasure_chests_and_gemstones.png row 2 column 5; source-alpha component extraction",
+      "sha256": "8233fc436e13b893e022c48fcff66446328fc4a98da0601e5471633ba5cb356e",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.chest.reward_chest_open_01",
+      "filename": "Items/art_item_chest_reward_chest_open_01.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_treasure_chests_and_gemstones.png row 3 column 5; source-alpha component extraction",
+      "sha256": "c5a73dd368486737cc5a92e7e2872e64a448f9a7be4363b4472f21593bdb83a2",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.chest.supply_chest_01",
+      "filename": "Items/art_item_chest_supply_chest_01.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 5 column 4; source-alpha component extraction",
+      "sha256": "c0849800fda9559d29678d3eba33e5f89d9f66860c4f9481d417cbf0d46fc65a",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.chest.void_closed_01",
+      "filename": "Items/art_item_chest_void_closed_01.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_treasure_chests_and_gemstones.png row 2 column 3; source-alpha component extraction",
+      "sha256": "82ddf9e1b16e5138c8a2315697c82c929cae67b69193a1d301c4178fd60deab0",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.currency.coin_pile_01",
+      "filename": "Items/art_item_currency_coin_pile_01.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_treasure_chests_and_gemstones.png row 3 column 2; source-alpha component extraction",
+      "sha256": "7af52e54bf3e89a224fa739040ca49e1ccad055f6d598e8c29e446bb2679e7cd",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.currency.coin_pouch_01",
+      "filename": "Items/art_item_currency_coin_pouch_01.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 4 column 6; source-alpha component extraction",
+      "sha256": "c30b485cab2cfd26979382ba0ed05bc62b93ea7578797a8526b9975524809d55",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.currency.coin_sack_01",
+      "filename": "Items/art_item_currency_coin_sack_01.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 5 column 3; source-alpha component extraction",
+      "sha256": "2d4c989044c6c78c8a161cb0f811d27dfd35962a98ba4f8531245cc1e2c58cbf",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.currency.coin_sack_02",
+      "filename": "Items/art_item_currency_coin_sack_02.png",
+      "prompt_ref": "ClickDungeon item individualization from enchanted_quest_relics_icon_collection.png row 4 column 3; source-alpha component extraction",
+      "sha256": "625f74490b9499321e729f77cc37545bd4996f94de8541e7c860e70945281b40",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.currency.coin_sack_03",
+      "filename": "Items/art_item_currency_coin_sack_03.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_treasure_chests_and_gemstones.png row 3 column 3; source-alpha component extraction",
+      "sha256": "8d3f71a56fa57f73dbbe573834f0aa92321f98b0c5cd6b8f68cd7e6de56f615a",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.currency.coin_sack_04",
+      "filename": "Items/art_item_currency_coin_sack_04.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_treasure_chests_and_gemstones.png row 3 column 4; source-alpha component extraction",
+      "sha256": "1c590990defc783160786c23e8d888e1e8301af92b44ca7b1e05edee95979d74",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.currency.gold_bars_01",
+      "filename": "Items/art_item_currency_gold_bars_01.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_treasure_chests_and_gemstones.png row 4 column 8; source-alpha component extraction",
+      "sha256": "5313ad081f2b16dd229594bfefae470e7652331c682dac3278326a11bbb73727",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.currency.gold_sack_01",
+      "filename": "Items/art_item_currency_gold_sack_01.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_treasure_chests_and_gemstones.png row 4 column 7; source-alpha component extraction",
+      "sha256": "8ab41af935d2e8dd44dc81431cf116488071a5293a59c6cc583689f4584fa647",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.currency.mixed_gems_01",
+      "filename": "Items/art_item_currency_mixed_gems_01.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 5 column 6; source-alpha component extraction",
+      "sha256": "a8c201f4cda735584ac8b69e2454b520ece639d968dda7ab604979cd06f3d085",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.currency.sealed_sack_01",
+      "filename": "Items/art_item_currency_sealed_sack_01.png",
+      "prompt_ref": "ClickDungeon item individualization from enchanted_quest_relics_icon_collection.png row 4 column 4; source-alpha component extraction",
+      "sha256": "d2c7835295998746f86270c3125855406c23e2645b12a16bb83c6530b0849e05",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.food.bread_01",
+      "filename": "Items/art_item_food_bread_01.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 4 column 4; source-alpha component extraction",
+      "sha256": "34c886cbfcb959b57591d4e2425e5244efd76a1dcc879e94ed355a2880875caf",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.food.candy_01",
+      "filename": "Items/art_item_food_candy_01.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 3 column 7; source-alpha component extraction",
+      "sha256": "960332ba489bff247516ec5947b9d03a2d8699962abd7de862526aabf7c9ae9a",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.food.cheese_01",
+      "filename": "Items/art_item_food_cheese_01.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 4 column 5; source-alpha component extraction",
+      "sha256": "20fad47d4b7f997c3d542ff6e1314378d03ef52c763eb987c6f4a5a380b83b7d",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.food.drumstick_01",
+      "filename": "Items/art_item_food_drumstick_01.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 3 column 6; source-alpha component extraction",
+      "sha256": "4ac77c8ee500affe812c5c72b33397458fd9442e4c4bb58669b40aaa31f73ae6",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.gem.blue_01",
+      "filename": "Items/art_item_gem_blue_01.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_treasure_chests_and_gemstones.png row 4 column 4; source-alpha component extraction",
+      "sha256": "abae2ade21943f733b804c285919e738465f522b3e89b71dd5b4fe4ad66cd7ef",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.gem.green_01",
+      "filename": "Items/art_item_gem_green_01.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_treasure_chests_and_gemstones.png row 4 column 3; source-alpha component extraction",
+      "sha256": "17775b31827025df6f2c5a4e337445df769ffb902877d61c5519599cf841f8ba",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.gem.orange_01",
+      "filename": "Items/art_item_gem_orange_01.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_treasure_chests_and_gemstones.png row 4 column 6; source-alpha component extraction",
+      "sha256": "6fecb8f15d92f39182a3a261df6bd17ecf1a92ed4729091f3d2291fb1d199995",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.gem.purple_01",
+      "filename": "Items/art_item_gem_purple_01.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_treasure_chests_and_gemstones.png row 4 column 5; source-alpha component extraction",
+      "sha256": "8cb104a5bdfbca3026a6eb0114f7de72d6592c17af4bb83e02c3655707cc80cc",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.gem.red_01",
+      "filename": "Items/art_item_gem_red_01.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_treasure_chests_and_gemstones.png row 4 column 2; source-alpha component extraction",
+      "sha256": "f44d542bc161e247155958a7f042cc80c56fa8a96eb292ecd2852159a5f76e0a",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.gem.yellow_01",
+      "filename": "Items/art_item_gem_yellow_01.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_treasure_chests_and_gemstones.png row 4 column 1; source-alpha component extraction",
+      "sha256": "7e38d7c92b516229d551ff9c0e09bb8114793fe7d0a9261892e4cd5a5d233e8e",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.helmet.crown_of_kings",
+      "filename": "Items/art_item_helmet_crown_of_kings.png",
+      "prompt_ref": "ClickDungeon item individualization from legendary_fantasy_arsenal_collection.png row 2 column 2; source-alpha component extraction",
+      "sha256": "db871345085fb8837ff02a05cac179f627150c66308c35eaec3b968f45079432",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.helmet.helm_01",
+      "filename": "Items/art_item_helmet_helm_01.png",
+      "prompt_ref": "ClickDungeon item individualization from Armor.png row 4 column 1; source-alpha component extraction",
+      "sha256": "154d993174f0dbafd50089702f1d9752ed251a1eaef42019d477ac0fe9eba05a",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.helmet.helm_02",
+      "filename": "Items/art_item_helmet_helm_02.png",
+      "prompt_ref": "ClickDungeon item individualization from Armor.png row 4 column 2; source-alpha component extraction",
+      "sha256": "68b3296542fb14bbf6d96c61bb8137945012247812d9298a166e5a553512069a",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.helmet.helm_03",
+      "filename": "Items/art_item_helmet_helm_03.png",
+      "prompt_ref": "ClickDungeon item individualization from Armor.png row 4 column 3; source-alpha component extraction",
+      "sha256": "1c5e3716b4c46463498909737bfffec3fca68be89d1c85b4bdbb6e875f8dae82",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.helmet.helm_04",
+      "filename": "Items/art_item_helmet_helm_04.png",
+      "prompt_ref": "ClickDungeon item individualization from Armor.png row 4 column 4; source-alpha component extraction",
+      "sha256": "a4ef4ad260a177c9d1471e7c84b4a908b3a82bfb19f07d68373f4afe5f03e006",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.helmet.helm_05",
+      "filename": "Items/art_item_helmet_helm_05.png",
+      "prompt_ref": "ClickDungeon item individualization from Armor.png row 4 column 5; source-alpha component extraction",
+      "sha256": "a014d4f15a66d0ff9b950687c7a30b676ba8b1242cb147a6b032059b0a6d544e",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.helmet.helm_06",
+      "filename": "Items/art_item_helmet_helm_06.png",
+      "prompt_ref": "ClickDungeon item individualization from Armor.png row 4 column 6; source-alpha component extraction",
+      "sha256": "3f4db097672db92f514601ba7b5a541ac1646baa945fa976a4070ffdce477e07",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.helmet.helm_07",
+      "filename": "Items/art_item_helmet_helm_07.png",
+      "prompt_ref": "ClickDungeon item individualization from Armor.png row 5 column 3; source-alpha component extraction",
+      "sha256": "ed29306352353d853559662ea11dac86a94d5c073c9dace9702aced759cbc7db",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.helmet.helm_08",
+      "filename": "Items/art_item_helmet_helm_08.png",
+      "prompt_ref": "ClickDungeon item individualization from Armor.png row 5 column 4; source-alpha component extraction",
+      "sha256": "8ef77e232dcffc3bd7de12087d01946f75607f3215f9950d5413e74cc049595f",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.helmet.helm_09",
+      "filename": "Items/art_item_helmet_helm_09.png",
+      "prompt_ref": "ClickDungeon item individualization from Armor.png row 5 column 5; source-alpha component extraction",
+      "sha256": "208ab0f581aa88c1c83a6ceeaace3fb997168bfca0e7a40f904e81ec6161c844",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.potion.blue_flame",
+      "filename": "Items/art_item_potion_blue_flame.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 2 column 7; source-alpha component extraction",
+      "sha256": "17013f816371a2697c8f7471c1df682ca85f6cd4ada0e0893879f881cccc6f04",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.potion.blue_fuse",
+      "filename": "Items/art_item_potion_blue_fuse.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 2 column 3; source-alpha component extraction",
+      "sha256": "80ca8da8f3d84ac8ec1b2cc8464ba3c9e531a99b7b84409e3ed2a9e0dbc54b5c",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.potion.gold_flame_01",
+      "filename": "Items/art_item_potion_gold_flame_01.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 2 column 9; source-alpha component extraction",
+      "sha256": "08ae9b68d91da452e71e7bb1d81eb4c0bfc95888aae134e513b0119f022842f6",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.potion.gold_flame_02",
+      "filename": "Items/art_item_potion_gold_flame_02.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 2 column 10; source-alpha component extraction",
+      "sha256": "883212ea3d8ef3a62c306db31419d5401a049654196c0c7bd03b14d6e733b681",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.potion.green_arcane",
+      "filename": "Items/art_item_potion_green_arcane.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 2 column 2; source-alpha component extraction",
+      "sha256": "c3f1b4045e4db0918dc3c6a3a90c0cc9181f7bc0fca9e5d1dba31950dabbd1e1",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.potion.green_fuse",
+      "filename": "Items/art_item_potion_green_fuse.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 2 column 4; source-alpha component extraction",
+      "sha256": "51159fc04f5b032f4853cbcbdee0dad4850e0a7afeece0c45ac2e2675c5e2a05",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.potion.potion_02",
+      "filename": "Items/art_item_potion_potion_02.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 1 column 2; source-alpha component extraction",
+      "sha256": "11d0ba9230081f4cd482ab58df52baa67b132f7abd6721b3d62bdb3add1d0afb",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.potion.potion_03",
+      "filename": "Items/art_item_potion_potion_03.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 1 column 3; source-alpha component extraction",
+      "sha256": "7bd733374add27f76caf2927b29fc99cee146aff731753ae3704ffe6062d63c8",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.potion.potion_04",
+      "filename": "Items/art_item_potion_potion_04.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 1 column 4; source-alpha component extraction",
+      "sha256": "5b086559b575b3b0be2a87b2a13f76dba377833cbe787f8d80eaf493bc37b529",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.potion.potion_05",
+      "filename": "Items/art_item_potion_potion_05.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 1 column 5; source-alpha component extraction",
+      "sha256": "8280d9e796baf320527f4f48e140c644c182a7b40c211099f6463e9becd57a14",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.potion.potion_06",
+      "filename": "Items/art_item_potion_potion_06.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 1 column 6; source-alpha component extraction",
+      "sha256": "b50b14b03425671d19e45bd81817e95405b286f89428adab2c843ea904720a3a",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.potion.potion_07",
+      "filename": "Items/art_item_potion_potion_07.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 1 column 7; source-alpha component extraction",
+      "sha256": "02c501a7b454a6aaa563c9d7de3bc8038852e67dd5682e9851d4ff7dc1855521",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.potion.potion_08",
+      "filename": "Items/art_item_potion_potion_08.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 1 column 8; source-alpha component extraction",
+      "sha256": "6b5e87a9ad6f15f35b9f07a3e1b789392c2f87599ab84536c516495e09b208e6",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.potion.potion_09",
+      "filename": "Items/art_item_potion_potion_09.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 1 column 9; source-alpha component extraction",
+      "sha256": "90df728b9ba9faa8d0bbc305514925e8593ce805a80175ac33e6d16003bfb62f",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.potion.potion_10",
+      "filename": "Items/art_item_potion_potion_10.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 1 column 10; source-alpha component extraction",
+      "sha256": "e9dc091afae83c6d291af77b6b8851ad20e159f8fd42680990fc998dff7525ab",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.potion.purple_flame",
+      "filename": "Items/art_item_potion_purple_flame.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 2 column 8; source-alpha component extraction",
+      "sha256": "5051ca831c58cbf220d183bbcea019b58688e4af2e9172a8f68732ffbc740c19",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.potion.purple_fuse",
+      "filename": "Items/art_item_potion_purple_fuse.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 2 column 5; source-alpha component extraction",
+      "sha256": "439f102874b69a509a64865fc321af239aa15f552286f673406a6eb8eb3b7e30",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.potion.red_flame",
+      "filename": "Items/art_item_potion_red_flame.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 2 column 1; source-alpha component extraction",
+      "sha256": "5e9d707487752a75df7d89e86e40d9298980d0969f3d6554dcf0224ec9b9a17b",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.quest.key_relic_01",
+      "filename": "Items/art_item_quest_key_relic_01.png",
+      "prompt_ref": "ClickDungeon item individualization from enchanted_quest_relics_icon_collection.png row 2 column 1; source-alpha component extraction",
+      "sha256": "2a28483aec76ed2e14ed28e9616c275c2f23879d36e78c41ce3c3223f8ead424",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.quest.map_01",
+      "filename": "Items/art_item_quest_map_01.png",
+      "prompt_ref": "ClickDungeon item individualization from enchanted_quest_relics_icon_collection.png row 1 column 5; source-alpha component extraction",
+      "sha256": "1e7e361699adb1ff1c80d990fa86189f4e5b5fbc48f843532b9efdeafa9308bf",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.quest.scroll_06",
+      "filename": "Items/art_item_quest_scroll_06.png",
+      "prompt_ref": "ClickDungeon item individualization from enchanted_quest_relics_icon_collection.png row 1 column 1; source-alpha component extraction",
+      "sha256": "eabf88deb4f2c61221fdb8962feb2b07ec6b91a2bbe787f1545d87881d3812ef",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.quest.scroll_07",
+      "filename": "Items/art_item_quest_scroll_07.png",
+      "prompt_ref": "ClickDungeon item individualization from enchanted_quest_relics_icon_collection.png row 1 column 2; source-alpha component extraction",
+      "sha256": "8bdede20b5bce9643f12c7e64d10ad38b43199f0cf6c8166b4e4320f716b9f51",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.quest.scroll_08",
+      "filename": "Items/art_item_quest_scroll_08.png",
+      "prompt_ref": "ClickDungeon item individualization from enchanted_quest_relics_icon_collection.png row 1 column 3; source-alpha component extraction",
+      "sha256": "02fbdc2a79010941ec6d21a3d0013817375111c7edd4e968dcd4225ce2b90959",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.relic.ancient_tome_01",
+      "filename": "Items/art_item_relic_ancient_tome_01.png",
+      "prompt_ref": "ClickDungeon item individualization from enchanted_quest_relics_icon_collection.png row 4 column 1; source-alpha component extraction",
+      "sha256": "0bbe35605e7c48178b589f9d51da69eb848700b7807b2adaff14d308d53d8588",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.relic.blue_crystal_01",
+      "filename": "Items/art_item_relic_blue_crystal_01.png",
+      "prompt_ref": "ClickDungeon item individualization from enchanted_quest_relics_icon_collection.png row 2 column 3; source-alpha component extraction",
+      "sha256": "522c839fde3a5fd83460b6d7a40318237aac70993bb60d368ffa5f72846acd99",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.relic.blue_lantern_01",
+      "filename": "Items/art_item_relic_blue_lantern_01.png",
+      "prompt_ref": "ClickDungeon item individualization from enchanted_quest_relics_icon_collection.png row 4 column 5; source-alpha component extraction",
+      "sha256": "09d0a4ca85eebd94ea89202e9e893e27f67b872bd802f4e7137c74c2f1ce3101",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.relic.blue_medallion_01",
+      "filename": "Items/art_item_relic_blue_medallion_01.png",
+      "prompt_ref": "ClickDungeon item individualization from enchanted_quest_relics_icon_collection.png row 3 column 5; source-alpha component extraction",
+      "sha256": "629a2ce33039a0b8759d36528e649d304b6539bdf244dc9fe8f49e013cb01231",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.relic.cyan_orb_01",
+      "filename": "Items/art_item_relic_cyan_orb_01.png",
+      "prompt_ref": "ClickDungeon item individualization from enchanted_quest_relics_icon_collection.png row 2 column 4; source-alpha component extraction",
+      "sha256": "f9a62672c57cd47c19ec21b14a7f48f3c54c66dc97b82097c0ffb365071d4244",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.relic.hourglass_cyan_01",
+      "filename": "Items/art_item_relic_hourglass_cyan_01.png",
+      "prompt_ref": "ClickDungeon item individualization from enchanted_quest_relics_icon_collection.png row 3 column 4; source-alpha component extraction",
+      "sha256": "7ac9427e96d90d6e523db391ce10e33dcc2814f91863c61d920b77c9e2ebba1a",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.relic.hourglass_gold_01",
+      "filename": "Items/art_item_relic_hourglass_gold_01.png",
+      "prompt_ref": "ClickDungeon item individualization from enchanted_quest_relics_icon_collection.png row 3 column 3; source-alpha component extraction",
+      "sha256": "b4471797c025fd7dae5b6a741062305aaa1622c38ac904e0b86ce9d7fc84b45a",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.relic.moon_medallion_01",
+      "filename": "Items/art_item_relic_moon_medallion_01.png",
+      "prompt_ref": "ClickDungeon item individualization from enchanted_quest_relics_icon_collection.png row 2 column 7; source-alpha component extraction",
+      "sha256": "bcc5e4e5f109c121688323bbe877ecc0227b0d0f7de4eee490e6a4cd78233be6",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.relic.purple_lantern_01",
+      "filename": "Items/art_item_relic_purple_lantern_01.png",
+      "prompt_ref": "ClickDungeon item individualization from enchanted_quest_relics_icon_collection.png row 4 column 6; source-alpha component extraction",
+      "sha256": "482648e7d221642ee3c2d98d37d1eca5010685e62c4e54b4484596cfc8ec0a1e",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.relic.purple_orb_01",
+      "filename": "Items/art_item_relic_purple_orb_01.png",
+      "prompt_ref": "ClickDungeon item individualization from enchanted_quest_relics_icon_collection.png row 1 column 4; source-alpha component extraction",
+      "sha256": "ccb71902ae6625e64fbb9e968c48f072a0e2ede5afdc0a12196ef953c47846d9",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.relic.purple_vial_01",
+      "filename": "Items/art_item_relic_purple_vial_01.png",
+      "prompt_ref": "ClickDungeon item individualization from enchanted_quest_relics_icon_collection.png row 2 column 2; source-alpha component extraction",
+      "sha256": "8515a064a9d168bfe75a0b87d3c5d8f702941a80c2fe29c823024ced18965c2b",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.relic.reliquary_chest_01",
+      "filename": "Items/art_item_relic_reliquary_chest_01.png",
+      "prompt_ref": "ClickDungeon item individualization from enchanted_quest_relics_icon_collection.png row 4 column 2; source-alpha component extraction",
+      "sha256": "e4f54cf3707055e1609f00a835edc778c6d1bd590d36ff6a9ff9215b94832336",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.relic.sealed_pouch_01",
+      "filename": "Items/art_item_relic_sealed_pouch_01.png",
+      "prompt_ref": "ClickDungeon item individualization from enchanted_quest_relics_icon_collection.png row 3 column 6; source-alpha component extraction",
+      "sha256": "75e632b60d1e405876267b31b9dcbc1eefe56222f61b9908e7b9891f5ac35558",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.relic.skull_medallion_01",
+      "filename": "Items/art_item_relic_skull_medallion_01.png",
+      "prompt_ref": "ClickDungeon item individualization from enchanted_quest_relics_icon_collection.png row 3 column 2; source-alpha component extraction",
+      "sha256": "8722b0f39061ad95e0a0abd2ff0ef623387769b4027febe2853df87b5d56f915",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.relic.sun_compass_01",
+      "filename": "Items/art_item_relic_sun_compass_01.png",
+      "prompt_ref": "ClickDungeon item individualization from enchanted_quest_relics_icon_collection.png row 2 column 6; source-alpha component extraction",
+      "sha256": "ea5e1a20da11ca16a329716511b0c5eb3e6a8cc1077f3280306c1b94f7778272",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.relic.winged_medallion_01",
+      "filename": "Items/art_item_relic_winged_medallion_01.png",
+      "prompt_ref": "ClickDungeon item individualization from enchanted_quest_relics_icon_collection.png row 3 column 1; source-alpha component extraction",
+      "sha256": "e298eed03401d6e7f5ceddfd7f13ca30f0ffbd57f100b0dc73ad80bafda14ff1",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.ring.ring_01",
+      "filename": "Items/art_item_ring_ring_01.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 1 column 1; source-alpha component extraction",
+      "sha256": "42f2a2a35e9d6a2a8e2e60ba67f29d1dfcd08be766d132993732e495961907b2",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.ring.ring_02",
+      "filename": "Items/art_item_ring_ring_02.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 1 column 2; source-alpha component extraction",
+      "sha256": "83629acbbb72750731c91200da47b100564db3b02a24ad8e2dd58877901ba72e",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.ring.ring_03",
+      "filename": "Items/art_item_ring_ring_03.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 1 column 3; source-alpha component extraction",
+      "sha256": "df3f3f7dc01d67c05d9edb4308f8bb50c03390794228c1e93c0a61060a9ee78b",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.ring.ring_04",
+      "filename": "Items/art_item_ring_ring_04.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 1 column 4; source-alpha component extraction",
+      "sha256": "55088bfedb08434490aecd4360204a0f3f4caabd1c3f723a1f70dcaea4f5225f",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.ring.ring_05",
+      "filename": "Items/art_item_ring_ring_05.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 1 column 5; source-alpha component extraction",
+      "sha256": "e2f479a98460fd8be1ea3278fe4babc2f2284fd1e296019da690c4bdcdb34986",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.ring.ring_06",
+      "filename": "Items/art_item_ring_ring_06.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 1 column 6; source-alpha component extraction",
+      "sha256": "f9f5a1f4b6f0baafc4d15409661533a73aebe4795ec55eebde9f62b1e703d50d",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.ring.ring_07",
+      "filename": "Items/art_item_ring_ring_07.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 1 column 7; source-alpha component extraction",
+      "sha256": "355eced118c63b8711772a09119500662ba11363389831756c11af02d94b3446",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.ring.ring_08",
+      "filename": "Items/art_item_ring_ring_08.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 1 column 8; source-alpha component extraction",
+      "sha256": "4abc3acbf87fce0c6aacdf9e0bab34884bd952c360e7adaaa6444527f019ff2c",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.ring.ring_09",
+      "filename": "Items/art_item_ring_ring_09.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 2 column 1; source-alpha component extraction",
+      "sha256": "a7a2256f5a8abc9ba977b165c9d708a2466ec1da344517f137f962e69711fe96",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.ring.ring_10",
+      "filename": "Items/art_item_ring_ring_10.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 2 column 2; source-alpha component extraction",
+      "sha256": "af4ec6257ab46e66b9030294738468f82e64b7a2b46a9270cdd4b1fb65c0e5e6",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.ring.ring_11",
+      "filename": "Items/art_item_ring_ring_11.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 2 column 3; source-alpha component extraction",
+      "sha256": "b305511c43dbd8c7194e8a55baff151d756c87953457d56c562291770d20a852",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.ring.ring_12",
+      "filename": "Items/art_item_ring_ring_12.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 2 column 4; source-alpha component extraction",
+      "sha256": "7c4421808d41002dab2c4b54e090125ded68fbf67566709782df7e4d34da04e8",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.ring.ring_13",
+      "filename": "Items/art_item_ring_ring_13.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 2 column 5; source-alpha component extraction",
+      "sha256": "fa037af4379c5c7e2958a0d2c6fb260ca362d0138b3b8536c63d200066537964",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.ring.ring_14",
+      "filename": "Items/art_item_ring_ring_14.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 2 column 6; source-alpha component extraction",
+      "sha256": "883ab3e7997b5575ce1dc02f26abdf7e9669bb0865537a5bb699ec120c6a8954",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.ring.ring_15",
+      "filename": "Items/art_item_ring_ring_15.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 2 column 7; source-alpha component extraction",
+      "sha256": "fb71c6290ac9e0e93b3af047bdabfb0a11f351bdb5ea1e91d62e38b85ece7601",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.ring.ring_16",
+      "filename": "Items/art_item_ring_ring_16.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 2 column 8; source-alpha component extraction",
+      "sha256": "039765ddf37f85f9e1ba83146f85bbe1d94f50a424375d9b8021beb4b0043d77",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.ring.ring_17",
+      "filename": "Items/art_item_ring_ring_17.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 3 column 1; source-alpha component extraction",
+      "sha256": "df77a6d86caf47f38aae542a8b50a05056a75eb669d358c1d850f22949524a29",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.ring.ring_18",
+      "filename": "Items/art_item_ring_ring_18.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 3 column 2; source-alpha component extraction",
+      "sha256": "1233a556a8de4837f38d3774023a0e4eab137e4ba2afb6c8e191dae6ace198fb",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.ring.ring_19",
+      "filename": "Items/art_item_ring_ring_19.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 3 column 3; source-alpha component extraction",
+      "sha256": "087060cb6f870cc4718ab4cdd4ea22bd60842b376ec53aea4f957c8ed4e4a206",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.ring.ring_20",
+      "filename": "Items/art_item_ring_ring_20.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 3 column 4; source-alpha component extraction",
+      "sha256": "07a558b435d2095325be84b452131ace48745aa43f708f1d6681fa83db528298",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.ring.ring_21",
+      "filename": "Items/art_item_ring_ring_21.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 3 column 5; source-alpha component extraction",
+      "sha256": "db77574710534f06ac6d48394e18ad84205a9734bd691fa31e7ca70c687eb6f9",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.ring.ring_22",
+      "filename": "Items/art_item_ring_ring_22.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 3 column 6; source-alpha component extraction",
+      "sha256": "85f7bbd20d2651b832494a20d1bfa51f95a40ad3d50035ef933def1d7568e8ad",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.ring.ring_23",
+      "filename": "Items/art_item_ring_ring_23.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 3 column 7; source-alpha component extraction",
+      "sha256": "1eb935c2e3420fbeb8190589a77f8a1d6d6581a9965fbf330d2d4b947f61a294",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.ring.ring_24",
+      "filename": "Items/art_item_ring_ring_24.png",
+      "prompt_ref": "ClickDungeon item individualization from Rings and Necklaces.png row 3 column 8; source-alpha component extraction",
+      "sha256": "e819e95d4ddf5c4cbb8055ea93904b4a48ff47ac0ab59a2aa23850f9b56704b9",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.scroll.scroll_01",
+      "filename": "Items/art_item_scroll_scroll_01.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 3 column 1; source-alpha component extraction",
+      "sha256": "b529af1da265345bbb24e4474cce9b2547814fd908225f86bb930d79fedcd926",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.scroll.scroll_02",
+      "filename": "Items/art_item_scroll_scroll_02.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 3 column 2; source-alpha component extraction",
+      "sha256": "622faa3acef43adb4ba5e9589b647f2c2d8049bf86aee91439d457d599490067",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.scroll.scroll_03",
+      "filename": "Items/art_item_scroll_scroll_03.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 3 column 3; source-alpha component extraction",
+      "sha256": "4641678d4a9a70492f7cdce01f1cf336e17dab0cc6ca8b770dc2e4878344f4b8",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.scroll.scroll_04",
+      "filename": "Items/art_item_scroll_scroll_04.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 3 column 4; source-alpha component extraction",
+      "sha256": "47bd48e6612e96715ae334707531dd7f868a42c925848da458c850c01d4a17ba",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.scroll.scroll_05",
+      "filename": "Items/art_item_scroll_scroll_05.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 3 column 5; source-alpha component extraction",
+      "sha256": "0186aefcc2fc9fd322659d7e2b9459d4fdd8039c25e19458c03350297c665833",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.shield.aegis_of_dawn",
+      "filename": "Items/art_item_shield_aegis_of_dawn.png",
+      "prompt_ref": "ClickDungeon item individualization from legendary_fantasy_arsenal_collection.png row 2 column 1; source-alpha component extraction",
+      "sha256": "0f703a62cc58380d6f8a8ec9d30ca8815a917a6bbb5f79b5a2f220e431d18fb1",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.shield.shield_gold_01",
+      "filename": "Items/art_item_shield_shield_gold_01.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 1 column 5; source-alpha component extraction",
+      "sha256": "2071267c26f61d04eecffb036bac836986af45bbbaa04909a72f77053c946ae9",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.shield.shield_gold_02",
+      "filename": "Items/art_item_shield_shield_gold_02.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 1 column 6; source-alpha component extraction",
+      "sha256": "c05bd708202c32878e7b39d4be30aaf7a2731c4255b72064fafe6ee213cf6588",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.shield.shield_gold_03",
+      "filename": "Items/art_item_shield_shield_gold_03.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 1 column 7; source-alpha component extraction",
+      "sha256": "9ff52e4f72eb0583458d6795779240df35671fd337cc2aaedfd3ea5b398dd5a5",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.shield.shield_gold_gem_01",
+      "filename": "Items/art_item_shield_shield_gold_gem_01.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 2 column 5; source-alpha component extraction",
+      "sha256": "0ac9ff5112521925057503d09908cec5e566b1a8edfa2baba52b49c657fa30f2",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.shield.shield_gold_lion_01",
+      "filename": "Items/art_item_shield_shield_gold_lion_01.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 2 column 4; source-alpha component extraction",
+      "sha256": "ea8a6c800bdd0142488812b5e2153c4d226fab3c05ef21b1f175adf38881cb85",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.shield.shield_gold_sun_01",
+      "filename": "Items/art_item_shield_shield_gold_sun_01.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 2 column 6; source-alpha component extraction",
+      "sha256": "1c1ba5d80758422e325c10c56a9827330da62c9225a76a3a7880a9d0fffb6a11",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.shield.shield_iron_01",
+      "filename": "Items/art_item_shield_shield_iron_01.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 1 column 1; source-alpha component extraction",
+      "sha256": "0f818075120118ad97a0f135527167b9a0200fd40c8fbec07fbbdef03a0ab386",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.shield.shield_iron_02",
+      "filename": "Items/art_item_shield_shield_iron_02.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 1 column 2; source-alpha component extraction",
+      "sha256": "5fd391272327f9fb12268fe67523bb3894b2e74e39070aced2823fa484ed13c9",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.shield.shield_iron_03",
+      "filename": "Items/art_item_shield_shield_iron_03.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 1 column 3; source-alpha component extraction",
+      "sha256": "48b851e3f107b03d4e1c636433b3d1f6dde2f08579cade370f64530d8008f8e4",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.shield.shield_iron_04",
+      "filename": "Items/art_item_shield_shield_iron_04.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 1 column 4; source-alpha component extraction",
+      "sha256": "775253f49057e2e75c8ee090b812b0e223f4446e35bc833e50e10ee4a706f7f5",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.shield.shield_iron_05",
+      "filename": "Items/art_item_shield_shield_iron_05.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 2 column 2; source-alpha component extraction",
+      "sha256": "264c3f5b68dadab2ea0d310275f7587960e71af09b0c6416b38ba0c748f231ee",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.shield.shield_round_01",
+      "filename": "Items/art_item_shield_shield_round_01.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 2 column 1; source-alpha component extraction",
+      "sha256": "8d4de246102ba308c576cd2916c2be286a47867777dde2a90a75873101c25a33",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.shield.shield_silver_star_01",
+      "filename": "Items/art_item_shield_shield_silver_star_01.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 2 column 8; source-alpha component extraction",
+      "sha256": "c9ef5377665de7c9aa2b1f57b8ad086f2abfcc801960518f8e901faceec0d468",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.shield.shield_spiked_01",
+      "filename": "Items/art_item_shield_shield_spiked_01.png",
+      "prompt_ref": "ClickDungeon item individualization from Shield and Boots.png row 2 column 3; source-alpha component extraction",
+      "sha256": "e37f5ec3da2014011ad8760ac186045be05ad7621d903bdb2777d59fd5f18063",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.utility.alchemy_jar_01",
+      "filename": "Items/art_item_utility_alchemy_jar_01.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 4 column 7; source-alpha component extraction",
+      "sha256": "ebd5269db66bc776ec536d3e5c3de90a2f1ab23b675a048752b225904620f4f8",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.utility.fire_flask_01",
+      "filename": "Items/art_item_utility_fire_flask_01.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 5 column 7; source-alpha component extraction",
+      "sha256": "a39a59308c721cb4cecff3a6350829c2c5d6ac9e5df3feb6b50d4954db3bb583",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.utility.lockpick_01",
+      "filename": "Items/art_item_utility_lockpick_01.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 4 column 3; source-alpha component extraction",
+      "sha256": "1fc90ee294f540d3daab011c7151e6406a3738c91350bef1bddded5526650068",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.utility.lockpick_set_01",
+      "filename": "Items/art_item_utility_lockpick_set_01.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_rpg_consumables_collection.png row 3 column 8; source-alpha component extraction",
+      "sha256": "d3012da588274b844e45b901675a8a35b5c59c7349028a2a9f4356a6084d092a",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.weapon.celestial_staff",
+      "filename": "Items/art_item_weapon_celestial_staff.png",
+      "prompt_ref": "ClickDungeon item individualization from legendary_fantasy_arsenal_collection.png row 1 column 3; source-alpha component extraction",
+      "sha256": "c41204300a291261b4f0b70ec85569dadb66c99dd603e8afd9f01a7cacb8d384",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.weapon.celestial_staff_variant_01",
+      "filename": "Items/art_item_weapon_celestial_staff_variant_01.png",
+      "prompt_ref": "ClickDungeon item individualization from Swords and Wands.png row 1 column 5; source-alpha component extraction",
+      "sha256": "8c3ffd69d4ff18012ba459c38572fd014b5138aafac0ec10d6088b8ae9d3df98",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.weapon.celestial_staff_variant_02",
+      "filename": "Items/art_item_weapon_celestial_staff_variant_02.png",
+      "prompt_ref": "ClickDungeon item individualization from Swords and Wands.png row 3 column 5; source-alpha component extraction",
+      "sha256": "fa730b16e57b7654bbf644d85afa365c9e69b642cdb62a293fd9f76c78c930cd",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.weapon.double_axe_01",
+      "filename": "Items/art_item_weapon_double_axe_01.png",
+      "prompt_ref": "ClickDungeon item individualization from Swords and Wands.png row 1 column 3; source-alpha component extraction",
+      "sha256": "d949005a475a6f67dabdec58ea0c9abb0688c13a7365a7d2d3edd0c04ef37e81",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.weapon.dragonslayer",
+      "filename": "Items/art_item_weapon_dragonslayer.png",
+      "prompt_ref": "ClickDungeon item individualization from legendary_fantasy_arsenal_collection.png row 1 column 1; source-alpha component extraction",
+      "sha256": "a2edc2336da3ea123dd681bc271a2e5ebbc55100532d60210c644ad0abf0190a",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.weapon.fire_wand_01",
+      "filename": "Items/art_item_weapon_fire_wand_01.png",
+      "prompt_ref": "ClickDungeon item individualization from Swords and Wands.png row 2 column 3; source-alpha component extraction",
+      "sha256": "e8c7eca032557072f15656217103fcb01f47db042dedc75aa8f38b7de688c4bf",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.weapon.frost_staff_01",
+      "filename": "Items/art_item_weapon_frost_staff_01.png",
+      "prompt_ref": "ClickDungeon item individualization from Swords and Wands.png row 2 column 2; source-alpha component extraction",
+      "sha256": "cdcc49cc23cd32731ed940ae1688371414a540f4c646fa88a0440e9af527e281",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.weapon.frost_sword_01",
+      "filename": "Items/art_item_weapon_frost_sword_01.png",
+      "prompt_ref": "ClickDungeon item individualization from Swords and Wands.png row 2 column 1; source-alpha component extraction",
+      "sha256": "88174a87a950c84b9858e4aa2c5dd3f97435252016b5fe3fca100558dd1dbb6e",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.weapon.gold_sword_01",
+      "filename": "Items/art_item_weapon_gold_sword_01.png",
+      "prompt_ref": "ClickDungeon item individualization from Swords and Wands.png row 2 column 4; source-alpha component extraction",
+      "sha256": "93604e2fa87f223bba69e1d38b1f7cb8e1560b442978d6f11cc1d0374220fb29",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.weapon.gold_sword_redgem_01",
+      "filename": "Items/art_item_weapon_gold_sword_redgem_01.png",
+      "prompt_ref": "ClickDungeon item individualization from Swords and Wands.png row 3 column 2; source-alpha component extraction",
+      "sha256": "34a18237da81060626acab226615e0876d06c3645adaa48cfb8d29ad2568f698",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.weapon.iron_sword_01",
+      "filename": "Items/art_item_weapon_iron_sword_01.png",
+      "prompt_ref": "ClickDungeon item individualization from Swords and Wands.png row 1 column 1; source-alpha component extraction",
+      "sha256": "ad9b8ca0f72e2853bf4f2bf0070d4c98be484cf10fbca3461c93f1772fb89b7e",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.weapon.iron_sword_gem_01",
+      "filename": "Items/art_item_weapon_iron_sword_gem_01.png",
+      "prompt_ref": "ClickDungeon item individualization from Swords and Wands.png row 1 column 2; source-alpha component extraction",
+      "sha256": "9b2b671a78edc4e5926774bc30677bc7c0c7740bfbd49449d84c13816a37b3fd",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.weapon.iron_sword_redgem_01",
+      "filename": "Items/art_item_weapon_iron_sword_redgem_01.png",
+      "prompt_ref": "ClickDungeon item individualization from Swords and Wands.png row 3 column 1; source-alpha component extraction",
+      "sha256": "8d073a27116fc648a65c65ff7bd5ec682e374972b9c0db63d638a5efd9a6d747",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.weapon.spiked_mace_01",
+      "filename": "Items/art_item_weapon_spiked_mace_01.png",
+      "prompt_ref": "ClickDungeon item individualization from Swords and Wands.png row 1 column 4; source-alpha component extraction",
+      "sha256": "7d43af4e0aea353a66d501ecdd9427d6bb3f3491da750c6fb3713a9c7024e366",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.weapon.void_staff_01",
+      "filename": "Items/art_item_weapon_void_staff_01.png",
+      "prompt_ref": "ClickDungeon item individualization from Swords and Wands.png row 2 column 5; source-alpha component extraction",
+      "sha256": "6dd040b44ccaf85556ea89da3e91b2e73a9f377f2f65c27992aee25b147b4aaa",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.weapon.void_staff_02",
+      "filename": "Items/art_item_weapon_void_staff_02.png",
+      "prompt_ref": "ClickDungeon item individualization from Swords and Wands.png row 3 column 4; source-alpha component extraction",
+      "sha256": "ffca2b0b9f5c57e83a9422f04eb161eee7c0094fb216dbce36c38401c7953337",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.weapon.void_staff_03",
+      "filename": "Items/art_item_weapon_void_staff_03.png",
+      "prompt_ref": "ClickDungeon item individualization from Swords and Wands.png row 3 column 6; source-alpha component extraction",
+      "sha256": "613ef35f9b6c084e7d102b74859b46f75fdea31a81fe68925ca5e94403b7c1a6",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.item.weapon.void_sword_01",
+      "filename": "Items/art_item_weapon_void_sword_01.png",
+      "prompt_ref": "ClickDungeon item individualization from Swords and Wands.png row 3 column 3; source-alpha component extraction",
+      "sha256": "1baf567d017e529e3776884ae50c96e8aecae457801f49c7328708a0762f17d1",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.monster.ancient_wyrm.core",
+      "filename": "monster_ancient_wyrm_core.png",
+      "prompt_ref": "procedural release sprite sheet: monster core",
+      "sha256": "76c1ae84e3b4ab7795458298aa67b776f4b8a1221602be811a2c97ffb593a76d",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.monster.archdemon.core",
+      "filename": "monster_archdemon_core.png",
+      "prompt_ref": "procedural release sprite sheet: monster core",
+      "sha256": "e697235f3bf7f73df6151783a1a3672f3c5c3cf0ff7670b3209f329bcc571d29",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.monster.bandit.core",
+      "filename": "monster_bandit_core.png",
+      "prompt_ref": "procedural release sprite sheet: monster core",
+      "sha256": "61850369ccf0c40deee8620ef9b73be44bf7ac67b21d4dcd0689fb629159e138",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.monster.bat.core",
+      "filename": "monster_bat_core.png",
+      "prompt_ref": "procedural release sprite sheet: monster core",
+      "sha256": "aa401a33d1094dfbe9d9c1ea0371e22f729c94617f3e6f364ed0cffd7322a263",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.monster.cultist.core",
+      "filename": "monster_cultist_core.png",
+      "prompt_ref": "procedural release sprite sheet: monster core",
+      "sha256": "7632fc4aa1d8805711a00040e7178197dd4e335bf5ba309d9060fc5281534450",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.monster.demon.core",
+      "filename": "monster_demon_core.png",
+      "prompt_ref": "procedural release sprite sheet: monster core",
+      "sha256": "fd4b42a96b57739f8d0c2bdd26bd7eafc5fb2354982dc8d38d588991b439c4e3",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.monster.dragon.core",
+      "filename": "monster_dragon_core.png",
+      "prompt_ref": "procedural release sprite sheet: monster core",
+      "sha256": "aceb35420eed91af4b4b9247bc968089005a479763910ae10d9020eca112b1d1",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.monster.goblin.core",
+      "filename": "monster_goblin_core.png",
+      "prompt_ref": "procedural release sprite sheet: monster core",
+      "sha256": "eedadfa8fcc117ff87acd7a24f2ad6e58331f6fbf89ceb6e397ffe2826f3fd5e",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.monster.golem.core",
+      "filename": "monster_golem_core.png",
+      "prompt_ref": "procedural release sprite sheet: monster core",
+      "sha256": "2e25a6ca54e9f0a6935291dacc9099ca32c8d08365afd8656f60922a4402ac78",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.monster.hellhound.core",
+      "filename": "monster_hellhound_core.png",
+      "prompt_ref": "procedural release sprite sheet: monster core",
+      "sha256": "318c72a855be95303136a6e29b2d285fd1a7275f17177f53b0dabac2c2e077d2",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.monster.lich.core",
+      "filename": "monster_lich_core.png",
+      "prompt_ref": "procedural release sprite sheet: monster core",
+      "sha256": "1b9454e6ffdc1fcb0ad4c4352e91de45405d611e4ee70d60654059245d719768",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.monster.orc.core",
+      "filename": "monster_orc_core.png",
+      "prompt_ref": "procedural release sprite sheet: monster core",
+      "sha256": "6e55790ec3d584aa5ce168702503e86db307e3d8e392eea3d825622cde08637d",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.monster.rat.core",
+      "filename": "monster_rat_core.png",
+      "prompt_ref": "procedural release sprite sheet: monster core",
+      "sha256": "276988aa971323a8f1ec8da0f6bab8dbdfe4cec6a76a1cb9ecf2486facc54f94",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.monster.revenant.core",
+      "filename": "monster_revenant_core.png",
+      "prompt_ref": "procedural release sprite sheet: monster core",
+      "sha256": "f6fea3938522a46024dbf2762a67130c627af08621a540e955ac8c01e2c168b7",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.monster.skeleton.core",
+      "filename": "monster_skeleton_core.png",
+      "prompt_ref": "procedural release sprite sheet: monster core",
+      "sha256": "e42f03f7a8859e87ea77927921f0983cbbf7fcd6caebc74840329e77a2c78cbf",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.monster.slime.core",
+      "filename": "monster_slime_core.png",
+      "prompt_ref": "procedural release sprite sheet: monster core",
+      "sha256": "9c9b337674f6ab81e35ede5dc9763f77dbfb87023dbb7280f20f99a52d0ff319",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.monster.spider.core",
+      "filename": "monster_spider_core.png",
+      "prompt_ref": "procedural release sprite sheet: monster core",
+      "sha256": "43e2facd28d4e99cee9999d9c3f59cc2c96d4e903bb484ad6c47c2e840bad1de",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.monster.troll.core",
+      "filename": "monster_troll_core.png",
+      "prompt_ref": "procedural release sprite sheet: monster core",
+      "sha256": "cc5e44e6f08582c33c9f5564642acd2101a706b7efc73b30cb0931f5d98db95a",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.monster.vampire.core",
+      "filename": "monster_vampire_core.png",
+      "prompt_ref": "procedural release sprite sheet: monster core",
+      "sha256": "8da2c515974d2c605e327732952b24962fac0580c2e22e0c3b5c50381b2108ef",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.monster.warlock.core",
+      "filename": "monster_warlock_core.png",
+      "prompt_ref": "procedural release sprite sheet: monster core",
+      "sha256": "f775ae156aec8ef9ee24808e12228b9df607b24b09be239c19963b2fa13e2bf3",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.monster.witch.core",
+      "filename": "monster_witch_core.png",
+      "prompt_ref": "procedural release sprite sheet: monster core",
+      "sha256": "47e6284ef9ad79ee97207f2b8e51110a02414a926fe55a295d89b628d465f893",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.monster.wolf.core",
+      "filename": "monster_wolf_core.png",
+      "prompt_ref": "procedural release sprite sheet: monster core",
+      "sha256": "ed513cd54dea016f88df65047442e9e9e3350586fe16a4db7bcf03292925f383",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.monster.wraith.core",
+      "filename": "monster_wraith_core.png",
+      "prompt_ref": "procedural release sprite sheet: monster core",
+      "sha256": "4d323ad9209d885e6c89b76c59d32917635740be9299d2e57aaf20cd59d8091b",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.trap.acid",
+      "filename": "trap_acid.png",
+      "prompt_ref": "procedural release icon: trap",
+      "sha256": "acb7c843b40221eae5e4ffc33010bbce50a372ef95d4acd5bfaca69876f9199a",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.trap.fire",
+      "filename": "trap_fire.png",
+      "prompt_ref": "procedural release icon: trap",
+      "sha256": "7774736030aeccd951c3e3a37803834787489c760097cc23b9ea85ac54d01df5",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.trap.freeze",
+      "filename": "trap_freeze.png",
+      "prompt_ref": "procedural release icon: trap",
+      "sha256": "18f6b545ffd2f66d735902d55207934cb9348784214dbbd517aa78337634e14b",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.trap.pitfall",
+      "filename": "trap_pitfall.png",
+      "prompt_ref": "procedural release icon: trap",
+      "sha256": "d37d52e33ea32cb33e31808147935370d1372468aba0283828ff77026d176409",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.trap.poison",
+      "filename": "trap_poison.png",
+      "prompt_ref": "procedural release icon: trap",
+      "sha256": "8a161a053b6686d168cef90bf4bed715cc55ca2fdfc75dc7c29d2e4418edda86",
+      "status": "production",
+      "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+    },
+    {
+      "asset_id": "art.trap.spikes",
+      "filename": "trap_spikes.png",
+      "prompt_ref": "deterministic modular room art: spike trap",
+      "sha256": "1e7bfb4c56cda68e60086bc7fc5b6d4b6cb1330a9c6f449400311b2e9ff52fb1",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon art created in-project for the modular 5\u00d75 room system; no third-party stock, trademarks, or copied external game art."
+    },
+    {
+      "asset_id": "art.ui.rarity_frame.common",
+      "filename": "Items/art_ui_rarity_frame_common.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_game_rarity_frame_set.png row 1 column 1; source-alpha component extraction",
+      "sha256": "60c281c69b72d97b214e082d462e9cff3ce0ee8ac37fb126f8d1abc4fa4b3886",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.ui.rarity_frame.epic",
+      "filename": "Items/art_ui_rarity_frame_epic.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_game_rarity_frame_set.png row 1 column 4; source-alpha component extraction",
+      "sha256": "b19801b6ec2da7a4dab8e3e365a2a10589cfcc935455203ed40f72dcbe8f6407",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.ui.rarity_frame.legendary",
+      "filename": "Items/art_ui_rarity_frame_legendary.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_game_rarity_frame_set.png row 1 column 5; source-alpha component extraction",
+      "sha256": "28912c222308dcc6fe8ed2875f4d5fe163e1a1f1a95505d155fb646bb3934ebf",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.ui.rarity_frame.rare",
+      "filename": "Items/art_ui_rarity_frame_rare.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_game_rarity_frame_set.png row 1 column 3; source-alpha component extraction",
+      "sha256": "e92fc756e57e505fa211619040de29ea94ed529050f54e11cb83a606dcfd535f",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    },
+    {
+      "asset_id": "art.ui.rarity_frame.uncommon",
+      "filename": "Items/art_ui_rarity_frame_uncommon.png",
+      "prompt_ref": "ClickDungeon item individualization from fantasy_game_rarity_frame_set.png row 1 column 2; source-alpha component extraction",
+      "sha256": "25f84e3a19c84af9c6071ab8ae69bc886fc5a2de14a31393125775b46c3efec6",
+      "status": "production",
+      "usage_terms": "Original ClickDungeon project artwork individualized from project-owned source sheets; no third-party stock media or trademarks."
+    }
+  ],
+  "generated_by": "scripts/generate-release-assets.py + Tools/ClickDungeonItemImport/merge_item_manifest.py",
+  "schema": "clickdungeon.asset_manifest.v1",
+  "usage_terms": "Original deterministic code-generated asset for ClickDungeon2; no third-party source material, stock media, trademarks, or external training references."
+}
