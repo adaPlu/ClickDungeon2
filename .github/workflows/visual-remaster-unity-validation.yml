@@ -1,0 +1,183 @@
+name: Visual Remaster Unity Validation
+
+on:
+  push:
+    branches:
+      - feature/visual-remaster-production
+    paths:
+      - .github/workflows/visual-remaster-unity-validation.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  checks: write
+
+concurrency:
+  group: visual-remaster-unity-validation
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.check.outputs.ready }}
+    steps:
+      - id: check
+        name: Check Unity license inputs
+        shell: bash
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          ready=false
+          personal=false
+          professional=false
+          if [ -n "${UNITY_LICENSE:-}" ]; then
+            trimmed="${UNITY_LICENSE#"${UNITY_LICENSE%%[![:space:]]*}"}"
+            if [ "${#UNITY_LICENSE}" -ge 256 ] && [[ "$trimmed" == \<* ]]; then personal=true; fi
+          fi
+          if [ -n "${UNITY_SERIAL:-}" ]; then professional=true; fi
+          if [ -n "${UNITY_EMAIL:-}" ] && [ -n "${UNITY_PASSWORD:-}" ] && { [ "$personal" = true ] || [ "$professional" = true ]; }; then
+            ready=true
+          fi
+          echo "ready=$ready" >> "$GITHUB_OUTPUT"
+          echo "Unity validation license ready: $ready"
+          if [ "$ready" != true ]; then
+            echo "::error::Unity/GameCI licensing is not fully configured for this repository."
+            exit 1
+          fi
+
+  unity-art-validation:
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out visual remaster branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: feature/visual-remaster-production
+          fetch-depth: 0
+
+      - name: Audit committed Unity metadata before import
+        run: python3 scripts/validate-unity-metadata.py
+
+      - name: Install temporary Unity art integration test
+        shell: bash
+        run: |
+          set -euo pipefail
+          test_dir='Assets/ClickDungeon/Tests/VisualRemasterImportEditMode'
+          mkdir -p "$test_dir"
+          cat > "$test_dir/ClickDungeon.Tests.VisualRemasterImportEditMode.asmdef" <<'EOF'
+          {
+            "name": "ClickDungeon.Tests.VisualRemasterImportEditMode",
+            "references": [
+              "ClickDungeon.Editor",
+              "ClickDungeon.Presentation"
+            ],
+            "optionalUnityReferences": ["TestAssemblies"],
+            "includePlatforms": ["Editor"],
+            "autoReferenced": false
+          }
+          EOF
+          cat > "$test_dir/VisualRemasterImportTests.cs" <<'EOF'
+          #if UNITY_EDITOR
+          using System.IO;
+          using NUnit.Framework;
+          using ClickDungeon.EditorTools;
+          using ClickDungeon.Presentation.Assets;
+
+          namespace ClickDungeon.Tests.VisualRemasterImportEditMode
+          {
+              public sealed class VisualRemasterImportTests
+              {
+                  [Test]
+                  public void GeneratePresentationDatabase_ThenStrictProductionArtValidationPasses()
+                  {
+                      var database = PresentationAssetGenerator.Generate(false, true);
+                      Assert.That(database, Is.Not.Null, "Presentation database was not generated.");
+
+                      var report = ProductionArtValidator.BuildReport();
+                      Assert.That(report.RequiredCount, Is.EqualTo(182));
+                      Assert.That(report.PresentCount, Is.EqualTo(182));
+                      Assert.That(report.MissingFiles, Is.Empty, report.ToMultilineString());
+                      Assert.That(report.UnmappedFiles, Is.Empty, report.ToMultilineString());
+                      Assert.That(report.NonSpriteFiles, Is.Empty, report.ToMultilineString());
+
+                      foreach (string fileName in ProductionArtManifest.RequiredRuntimePngNames())
+                      {
+                          string id = PresentationAssetId.FromRuntimeArtFile(Path.GetFileNameWithoutExtension(fileName));
+                          Assert.That(id, Is.Not.Null.And.Not.Empty, $"No presentation ID for {fileName}.");
+                          Assert.That(database.SpriteFor(id), Is.Not.Null, $"Generated presentation database has no Sprite for {fileName} -> {id}.");
+                      }
+
+                      ProductionArtValidator.ValidateOrThrow();
+                  }
+              }
+          }
+          #endif
+          EOF
+
+      - name: Run Unity EditMode import, generation, and strict production-art validation
+        uses: game-ci/unity-test-runner@0ff419b913a3630032cbe0de48a0099b5a9f0ed9
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          unityVersion: 6000.5.9f1
+          testMode: EditMode
+          artifactsPath: visual-remaster-unity-test-results
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Remove temporary test harness and inspect Unity delta
+        if: always()
+        shell: bash
+        run: |
+          rm -rf Assets/ClickDungeon/Tests/VisualRemasterImportEditMode
+          rm -f Assets/ClickDungeon/Tests/VisualRemasterImportEditMode.meta
+          mkdir -p .ci/visual-remaster-unity
+          git status --porcelain=v1 --untracked-files=all -- Assets ProjectSettings Packages > .ci/visual-remaster-unity/status.txt || true
+          git diff --no-ext-diff -- Assets ProjectSettings Packages > .ci/visual-remaster-unity/diff.txt || true
+          python3 scripts/validate-unity-metadata.py > .ci/visual-remaster-unity/metadata-audit.txt 2>&1 || true
+          cat .ci/visual-remaster-unity/status.txt
+
+      - name: Reject unexpected Unity project mutations
+        shell: bash
+        run: |
+          set -euo pipefail
+          unexpected="$({ git status --porcelain=v1 --untracked-files=all -- Assets ProjectSettings Packages || true; } | awk '{print substr($0,4)}' | grep -Ev '^Assets/ClickDungeon/Presentation/Generated(/|\.meta$)' || true)"
+          if [ -n "$unexpected" ]; then
+            echo "::error::Unity changed files outside deterministic Presentation/Generated output:"
+            printf '%s\n' "$unexpected"
+            git diff -- Assets ProjectSettings Packages || true
+            exit 1
+          fi
+          python3 scripts/validate-unity-metadata.py
+
+      - name: Upload Unity validation evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: visual-remaster-unity-validation
+          path: |
+            visual-remaster-unity-test-results
+            .ci/visual-remaster-unity
+          if-no-files-found: ignore
+
+      - name: Commit deterministic generated presentation output and self-remove workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if [ -e Assets/ClickDungeon/Presentation/Generated ] || [ -e Assets/ClickDungeon/Presentation/Generated.meta ]; then
+            git add -A -- Assets/ClickDungeon/Presentation/Generated Assets/ClickDungeon/Presentation/Generated.meta
+          fi
+          git rm -- .github/workflows/visual-remaster-unity-validation.yml
+          git diff --cached --stat
+          git commit -m 'art: generate and validate remaster presentation assets'
+          git push origin HEAD:feature/visual-remaster-production
