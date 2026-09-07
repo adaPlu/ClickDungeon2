@@ -1,0 +1,26 @@
+{
+  "scope": "candidate production-art pack prepared outside the repository; binary import is still pending",
+  "manifest_required_assets": 182,
+  "manifest_required_present_in_candidate": 182,
+  "manifest_required_missing_in_candidate": 0,
+  "candidate_png_total": 190,
+  "candidate_png_meta_total": 190,
+  "invalid_pngs": 0,
+  "missing_meta_files": 0,
+  "candidate_archive_sha256": "35fccd6b12db4f6d55f073f580d07709ac12ff16d38b2dd4c307bfd70b4916c0",
+  "extra_core_tiles": [
+    "dungeon_floor_stone.png",
+    "dungeon_stair_down.png",
+    "dungeon_stair_down_locked.png",
+    "dungeon_stair_up.png",
+    "dungeon_stair_up_locked.png",
+    "trap_bomb.png",
+    "trap_pitfall.png",
+    "trap_spikes.png"
+  ],
+  "reference_family_gaps_filled": [
+    "boss_goblin_brute_king",
+    "monster_armored_boar"
+  ],
+  "status": "candidate_pack_verified_binary_import_pending"
+}
