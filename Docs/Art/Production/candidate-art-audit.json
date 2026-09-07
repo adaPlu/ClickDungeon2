@@ -7,7 +7,8 @@
   "candidate_png_meta_total": 190,
   "invalid_pngs": 0,
   "missing_meta_files": 0,
-  "candidate_archive_sha256": "35fccd6b12db4f6d55f073f580d07709ac12ff16d38b2dd4c307bfd70b4916c0",
+  "candidate_archive_sha256": "64d6af64cf5f45e3a6dc06cf1cfafac5b6e677f746d09cef0dae8ea75d8bf579",
+  "candidate_archive_bytes": 1040566,
   "extra_core_tiles": [
     "dungeon_floor_stone.png",
     "dungeon_stair_down.png",
