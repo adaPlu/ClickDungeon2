@@ -1,0 +1,140 @@
+name: One-shot visual remaster payload import
+
+on:
+  push:
+    branches:
+      - feature/visual-remaster-production
+    paths:
+      - .github/workflows/import-visual-remaster-payload.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: visual-remaster-payload-import
+  cancel-in-progress: false
+
+jobs:
+  import-payload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out visual remaster branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: feature/visual-remaster-production
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+
+      - name: Install browser downloader
+        run: |
+          python -m pip install --disable-pip-version-check playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Download verified combined import payload
+        env:
+          SHARE_URL: https://firestorage.ai/ja/f/w8GLc_BTDsX9
+          EXPECTED_FILE: ClickDungeon2_Visual_Remaster_Combined_Import_Pack.zip
+          EXPECTED_SHA256: 32d37840c7c2a77910abfb8d7870a190b928e48ba9b05302c7da4dc65a58f3b4
+        run: |
+          cat > /tmp/download_payload.py <<'PY'
+          import hashlib
+          import os
+          import re
+          from pathlib import Path
+          from playwright.sync_api import sync_playwright
+
+          share_url = os.environ['SHARE_URL']
+          expected_name = os.environ['EXPECTED_FILE']
+          expected_sha = os.environ['EXPECTED_SHA256'].lower()
+          dest = Path('/tmp') / expected_name
+
+          with sync_playwright() as p:
+              browser = p.chromium.launch(headless=True)
+              context = browser.new_context(accept_downloads=True)
+              page = context.new_page()
+              page.goto(share_url, wait_until='domcontentloaded', timeout=120_000)
+              page.wait_for_timeout(2500)
+
+              candidates = []
+              for selector in ('a', 'button', '[role="button"]'):
+                  locs = page.locator(selector)
+                  for i in range(min(locs.count(), 250)):
+                      el = locs.nth(i)
+                      try:
+                          text = (el.inner_text(timeout=1000) or '').strip()
+                          href = el.get_attribute('href') or ''
+                      except Exception:
+                          continue
+                      score = 0
+                      hay = f'{text} {href}'.lower()
+                      if expected_name.lower() in hay:
+                          score += 100
+                      if '.zip' in hay:
+                          score += 50
+                      if 'download' in hay or 'ダウンロード' in hay:
+                          score += 20
+                      if score:
+                          candidates.append((score, selector, i, text, href))
+
+              candidates.sort(reverse=True)
+              errors = []
+              for _, selector, i, text, href in candidates:
+                  el = page.locator(selector).nth(i)
+                  try:
+                      with page.expect_download(timeout=45_000) as info:
+                          el.click(timeout=10_000)
+                      download = info.value
+                      download.save_as(dest)
+                      break
+                  except Exception as exc:
+                      errors.append(f'{selector}[{i}] text={text!r} href={href!r}: {exc}')
+
+              browser.close()
+
+          if not dest.is_file():
+              raise SystemExit('Unable to download payload from public share. Candidates/errors:\n' + '\n'.join(errors[-20:]))
+
+          digest = hashlib.sha256(dest.read_bytes()).hexdigest()
+          print(f'Downloaded {dest.name}: {dest.stat().st_size} bytes sha256={digest}')
+          if digest != expected_sha:
+              raise SystemExit(f'SHA-256 mismatch: expected {expected_sha}, got {digest}')
+          PY
+          python /tmp/download_payload.py
+
+      - name: Extract payload at repository root
+        run: |
+          unzip -q -o /tmp/ClickDungeon2_Visual_Remaster_Combined_Import_Pack.zip -d .
+
+      - name: Merge canonical item manifest and verify combined payload
+        run: |
+          python3 Tools/ClickDungeonArtImport/apply_and_verify.py
+          python3 scripts/validate-unity-metadata.py
+
+      - name: Show exact import delta
+        run: |
+          git status --short -- Assets/ClickDungeon/Art Assets/ClickDungeon/Presentation/Assets
+          echo "PNG count in Runtime: $(find Assets/ClickDungeon/Art/Runtime -type f -name '*.png' | wc -l)"
+          echo "Meta count in Runtime: $(find Assets/ClickDungeon/Art/Runtime -type f -name '*.meta' | wc -l)"
+
+      - name: Commit extracted assets only
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- \
+            Assets/ClickDungeon/Art/Runtime \
+            Assets/ClickDungeon/Art/Source/Items \
+            Assets/ClickDungeon/Art/Source/Items.meta \
+            Assets/ClickDungeon/Art/Source/asset_manifest.json \
+            Assets/ClickDungeon/Presentation/Assets/Items \
+            Assets/ClickDungeon/Presentation/Assets/Items.meta
+          git rm -- .github/workflows/import-visual-remaster-payload.yml
+          git diff --cached --stat
+          git diff --cached --quiet && { echo 'No payload changes to commit.'; exit 0; }
+          git commit -m 'art: land visual remaster production payload'
+          git push origin HEAD:feature/visual-remaster-production
