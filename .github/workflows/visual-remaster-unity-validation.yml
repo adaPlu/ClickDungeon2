@@ -257,13 +257,7 @@ jobs:
             if [ -e Assets/ClickDungeon/Art/GeneratedAnimations.meta ]; then
               git add -A -- Assets/ClickDungeon/Art/GeneratedAnimations.meta
             fi
-            if [ -e Assets/ClickDungeon/Presentation/Generated ]; then
-              git add -A -- Assets/ClickDungeon/Presentation/Generated
-            fi
-            if [ -e Assets/ClickDungeon/Presentation/Generated.meta ]; then
-              git add -A -- Assets/ClickDungeon/Presentation/Generated.meta
-            fi
-            unexpected_staged="$(git diff --cached --name-only | grep -Ev '^(Assets/ClickDungeon/Art/Runtime/[^/]+\.png\.meta|Assets/ClickDungeon/Art/GeneratedAnimations(/.*|\.meta)|Assets/ClickDungeon/Presentation/Generated(/.*|\.meta))$' || true)"
+            unexpected_staged="$(git diff --cached --name-only | grep -Ev '^(Assets/ClickDungeon/Art/Runtime/[^/]+\.png\.meta|Assets/ClickDungeon/Art/GeneratedAnimations(/.*|\.meta))$' || true)"
             if [ -n "$unexpected_staged" ]; then
               echo "::error::Unexpected path staged during metadata reconciliation:"
               printf '%s\n' "$unexpected_staged"
