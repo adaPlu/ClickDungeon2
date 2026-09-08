@@ -45,11 +45,19 @@ jobs:
           }
           trap cleanup EXIT
 
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
           echo "::notice::Probing github.token write access via temporary branch ${probe_branch}."
           push_with_workflow_token "HEAD:refs/heads/${probe_branch}"
           created=true
-          echo '::notice::Temporary branch creation succeeded.'
+          echo '::notice::Temporary branch creation from existing commit succeeded.'
+
+          git commit --allow-empty -m 'ci: workflow token empty-commit probe'
+          echo "::notice::Attempting to update temporary branch with new empty commit $(git rev-parse --short=12 HEAD)."
+          push_with_workflow_token "HEAD:refs/heads/${probe_branch}"
+          echo '::notice::New-commit push succeeded.'
 
           push_with_workflow_token ":refs/heads/${probe_branch}"
           created=false
-          echo '::notice::Temporary branch cleanup succeeded; github.token Git write authorization is proven.'
+          echo '::notice::Temporary branch cleanup succeeded; github.token can update a branch whose tree contains the feature workflow files.'
