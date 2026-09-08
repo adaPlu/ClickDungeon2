@@ -7,6 +7,7 @@ on:
     paths:
       - .github/workflows/visual-remaster-unity-validation.yml
       - Assets/ClickDungeon/Art/Runtime/**
+      - Assets/ClickDungeon/Art/GeneratedAnimations/**
       - Assets/ClickDungeon/Art/Source/asset_manifest.json
       - Assets/ClickDungeon/Editor/**
       - Assets/ClickDungeon/Presentation/**
@@ -180,14 +181,15 @@ jobs:
               text=True,
           )
           runtime_meta = re.compile(r"^Assets/ClickDungeon/Art/Runtime/[^/]+\.png\.meta$")
-          generated = re.compile(r"^Assets/ClickDungeon/Presentation/Generated(?:/.*|\.meta)?$")
+          generated_animation = re.compile(r"^Assets/ClickDungeon/Art/GeneratedAnimations(?:/.*|\.meta)?$")
+          generated_presentation = re.compile(r"^Assets/ClickDungeon/Presentation/Generated(?:/.*|\.meta)?$")
           errors = []
           canonical_meta = []
 
           for line in status.splitlines():
               code = line[:2]
               path = line[3:]
-              if generated.fullmatch(path):
+              if generated_animation.fullmatch(path) or generated_presentation.fullmatch(path):
                   continue
               if runtime_meta.fullmatch(path):
                   if code != " M":
@@ -238,32 +240,39 @@ jobs:
           runtime_meta_changes="$(git diff --name-only -- Assets/ClickDungeon/Art/Runtime | grep -E '\.png\.meta$' || true)"
           if [ -n "$runtime_meta_changes" ]; then
             git add -u -- Assets/ClickDungeon/Art/Runtime
+            if [ -e Assets/ClickDungeon/Art/GeneratedAnimations ] || [ -e Assets/ClickDungeon/Art/GeneratedAnimations.meta ]; then
+              git add -A -- Assets/ClickDungeon/Art/GeneratedAnimations Assets/ClickDungeon/Art/GeneratedAnimations.meta
+            fi
             if [ -e Assets/ClickDungeon/Presentation/Generated ] || [ -e Assets/ClickDungeon/Presentation/Generated.meta ]; then
               git add -A -- Assets/ClickDungeon/Presentation/Generated Assets/ClickDungeon/Presentation/Generated.meta
             fi
-            unexpected_staged="$(git diff --cached --name-only | grep -Ev '^(Assets/ClickDungeon/Art/Runtime/[^/]+\.png\.meta|Assets/ClickDungeon/Presentation/Generated(/.*|\.meta))$' || true)"
+            unexpected_staged="$(git diff --cached --name-only | grep -Ev '^(Assets/ClickDungeon/Art/Runtime/[^/]+\.png\.meta|Assets/ClickDungeon/Art/GeneratedAnimations(/.*|\.meta)|Assets/ClickDungeon/Presentation/Generated(/.*|\.meta))$' || true)"
             if [ -n "$unexpected_staged" ]; then
               echo "::error::Unexpected path staged during metadata reconciliation:"
               printf '%s\n' "$unexpected_staged"
               exit 1
             fi
             git diff --cached --stat
-            git commit -m 'art: canonicalize remaster Unity metadata'
+            git commit -m 'art: canonicalize remaster Unity metadata and generated output'
             git push origin HEAD:feature/visual-remaster-production
-            echo 'Canonical Unity metadata committed. Workflow retained for an idempotence validation pass.'
+            echo 'Canonical Unity metadata and generated output committed. Workflow retained for an idempotence validation pass.'
             exit 0
           fi
 
-          if [ -e Assets/ClickDungeon/Presentation/Generated ] || [ -e Assets/ClickDungeon/Presentation/Generated.meta ]; then
-            git add -A -- Assets/ClickDungeon/Presentation/Generated Assets/ClickDungeon/Presentation/Generated.meta
+          remaining_asset_changes="$(git status --porcelain=v1 --untracked-files=all -- Assets ProjectSettings Packages || true)"
+          if [ -n "$remaining_asset_changes" ]; then
+            echo "::error::Unity generation is not idempotent after canonical reconciliation:"
+            printf '%s\n' "$remaining_asset_changes"
+            exit 1
           fi
+
           git rm -- .github/workflows/visual-remaster-unity-validation.yml
-          unexpected_staged="$(git diff --cached --name-only | grep -Ev '^(Assets/ClickDungeon/Presentation/Generated(/.*|\.meta)|\.github/workflows/visual-remaster-unity-validation\.yml)$' || true)"
+          unexpected_staged="$(git diff --cached --name-only | grep -Ev '^\.github/workflows/visual-remaster-unity-validation\.yml$' || true)"
           if [ -n "$unexpected_staged" ]; then
             echo "::error::Unexpected path staged during finalization:"
             printf '%s\n' "$unexpected_staged"
             exit 1
           fi
           git diff --cached --stat
-          git commit -m 'art: generate and validate remaster presentation assets'
+          git commit -m 'ci: finalize validated visual remaster import'
           git push origin HEAD:feature/visual-remaster-production
