@@ -1,5 +1,5 @@
 {
-  "scope": "candidate production-art pack prepared outside the repository; binary import is still pending",
+  "scope": "verified candidate production-art runtime payload is present in the repository; canonical source-manifest provenance is reconciled; full application/Unity CI validation remains pending",
   "manifest_required_assets": 182,
   "manifest_required_present_in_candidate": 182,
   "manifest_required_missing_in_candidate": 0,
@@ -9,6 +9,9 @@
   "missing_meta_files": 0,
   "candidate_archive_sha256": "64d6af64cf5f45e3a6dc06cf1cfafac5b6e677f746d09cef0dae8ea75d8bf579",
   "candidate_archive_bytes": 1040566,
+  "runtime_payload_present_in_repository": true,
+  "canonical_provenance_manifest_reconciled": true,
+  "provenance_reconciliation_commit": "07abb18a55c119670a50f6be79cefcfe303cbcde",
   "extra_core_tiles": [
     "dungeon_floor_stone.png",
     "dungeon_stair_down.png",
@@ -23,5 +26,5 @@
     "boss_goblin_brute_king",
     "monster_armored_boar"
   ],
-  "status": "candidate_pack_verified_binary_import_pending"
+  "status": "candidate_pack_landed_manifest_reconciled_ci_validation_pending"
 }
