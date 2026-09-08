@@ -6,6 +6,14 @@ on:
       - feature/visual-remaster-production
     paths:
       - .github/workflows/visual-remaster-unity-validation.yml
+      - Assets/ClickDungeon/Art/Runtime/**
+      - Assets/ClickDungeon/Art/Source/asset_manifest.json
+      - Assets/ClickDungeon/Editor/**
+      - Assets/ClickDungeon/Presentation/**
+      - Assets/ClickDungeon/Tests/PresentationEditMode/**
+      - Packages/**
+      - ProjectSettings/**
+      - scripts/validate-unity-metadata.py
   workflow_dispatch:
 
 permissions:
