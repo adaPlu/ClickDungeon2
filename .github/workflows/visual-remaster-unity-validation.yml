@@ -69,6 +69,7 @@ jobs:
         with:
           ref: feature/visual-remaster-production
           fetch-depth: 0
+          persist-credentials: true
 
       - name: Audit committed Unity metadata before import
         run: python3 scripts/validate-unity-metadata.py
@@ -236,15 +237,22 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          echo "::notice::Reconciliation branch=$(git branch --show-current) head=$(git rev-parse --short=12 HEAD)"
 
           runtime_meta_changes="$(git diff --name-only -- Assets/ClickDungeon/Art/Runtime | grep -E '\.png\.meta$' || true)"
           if [ -n "$runtime_meta_changes" ]; then
             git add -u -- Assets/ClickDungeon/Art/Runtime
-            if [ -e Assets/ClickDungeon/Art/GeneratedAnimations ] || [ -e Assets/ClickDungeon/Art/GeneratedAnimations.meta ]; then
-              git add -A -- Assets/ClickDungeon/Art/GeneratedAnimations Assets/ClickDungeon/Art/GeneratedAnimations.meta
+            if [ -e Assets/ClickDungeon/Art/GeneratedAnimations ]; then
+              git add -A -- Assets/ClickDungeon/Art/GeneratedAnimations
             fi
-            if [ -e Assets/ClickDungeon/Presentation/Generated ] || [ -e Assets/ClickDungeon/Presentation/Generated.meta ]; then
-              git add -A -- Assets/ClickDungeon/Presentation/Generated Assets/ClickDungeon/Presentation/Generated.meta
+            if [ -e Assets/ClickDungeon/Art/GeneratedAnimations.meta ]; then
+              git add -A -- Assets/ClickDungeon/Art/GeneratedAnimations.meta
+            fi
+            if [ -e Assets/ClickDungeon/Presentation/Generated ]; then
+              git add -A -- Assets/ClickDungeon/Presentation/Generated
+            fi
+            if [ -e Assets/ClickDungeon/Presentation/Generated.meta ]; then
+              git add -A -- Assets/ClickDungeon/Presentation/Generated.meta
             fi
             unexpected_staged="$(git diff --cached --name-only | grep -Ev '^(Assets/ClickDungeon/Art/Runtime/[^/]+\.png\.meta|Assets/ClickDungeon/Art/GeneratedAnimations(/.*|\.meta)|Assets/ClickDungeon/Presentation/Generated(/.*|\.meta))$' || true)"
             if [ -n "$unexpected_staged" ]; then
@@ -252,9 +260,12 @@ jobs:
               printf '%s\n' "$unexpected_staged"
               exit 1
             fi
+            echo '::notice::Creating deterministic reconciliation commit.'
             git diff --cached --stat
             git commit -m 'art: canonicalize remaster Unity metadata and generated output'
+            echo "::notice::Commit created at $(git rev-parse --short=12 HEAD); pushing to feature branch."
             git push origin HEAD:feature/visual-remaster-production
+            echo '::notice::Deterministic reconciliation push completed.'
             echo 'Canonical Unity metadata and generated output committed. Workflow retained for an idempotence validation pass.'
             exit 0
           fi
@@ -266,6 +277,7 @@ jobs:
             exit 1
           fi
 
+          echo '::notice::Idempotence proven; staging temporary workflow removal only.'
           git rm -- .github/workflows/visual-remaster-unity-validation.yml
           unexpected_staged="$(git diff --cached --name-only | grep -Ev '^\.github/workflows/visual-remaster-unity-validation\.yml$' || true)"
           if [ -n "$unexpected_staged" ]; then
@@ -275,4 +287,6 @@ jobs:
           fi
           git diff --cached --stat
           git commit -m 'ci: finalize validated visual remaster import'
+          echo "::notice::Finalization commit created at $(git rev-parse --short=12 HEAD); pushing to feature branch."
           git push origin HEAD:feature/visual-remaster-production
+          echo '::notice::Finalization push completed.'
