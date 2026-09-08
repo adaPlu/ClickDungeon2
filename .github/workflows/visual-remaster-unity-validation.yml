@@ -145,9 +145,21 @@ jobs:
         if: always()
         shell: bash
         run: |
+          set -euo pipefail
           rm -rf Assets/ClickDungeon/Tests/VisualRemasterImportEditMode
           rm -f Assets/ClickDungeon/Tests/VisualRemasterImportEditMode.meta
           mkdir -p .ci/visual-remaster-unity
+
+          git diff --no-ext-diff -- Packages > .ci/visual-remaster-unity/package-noise.diff || true
+          package_paths="$(git diff --name-only -- Packages || true)"
+          unexpected_package_paths="$(printf '%s\n' "$package_paths" | sed '/^$/d' | grep -Ev '^Packages/(manifest\.json|packages-lock\.json)$' || true)"
+          if [ -n "$unexpected_package_paths" ]; then
+            echo "::error::Unity changed unexpected package files:"
+            printf '%s\n' "$unexpected_package_paths"
+            exit 1
+          fi
+          git checkout -- Packages/manifest.json Packages/packages-lock.json
+
           git status --porcelain=v1 --untracked-files=all -- Assets ProjectSettings Packages > .ci/visual-remaster-unity/status.txt || true
           git diff --no-ext-diff -- Assets ProjectSettings Packages > .ci/visual-remaster-unity/diff.txt || true
           python3 scripts/validate-unity-metadata.py > .ci/visual-remaster-unity/metadata-audit.txt 2>&1 || true
@@ -157,13 +169,53 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          unexpected="$({ git status --porcelain=v1 --untracked-files=all -- Assets ProjectSettings Packages || true; } | awk '{print substr($0,4)}' | grep -Ev '^Assets/ClickDungeon/Presentation/Generated(/|\.meta$)' || true)"
-          if [ -n "$unexpected" ]; then
-            echo "::error::Unity changed files outside deterministic Presentation/Generated output:"
-            printf '%s\n' "$unexpected"
-            git diff -- Assets ProjectSettings Packages || true
-            exit 1
-          fi
+          python3 - <<'PY'
+          import pathlib
+          import re
+          import subprocess
+          import sys
+
+          status = subprocess.check_output(
+              ["git", "status", "--porcelain=v1", "--untracked-files=all", "--", "Assets", "ProjectSettings", "Packages"],
+              text=True,
+          )
+          runtime_meta = re.compile(r"^Assets/ClickDungeon/Art/Runtime/[^/]+\.png\.meta$")
+          generated = re.compile(r"^Assets/ClickDungeon/Presentation/Generated(?:/.*|\.meta)?$")
+          errors = []
+          canonical_meta = []
+
+          for line in status.splitlines():
+              code = line[:2]
+              path = line[3:]
+              if generated.fullmatch(path):
+                  continue
+              if runtime_meta.fullmatch(path):
+                  if code != " M":
+                      errors.append(f"{code} {path}: runtime metadata reconciliation must be a tracked working-tree modification")
+                  else:
+                      canonical_meta.append(path)
+                  continue
+              errors.append(f"{code} {path}: outside deterministic generated output / runtime PNG metadata")
+
+          guid_re = re.compile(r"^guid:\s*([0-9a-fA-F]+)\s*$", re.MULTILINE)
+          for path in canonical_meta:
+              before = subprocess.check_output(["git", "show", f"HEAD:{path}"], text=True)
+              after = pathlib.Path(path).read_text(encoding="utf-8")
+              before_guid = guid_re.search(before)
+              after_guid = guid_re.search(after)
+              if not before_guid or not after_guid:
+                  errors.append(f"{path}: missing GUID before/after Unity reconciliation")
+              elif before_guid.group(1).lower() != after_guid.group(1).lower():
+                  errors.append(f"{path}: Unity reconciliation changed GUID {before_guid.group(1)} -> {after_guid.group(1)}")
+
+          if errors:
+              print("::error::Unexpected Unity project mutation(s) detected:")
+              for error in errors:
+                  print(error)
+              sys.exit(1)
+
+          print(f"Validated {len(canonical_meta)} tracked runtime PNG metadata reconciliation change(s); GUIDs preserved.")
+          PY
           python3 scripts/validate-unity-metadata.py
 
       - name: Upload Unity validation evidence
@@ -176,16 +228,42 @@ jobs:
             .ci/visual-remaster-unity
           if-no-files-found: ignore
 
-      - name: Commit deterministic generated presentation output and self-remove workflow
+      - name: Commit deterministic reconciliation or finalize workflow
         shell: bash
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+          runtime_meta_changes="$(git diff --name-only -- Assets/ClickDungeon/Art/Runtime | grep -E '\.png\.meta$' || true)"
+          if [ -n "$runtime_meta_changes" ]; then
+            git add -u -- Assets/ClickDungeon/Art/Runtime
+            if [ -e Assets/ClickDungeon/Presentation/Generated ] || [ -e Assets/ClickDungeon/Presentation/Generated.meta ]; then
+              git add -A -- Assets/ClickDungeon/Presentation/Generated Assets/ClickDungeon/Presentation/Generated.meta
+            fi
+            unexpected_staged="$(git diff --cached --name-only | grep -Ev '^(Assets/ClickDungeon/Art/Runtime/[^/]+\.png\.meta|Assets/ClickDungeon/Presentation/Generated(/.*|\.meta))$' || true)"
+            if [ -n "$unexpected_staged" ]; then
+              echo "::error::Unexpected path staged during metadata reconciliation:"
+              printf '%s\n' "$unexpected_staged"
+              exit 1
+            fi
+            git diff --cached --stat
+            git commit -m 'art: canonicalize remaster Unity metadata'
+            git push origin HEAD:feature/visual-remaster-production
+            echo 'Canonical Unity metadata committed. Workflow retained for an idempotence validation pass.'
+            exit 0
+          fi
+
           if [ -e Assets/ClickDungeon/Presentation/Generated ] || [ -e Assets/ClickDungeon/Presentation/Generated.meta ]; then
             git add -A -- Assets/ClickDungeon/Presentation/Generated Assets/ClickDungeon/Presentation/Generated.meta
           fi
           git rm -- .github/workflows/visual-remaster-unity-validation.yml
+          unexpected_staged="$(git diff --cached --name-only | grep -Ev '^(Assets/ClickDungeon/Presentation/Generated(/.*|\.meta)|\.github/workflows/visual-remaster-unity-validation\.yml)$' || true)"
+          if [ -n "$unexpected_staged" ]; then
+            echo "::error::Unexpected path staged during finalization:"
+            printf '%s\n' "$unexpected_staged"
+            exit 1
+          fi
           git diff --cached --stat
           git commit -m 'art: generate and validate remaster presentation assets'
           git push origin HEAD:feature/visual-remaster-production
