@@ -1,0 +1,55 @@
+name: Diagnose GitHub Token Write
+
+on:
+  push:
+    branches:
+      - feature/visual-remaster-production
+    paths:
+      - .github/workflows/diagnose-github-token-write.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  probe-token-write:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out branch without persisted credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: feature/visual-remaster-production
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Probe workflow token write authorization
+        shell: bash
+        env:
+          PROBE_PUSH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          probe_branch="ci/github-token-write-probe-${GITHUB_RUN_ID}"
+          created=false
+
+          basic_auth="$(printf 'x-access-token:%s' "$PROBE_PUSH_TOKEN" | base64 -w0)"
+          push_with_workflow_token() {
+            git -c http.https://github.com/.extraheader="AUTHORIZATION: basic ${basic_auth}" \
+              push origin "$1"
+          }
+
+          cleanup() {
+            if [ "$created" = true ]; then
+              push_with_workflow_token ":refs/heads/${probe_branch}" || true
+            fi
+          }
+          trap cleanup EXIT
+
+          echo "::notice::Probing github.token write access via temporary branch ${probe_branch}."
+          push_with_workflow_token "HEAD:refs/heads/${probe_branch}"
+          created=true
+          echo '::notice::Temporary branch creation succeeded.'
+
+          push_with_workflow_token ":refs/heads/${probe_branch}"
+          created=false
+          echo '::notice::Temporary branch cleanup succeeded; github.token Git write authorization is proven.'
