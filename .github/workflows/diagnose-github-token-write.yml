@@ -23,41 +23,56 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Probe workflow token write authorization
+      - id: push
+        name: Probe self-update of visual remaster branch
         shell: bash
         env:
           PROBE_PUSH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          probe_branch="ci/github-token-write-probe-${GITHUB_RUN_ID}"
-          created=false
-
-          basic_auth="$(printf 'x-access-token:%s' "$PROBE_PUSH_TOKEN" | base64 -w0)"
-          push_with_workflow_token() {
-            git -c http.https://github.com/.extraheader="AUTHORIZATION: basic ${basic_auth}" \
-              push origin "$1"
-          }
-
-          cleanup() {
-            if [ "$created" = true ]; then
-              push_with_workflow_token ":refs/heads/${probe_branch}" || true
-            fi
-          }
-          trap cleanup EXIT
-
+          mkdir -p .ci/github-token-write-probe
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 
-          echo "::notice::Probing github.token write access via temporary branch ${probe_branch}."
-          push_with_workflow_token "HEAD:refs/heads/${probe_branch}"
-          created=true
-          echo '::notice::Temporary branch creation from existing commit succeeded.'
+          {
+            echo "branch=$(git branch --show-current)"
+            echo "before=$(git rev-parse HEAD)"
+            echo 'configured_extraheader_keys:'
+            git config --show-origin --name-only --get-regexp '^http\..*\.extraheader$' || true
+          } > .ci/github-token-write-probe/context.txt
 
-          git commit --allow-empty -m 'ci: workflow token empty-commit probe'
-          echo "::notice::Attempting to update temporary branch with new empty commit $(git rev-parse --short=12 HEAD)."
-          push_with_workflow_token "HEAD:refs/heads/${probe_branch}"
-          echo '::notice::New-commit push succeeded.'
+          git commit --allow-empty -m 'ci: workflow token feature-branch self-push probe'
+          echo "candidate=$(git rev-parse HEAD)" >> .ci/github-token-write-probe/context.txt
 
-          push_with_workflow_token ":refs/heads/${probe_branch}"
-          created=false
-          echo '::notice::Temporary branch cleanup succeeded; github.token can update a branch whose tree contains the feature workflow files.'
+          basic_auth="$(printf 'x-access-token:%s' "$PROBE_PUSH_TOKEN" | base64 -w0)"
+          set +e
+          git -c http.https://github.com/.extraheader="AUTHORIZATION: basic ${basic_auth}" \
+            push origin HEAD:feature/visual-remaster-production \
+            > .ci/github-token-write-probe/push.log 2>&1
+          rc=$?
+          set -e
+
+          echo "exit_code=$rc" >> .ci/github-token-write-probe/context.txt
+          echo "exit_code=$rc" >> "$GITHUB_OUTPUT"
+          cat .ci/github-token-write-probe/push.log
+
+      - name: Upload self-push diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: github-token-self-push-probe
+          path: .ci/github-token-write-probe
+          if-no-files-found: error
+
+      - name: Fail if feature-branch self-push failed
+        if: always()
+        shell: bash
+        env:
+          PUSH_EXIT_CODE: ${{ steps.push.outputs.exit_code }}
+        run: |
+          set -euo pipefail
+          if [ "${PUSH_EXIT_CODE:-missing}" != "0" ]; then
+            echo "::error::Feature-branch self-push failed with exit code ${PUSH_EXIT_CODE:-missing}."
+            exit 1
+          fi
+          echo '::notice::github.token successfully pushed a new commit directly to feature/visual-remaster-production.'
