@@ -69,7 +69,7 @@ jobs:
         with:
           ref: feature/visual-remaster-production
           fetch-depth: 0
-          persist-credentials: true
+          persist-credentials: false
 
       - name: Audit committed Unity metadata before import
         run: python3 scripts/validate-unity-metadata.py
@@ -233,11 +233,20 @@ jobs:
 
       - name: Commit deterministic reconciliation or finalize workflow
         shell: bash
+        env:
+          RECONCILIATION_PUSH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           echo "::notice::Reconciliation branch=$(git branch --show-current) head=$(git rev-parse --short=12 HEAD)"
+
+          push_with_workflow_token() {
+            local basic_auth
+            basic_auth="$(printf 'x-access-token:%s' "$RECONCILIATION_PUSH_TOKEN" | base64 -w0)"
+            git -c http.https://github.com/.extraheader="AUTHORIZATION: basic ${basic_auth}" \
+              push origin HEAD:feature/visual-remaster-production
+          }
 
           runtime_meta_changes="$(git diff --name-only -- Assets/ClickDungeon/Art/Runtime | grep -E '\.png\.meta$' || true)"
           if [ -n "$runtime_meta_changes" ]; then
@@ -264,7 +273,7 @@ jobs:
             git diff --cached --stat
             git commit -m 'art: canonicalize remaster Unity metadata and generated output'
             echo "::notice::Commit created at $(git rev-parse --short=12 HEAD); pushing to feature branch."
-            git push origin HEAD:feature/visual-remaster-production
+            push_with_workflow_token
             echo '::notice::Deterministic reconciliation push completed.'
             echo 'Canonical Unity metadata and generated output committed. Workflow retained for an idempotence validation pass.'
             exit 0
@@ -288,5 +297,5 @@ jobs:
           git diff --cached --stat
           git commit -m 'ci: finalize validated visual remaster import'
           echo "::notice::Finalization commit created at $(git rev-parse --short=12 HEAD); pushing to feature branch."
-          git push origin HEAD:feature/visual-remaster-production
+          push_with_workflow_token
           echo '::notice::Finalization push completed.'
