@@ -162,6 +162,19 @@ namespace ClickDungeon.Tests.PresentationEditMode
             Assert.That(menu,Does.Contain("ResolveHeroCardSprite(card)"));
         }
 
+        [Test]
+        public void VisualRemasterBridgePreservesClickingtonIdentityForSharedKnightClass()
+        {
+            Assert.That(HeroPresentationAssets.StandardHeroId(HeroClassId.Knight),Is.EqualTo("ironheart"),"The regression only matters because the Knight class default is Ironheart.");
+            Assert.That(HeroPresentationAssets.HeroBaseId("clickington"),Is.EqualTo("hero.clickington"));
+
+            string bridge=VisualRemasterBridgeSource();
+            Assert.That(bridge,Does.Contain("string heroId = _game.HeroId;"),"The remaster bridge must consume the selected hero identity instead of reconstructing identity from HeroClassId.");
+            Assert.That(bridge,Does.Contain("HeroPresentationAssets.Portrait(_assets, heroId, heroClass)"));
+            Assert.That(bridge,Does.Contain("SpriteForState(heroId, heroClass, CurrentState())"));
+            Assert.That(bridge,Does.Not.Contain("HeroPresentationAssets.Portrait(_assets, heroClass)"),"A class-only portrait call collapses Sir Clickington into Ironheart because both are Knights.");
+        }
+
         [TestCase(null)]
         [TestCase("")]
         [TestCase("unapproved_unmapped_sprite")]
@@ -182,6 +195,7 @@ namespace ClickDungeon.Tests.PresentationEditMode
 
         private static string RuntimeBoardSource()=>SourceFile("Presentation","UI","RuntimeGameUI.cs");
         private static string MainMenuSource()=>SourceFile("Presentation","Menu","MainMenuUI.cs");
+        private static string VisualRemasterBridgeSource()=>SourceFile("Presentation","UI","VisualRemasterRuntimeBridge.cs");
 
         private static string SourceFile(params string[] relative)
         {
