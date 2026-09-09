@@ -124,9 +124,10 @@ namespace ClickDungeon.Presentation.UI
         {
             if (_game?.Session == null || _assets == null) return;
             HeroClassId heroClass = _game.Session.State.HeroClass;
+            string heroId = _game.HeroId;
             if (_portrait != null)
             {
-                Sprite portrait = HeroPresentationAssets.Portrait(_assets, heroClass);
+                Sprite portrait = HeroPresentationAssets.Portrait(_assets, heroId, heroClass);
                 if (portrait != null)
                 {
                     _portrait.sprite = portrait;
@@ -141,7 +142,7 @@ namespace ClickDungeon.Presentation.UI
             _lastPlayerIndex = playerIndex;
             Image icon = _tileIcons[playerIndex];
             if (icon == null) return;
-            Sprite sprite = SpriteForState(heroClass, CurrentState());
+            Sprite sprite = SpriteForState(heroId, heroClass, CurrentState());
             if (sprite == null) return;
             icon.sprite = sprite;
             icon.enabled = true;
@@ -150,21 +151,21 @@ namespace ClickDungeon.Presentation.UI
             icon.transform.SetAsLastSibling();
         }
 
-        private Sprite SpriteForState(HeroClassId heroClass, HeroVisualState state)
+        private Sprite SpriteForState(string heroId, HeroClassId heroClass, HeroVisualState state)
         {
-            string baseId = HeroPresentationAssets.BaseId(heroClass);
+            string baseId = HeroPresentationAssets.HeroBaseId(heroId);
             switch (state)
             {
                 case HeroVisualState.Attack:
-                    return _assets.SpriteFor(baseId + ".attack") ?? HeroPresentationAssets.Gameplay(_assets, heroClass);
+                    return _assets.SpriteFor(baseId + ".attack") ?? HeroPresentationAssets.Gameplay(_assets, heroId, heroClass);
                 case HeroVisualState.Hit:
-                    return _assets.SpriteFor(baseId + ".hit") ?? HeroPresentationAssets.Gameplay(_assets, heroClass);
+                    return _assets.SpriteFor(baseId + ".hit") ?? HeroPresentationAssets.Gameplay(_assets, heroId, heroClass);
                 case HeroVisualState.Victory:
-                    return HeroPresentationAssets.Victory(_assets, heroClass);
+                    return HeroPresentationAssets.Victory(_assets, heroId, heroClass);
                 case HeroVisualState.Defeat:
-                    return HeroPresentationAssets.Defeat(_assets, heroClass);
+                    return HeroPresentationAssets.Defeat(_assets, heroId, heroClass);
                 default:
-                    return _assets.SpriteFor(baseId + ".idle") ?? HeroPresentationAssets.Gameplay(_assets, heroClass);
+                    return _assets.SpriteFor(baseId + ".idle") ?? HeroPresentationAssets.Gameplay(_assets, heroId, heroClass);
             }
         }
 
