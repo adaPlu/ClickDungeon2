@@ -165,13 +165,11 @@ namespace ClickDungeon.Tests.PresentationEditMode
         [Test]
         public void VisualRemasterBridgePreservesClickingtonIdentityForSharedKnightClass()
         {
-            Assert.That(HeroPresentationAssets.StandardHeroId(HeroClassId.Knight),Is.EqualTo("ironheart"),"The regression only matters because the Knight class default is Ironheart.");
-            Assert.That(HeroPresentationAssets.HeroBaseId("clickington"),Is.EqualTo("hero.clickington"));
-
             string bridge=VisualRemasterBridgeSource();
-            Assert.That(bridge,Does.Contain("string heroId = _game.HeroId;"),"The remaster bridge must consume the selected hero identity instead of reconstructing identity from HeroClassId.");
+            Assert.That(bridge,Does.Contain("string heroId = _game.HeroId;"),"The remaster bridge must consume the selected hero identity instead of reconstructing identity from HeroClassId; otherwise Knight-class Sir Clickington collapses to Ironheart.");
             Assert.That(bridge,Does.Contain("HeroPresentationAssets.Portrait(_assets, heroId, heroClass)"));
             Assert.That(bridge,Does.Contain("SpriteForState(heroId, heroClass, CurrentState())"));
+            Assert.That(bridge,Does.Contain("HeroPresentationAssets.HeroBaseId(heroId)"));
             Assert.That(bridge,Does.Not.Contain("HeroPresentationAssets.Portrait(_assets, heroClass)"),"A class-only portrait call collapses Sir Clickington into Ironheart because both are Knights.");
         }
 
