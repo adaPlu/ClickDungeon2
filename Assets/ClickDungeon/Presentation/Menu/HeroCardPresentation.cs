@@ -32,7 +32,7 @@ namespace ClickDungeon.Presentation.Menu
                 hero.DisplayName,
                 hero.ClassId.ToString().ToUpperInvariant(),
                 string.IsNullOrEmpty(hero.CampaignId)?string.Empty:"STORY CAMPAIGN",
-                new[]{heroPrefix+".roster",heroPrefix+".portrait",heroPrefix+".select",heroPrefix+".gameplay"});
+                new[]{heroPrefix+".roster",heroPrefix+".portrait",heroPrefix+".master",heroPrefix+".gameplay"});
         }
     }
 }
