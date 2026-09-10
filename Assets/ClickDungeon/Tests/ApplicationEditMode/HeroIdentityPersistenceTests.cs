@@ -32,7 +32,7 @@ namespace ClickDungeon.Tests.ApplicationEditMode
         public void ConvenienceSaveAssignsStandardHeroIdentityForKnight()
         {
             var content=GameContent.CreateDevelopmentFallback();
-            var run=new FloorGenerator(content).CreateNewRun(314,HeroClassId.Knight);
+            var run=new FloorGenerator(content).CreateNewRun(314u,HeroClassId.Knight);
             var repo=new LocalSaveRepository(_dir);
 
             repo.Save(1,run,1);
@@ -46,7 +46,7 @@ namespace ClickDungeon.Tests.ApplicationEditMode
         public void ExplicitClickingtonIdentityRoundTripsWithoutChangingKnightSimulationClass()
         {
             var content=GameContent.CreateDevelopmentFallback();
-            var run=new FloorGenerator(content).CreateNewRun(315,HeroClassId.Knight);
+            var run=new FloorGenerator(content).CreateNewRun(315u,HeroClassId.Knight);
             var repo=new LocalSaveRepository(_dir);
             var payload=new SlotSavePayload
             {
@@ -68,7 +68,7 @@ namespace ClickDungeon.Tests.ApplicationEditMode
         public void MissingHeroIdentityResolvesToClassDefaultOnLoad(HeroClassId heroClass,string expectedHeroId)
         {
             var content=GameContent.CreateDevelopmentFallback();
-            var run=new FloorGenerator(content).CreateNewRun(400+(int)heroClass,heroClass);
+            var run=new FloorGenerator(content).CreateNewRun((uint)(400+(int)heroClass),heroClass);
             var repo=new LocalSaveRepository(_dir);
             repo.SaveSlot(1,new SlotSavePayload
             {
@@ -86,7 +86,7 @@ namespace ClickDungeon.Tests.ApplicationEditMode
         public void MismatchedHeroIdentityNormalizesToSavedClassWithoutChangingMechanics()
         {
             var content=GameContent.CreateDevelopmentFallback();
-            var run=new FloorGenerator(content).CreateNewRun(500,HeroClassId.Paladin);
+            var run=new FloorGenerator(content).CreateNewRun(500u,HeroClassId.Paladin);
             var repo=new LocalSaveRepository(_dir);
             repo.SaveSlot(1,new SlotSavePayload
             {
