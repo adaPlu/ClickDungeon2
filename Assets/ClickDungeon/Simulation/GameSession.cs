@@ -54,6 +54,7 @@ namespace ClickDungeon.Simulation
 
             if(result.Accepted)
             {
+                ConsumeTemporaryOffensiveAction(command,events);
                 State.CommandNumber++;
                 if(ConsumesMeaningfulAction(command) && !State.CampaignCompleted && !State.GameOver) StatusResolver.AdvanceMeaningfulAction(State,_content,events,statusesBeforeCommand,camouflageBeforeCommand>0);
                 if(!State.CampaignCompleted && !State.GameOver) StatusResolver.AdvanceFloorAction(State,_content,events,statusesBeforeCommand);
@@ -173,7 +174,13 @@ namespace ClickDungeon.Simulation
             if(!IsAdjacent(command.TileIndex)&&command.TileIndex!=Index(State.PlayerPosition))return CommandResult.Reject("tile.not_adjacent");
             if(!TryTile(command.TileIndex,out var tile)||tile.Content!=TileContentKind.Shrine||tile.Visibility!=TileVisibility.Revealed||tile.Resolution!=TileResolution.Available)return CommandResult.Reject("shrine.not_available");
             switch(command.Choice){case ShrineChoice.MaxHp:State.MaxHp+=3;State.Hp+=3;break;case ShrineChoice.Attack:State.Attack+=1;break;case ShrineChoice.Defense:State.Defense+=1;break;}
-            ResolveTile(tile);events.Add(new GameEvent("shrine.chosen",command.TileIndex,command.Choice.ToString()));GainRecharge(1,events);return CommandResult.Accept(events);
+            ResolveTile(tile);
+            events.Add(new GameEvent("shrine.chosen",command.TileIndex,command.Choice.ToString()));
+            if(State.HeroClass==HeroClassId.Cleric&&!State.ClericShrinePassiveTriggered)
+            {
+                State.ClericShrinePassiveTriggered=true;int before=State.Hp;State.Hp=Math.Min(State.MaxHp,State.Hp+3);events.Add(new GameEvent("passive.cleric.shrine_heal",command.TileIndex,"class.cleric",State.Hp-before));
+            }
+            GainRecharge(1,events);return CommandResult.Accept(events);
         }
 
         private CommandResult BuyItem(BuyItemCommand command,List<GameEvent> events)
@@ -263,6 +270,23 @@ namespace ClickDungeon.Simulation
         private IEnumerable<int> LivingMonstersAdjacentTo(int centerIndex)
         {
             var center=Position(centerIndex);for(int i=0;i<State.Tiles.Count;i++){if(i==centerIndex)continue;var pos=Position(i);if(center.IsOrthogonallyAdjacent(pos)&&TryLivingMonster(i,out _))yield return i;}
+        }
+
+        private void ConsumeTemporaryOffensiveAction(GameCommand command,List<GameEvent> events)
+        {
+            if(State.TemporaryAttackActionsRemaining<=0)return;
+            bool offensive=command is AttackCommand;
+            if(!offensive&&command is UseAbilityCommand)
+            {
+                for(int i=0;i<events.Count&&!offensive;i++)
+                {
+                    string type=events[i].Type;
+                    offensive=type=="ability.damage"||type=="ability.area_damage"||type=="ability.chain_damage"||type=="ability.meteor_damage";
+                }
+            }
+            if(!offensive)return;
+            State.TemporaryAttackActionsRemaining--;
+            if(State.TemporaryAttackActionsRemaining==0&&State.TemporaryAttackResponsesRemaining<=0)State.TemporaryAttackBonus=0;
         }
 
         private void ResolveTile(TileState tile){tile.Resolution=TileResolution.Resolved;State.TilesResolved++;if(tile.Occupancy!=OccupancyKind.Player)tile.Occupancy=OccupancyKind.None;}
