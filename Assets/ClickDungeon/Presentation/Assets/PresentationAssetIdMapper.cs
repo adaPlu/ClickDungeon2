@@ -19,10 +19,20 @@ namespace ClickDungeon.Presentation.Assets
     /// </summary>
     public static class HeroPresentationAssetResolver
     {
+        public static string MasterAssetId(string heroId)=>AssetId(heroId,"master");
         public static string PortraitAssetId(string heroId)=>AssetId(heroId,"portrait");
-        public static string SelectionAssetId(string heroId)=>AssetId(heroId,"select");
         public static string RosterAssetId(string heroId)=>AssetId(heroId,"roster");
         public static string GameplayAssetId(string heroId)=>AssetId(heroId,"gameplay");
+        public static string IdleAssetId(string heroId)=>AssetId(heroId,"idle");
+        public static string AttackAssetId(string heroId)=>AssetId(heroId,"attack");
+        public static string HitAssetId(string heroId)=>AssetId(heroId,"hit");
+        public static string VictoryAssetId(string heroId)=>AssetId(heroId,"victory");
+        public static string DefeatAssetId(string heroId)=>AssetId(heroId,"defeat");
+
+        // Legacy menu callers may still ask for a selection key while the remaster migrates them
+        // to the canonical roster/master presentation set. It is intentionally not a required
+        // runtime production variant.
+        public static string SelectionAssetId(string heroId)=>AssetId(heroId,"select");
 
         private static string AssetId(string heroId,string variant)
         {
