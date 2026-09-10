@@ -27,13 +27,12 @@ namespace ClickDungeon.Presentation.Menu
         {
             if(hero==null)throw new ArgumentNullException(nameof(hero));
             string heroPrefix="hero."+hero.HeroId.ToLowerInvariant();
-            string classFallback="hero."+hero.ClassId.ToString().ToLowerInvariant();
             return new HeroCardDescriptor(
                 hero.HeroId,
                 hero.DisplayName,
                 hero.ClassId.ToString().ToUpperInvariant(),
                 string.IsNullOrEmpty(hero.CampaignId)?string.Empty:"STORY CAMPAIGN",
-                new[]{heroPrefix+".roster",heroPrefix+".portrait",heroPrefix+".select",classFallback});
+                new[]{heroPrefix+".roster",heroPrefix+".portrait",heroPrefix+".select",heroPrefix+".gameplay"});
         }
     }
 }
