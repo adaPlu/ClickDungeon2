@@ -160,6 +160,7 @@ namespace ClickDungeon.Tests.PresentationEditMode
             Assert.That(menu,Does.Contain("BuildHeroSelectionPage(card)"));
             Assert.That(menu,Does.Contain("HeroCardPresentation.Describe(hero,mechanics)"),"Hero selection needs an identity-specific visual descriptor backed by canonical class mechanics.");
             Assert.That(menu,Does.Contain("ResolveHeroCardSprite(card)"));
+            Assert.That(menu,Does.Not.Contain("prefix+\".master\""),"A prefix that already ends in '.' must not add another separator before hero visual variants.");
         }
 
         [Test]
