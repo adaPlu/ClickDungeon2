@@ -241,7 +241,7 @@ namespace ClickDungeon.Simulation
 
         private CommandResult Exit(int index,bool forbidden,List<GameEvent> events)
         {
-            if(!TryTile(index,out var tile))return CommandResult.Reject("tile.out_of_range");if(!IsAdjacent(index)&&index!=Index(State.PlayerPosition))return CommandResult.Reject("tile.not_adjacent");var required=forbidden?TileContentKind.ForbiddenExit:TileContentKind.SafeExit;if(tile.Content!=required||tile.Visibility!=TileVisibility.Revealed)return CommandResult.Reject("exit.not_available");if(State.BossRequired&&!State.BossDefeated)return CommandResult.Reject("boss.must_be_defeated");if(forbidden&&State.BigKeys<=0)return CommandResult.Reject("key.big.required");if(forbidden)State.BigKeys--;
+            if(!TryTile(index,out var tile))return CommandResult.Reject("tile.out_of_range");if(!IsAdjacent(index)&&index!=Index(State.PlayerPosition))return CommandResult.Reject("tile.not_adjacent");var required=forbidden?TileContentKind.ForbiddenExit:TileContentKind.SafeExit;if(tile.Content!=required||tile.Visibility!=TileVisibility.Revealed||tile.Resolution!=TileResolution.Available)return CommandResult.Reject("exit.not_available");if(State.BossRequired&&!State.BossDefeated)return CommandResult.Reject("boss.must_be_defeated");if(forbidden&&State.BigKeys<=0)return CommandResult.Reject("key.big.required");if(forbidden)State.BigKeys--;
             int nextFloor=State.Floor+1;
             int campaignLimit=State.CampaignFloorLimit>0?Math.Min(State.CampaignFloorLimit,_content.Balance.CampaignFloors):_content.Balance.CampaignFloors;
             if(State.Mode==RunMode.Campaign&&nextFloor>campaignLimit&&campaignLimit<_content.Balance.CampaignFloors)return CommandResult.Reject("entitlement.full_game_required");
