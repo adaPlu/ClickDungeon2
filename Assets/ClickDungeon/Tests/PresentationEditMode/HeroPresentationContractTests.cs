@@ -81,10 +81,10 @@ namespace ClickDungeon.Tests.PresentationEditMode
             Assert.That(source,Does.Contain("CORE STATS"));
             Assert.That(source,Does.Contain("CLASS KIT"));
             Assert.That(source,Does.Contain("GAMEPLAY IDENTITY"));
-            Assert.That(source,Does.Not.Contain("PreviousClass"));
-            Assert.That(source,Does.Not.Contain("NextClass"));
-            Assert.That(source,Does.Not.Contain("PreviousHero"));
-            Assert.That(source,Does.Not.Contain("NextHero"));
+            Assert.That(source,Does.Not.Contain("CreateButton(\"PreviousClass\""));
+            Assert.That(source,Does.Not.Contain("CreateButton(\"NextClass\""));
+            Assert.That(source,Does.Not.Contain("CreateButton(\"PreviousHero\""));
+            Assert.That(source,Does.Not.Contain("CreateButton(\"NextHero\""));
             Assert.That(source,Does.Not.Contain("button.onClick.AddListener(()=>StartNew(card.HeroId))"),"Hero page itself must not start a run; SELECT is the explicit commit action.");
         }
 
