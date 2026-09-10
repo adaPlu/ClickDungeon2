@@ -55,25 +55,66 @@ jobs:
           testMode: EditMode
           artifactsPath: hero-remaster-editmode-results
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-      - name: Capture post-Unity mutation evidence
+      - name: Capture and reconcile post-Unity mutation evidence
         if: always()
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p .ci/hero-remaster-unity
-          git status --porcelain=v1 --untracked-files=all -- Assets ProjectSettings Packages > .ci/hero-remaster-unity/status.txt || true
-          git diff --no-ext-diff -- Assets ProjectSettings Packages > .ci/hero-remaster-unity/import.diff || true
-          python3 scripts/validate-unity-metadata.py --strict > .ci/hero-remaster-unity/metadata-audit.txt 2>&1 || true
-          if [ -s .ci/hero-remaster-unity/status.txt ]; then
-            echo "::error::Unity EditMode verification mutated tracked/untracked project state."
-            cat .ci/hero-remaster-unity/status.txt
+          evidence="${RUNNER_TEMP}/hero-remaster-unity"
+          mkdir -p "$evidence"
+
+          # Keep test output outside the repository so the final cleanliness check can cover the whole tree.
+          if [ -d hero-remaster-editmode-results ]; then
+            rm -rf "$evidence/hero-remaster-editmode-results"
+            mv hero-remaster-editmode-results "$evidence/hero-remaster-editmode-results"
+          fi
+
+          # Preserve the exact pre-restore project mutation evidence.
+          git status --porcelain=v1 --untracked-files=all -- Assets ProjectSettings Packages > "$evidence/status.txt"
+          git diff --no-ext-diff -- Assets ProjectSettings Packages > "$evidence/import.diff"
+          metadata_rc=0
+          python3 scripts/validate-unity-metadata.py --strict > "$evidence/metadata-audit.txt" 2>&1 || metadata_rc=$?
+
+          unexpected=false
+          while IFS= read -r line; do
+            [ -z "$line" ] && continue
+            path="${line:3}"
+            case "$path" in
+              Packages/manifest.json|Packages/packages-lock.json)
+                ;;
+              *)
+                echo "::error::Unexpected Unity mutation: $line"
+                unexpected=true
+                ;;
+            esac
+          done < "$evidence/status.txt"
+
+          if [ "$unexpected" = true ]; then
+            echo "::error::Unity EditMode verification mutated project state outside the two proven GameCI package files."
             exit 1
+          fi
+
+          if [ -s "$evidence/status.txt" ]; then
+            echo "Only the two proven GameCI package-toolchain files changed; restoring them to HEAD."
+            git restore --source=HEAD --staged --worktree -- Packages/manifest.json Packages/packages-lock.json
+          fi
+
+          # After removing CI output and restoring the only allowed environmental mutations, nothing may remain dirty anywhere.
+          git status --porcelain=v1 --untracked-files=all > "$evidence/post-restore-status.txt"
+          if [ -s "$evidence/post-restore-status.txt" ]; then
+            echo "::error::Repository is not completely clean after GameCI package reconciliation."
+            cat "$evidence/post-restore-status.txt"
+            exit 1
+          fi
+
+          if [ "$metadata_rc" -ne 0 ]; then
+            echo "::error::Strict Unity metadata audit failed after EditMode verification."
+            cat "$evidence/metadata-audit.txt"
+            exit "$metadata_rc"
           fi
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
           name: hero-remaster-unity-evidence
-          path: |
-            hero-remaster-editmode-results
-            .ci/hero-remaster-unity
+          path: ${{ runner.temp }}/hero-remaster-unity
           if-no-files-found: ignore
