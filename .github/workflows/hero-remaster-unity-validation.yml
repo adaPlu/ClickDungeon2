@@ -1,8 +1,8 @@
 name: Hero Remaster Unity Validation
 
 on:
-  pull_request:
-    branches: [develop]
+  push:
+    branches: [feature/hero-class-remaster-execution]
   workflow_dispatch:
 
 permissions:
