@@ -18,5 +18,9 @@ namespace ClickDungeon.Application.State
         public long TotalRuns;
         public long TotalDeaths;
         public long TotalVictories;
+        public long GoldBalance;
+        public long GemBalance;
+        public string DailyRewardLastClaimUtc = string.Empty;
+        public int DailyRewardStreak;
     }
 }

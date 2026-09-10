@@ -10,6 +10,11 @@ RUNTIME=ROOT/'Assets'/'ClickDungeon'/'Art'/'Runtime'
 CONTENT=ROOT/'Assets'/'ClickDungeon'/'Content'/'Json'
 BINDINGS=SOURCE/'gameplay_art_bindings.json'
 EXPECTED_SCHEMA='clickdungeon.gameplay_art_bindings.v1'
+EXPECTED_HERO_IDS=(
+    'ironheart','clickington','dawnward','rageclaw','gearspark',
+    'windsong','lightbringer','emberwisp','shadowcut'
+)
+REQUIRED_HERO_VARIANTS=('master','portrait','roster','gameplay','idle','attack','hit','victory','defeat')
 errors=[]
 
 
@@ -52,6 +57,7 @@ def register_presentation_key(key,owner,seen):
 def hero_ids_from_catalog():
     path=ROOT/'Assets'/'ClickDungeon'/'Application'/'Heroes'/'HeroIdentityCatalog.cs'
     if not path.exists():
+        errors.append(f'missing required file {path.relative_to(ROOT)}')
         return None
     text=path.read_text(encoding='utf-8')
     return set(re.findall(r'new HeroIdentityDefinition\("([^"]+)"',text))
@@ -84,6 +90,9 @@ item_ids=content_ids('items.json','items')
 monster_ids=content_ids('monsters.json','monsters')
 biome_ids=content_ids('biomes.json','biomes')
 hero_ids=hero_ids_from_catalog()
+expected_hero_ids=set(EXPECTED_HERO_IDS)
+if hero_ids is not None and hero_ids!=expected_hero_ids:
+    errors.append(f'hero identity catalog must contain exactly {list(EXPECTED_HERO_IDS)}, found {sorted(hero_ids)}')
 
 require_unique(items,'gameplay_id','item gameplay_id')
 require_unique(monsters,'gameplay_id','monster gameplay_id')
@@ -106,6 +115,10 @@ for row in heroes:
     if hero_id and hero_ids is not None and hero_id not in hero_ids:
         errors.append(f'unknown hero_id {hero_id}')
 
+bound_hero_ids={row.get('hero_id') for row in heroes if isinstance(row,dict) and row.get('hero_id')}
+if bound_hero_ids!=expected_hero_ids:
+    errors.append(f'hero bindings must contain exactly {list(EXPECTED_HERO_IDS)}, found {sorted(bound_hero_ids)}')
+
 presentation_keys={}
 for row in items:
     register_presentation_key(row.get('presentation_key'),row.get('gameplay_id','item'),presentation_keys)
@@ -121,8 +134,15 @@ for row in heroes:
         continue
     if len(keys)!=len(set(keys)):
         errors.append(f'{owner}: duplicate canonical_keys')
+    expected_keys=[f'hero.{owner}.{variant}' for variant in REQUIRED_HERO_VARIANTS]
+    if keys!=expected_keys:
+        errors.append(f'{owner}: canonical_keys must be exactly {expected_keys}, found {keys}')
     for key in keys:
         register_presentation_key(key,owner,presentation_keys)
+    for variant in REQUIRED_HERO_VARIANTS:
+        filename=f'hero_{owner}_{variant}.png'
+        if not (RUNTIME/filename).exists():
+            errors.append(f'{owner}: required hero runtime file missing: {filename}')
 
 # Bindings that claim an existing canonical runtime file must point at a real file.
 existing_statuses={'existing_canonical_reuse','legacy_runtime_present_approved_replacement_pending','backdrop_present_modular_room_kit_pending'}

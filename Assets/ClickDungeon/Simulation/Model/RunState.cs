@@ -30,6 +30,13 @@ namespace ClickDungeon.Simulation.Model
         public int FortifyActions;
         public int CamouflageActions;
         public int RootedActions;
+        public int TemporaryAttackBonus;
+        public int TemporaryAttackActionsRemaining;
+        public int TemporaryAttackResponsesRemaining;
+        public int TemporaryDefenseBonus;
+        public int TemporaryDefenseResponsesRemaining;
+        public bool PaladinHalfHpPassiveTriggered;
+        public bool ClericShrinePassiveTriggered;
         public bool Defending;
         public bool GameOver;
         public bool CampaignCompleted;

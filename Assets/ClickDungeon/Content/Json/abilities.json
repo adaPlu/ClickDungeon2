@@ -1,5 +1,5 @@
 {
-  "revision": 2,
+  "revision": 3,
   "abilities": [
     {"id":"ability.knight.shield_wall","class_id":"class.knight","display_name":"Shield Wall","max_charges":3,"recharge_progress_required":8,"unlock_mastery":0,"role":"mitigation_position","effect":"gain 4 shield"},
     {"id":"ability.knight.taunt","class_id":"class.knight","display_name":"Taunt","max_charges":2,"recharge_progress_required":10,"unlock_mastery":24,"role":"intent_control","effect":"force target to basic attack at reduced intent power"},
@@ -23,6 +23,30 @@
     {"id":"ability.wizard.frost_nova","class_id":"class.wizard","display_name":"Frost Nova","max_charges":2,"recharge_progress_required":9,"unlock_mastery":24,"role":"area_control","effect":"root revealed monsters within distance 2"},
     {"id":"ability.wizard.chain_lightning","class_id":"class.wizard","display_name":"Chain Lightning","max_charges":2,"recharge_progress_required":10,"unlock_mastery":56,"role":"multi_target","effect":"damage up to 3 revealed monsters"},
     {"id":"ability.wizard.arcane_shield","class_id":"class.wizard","display_name":"Arcane Shield","max_charges":2,"recharge_progress_required":8,"unlock_mastery":96,"role":"mitigation","effect":"gain 5 shield"},
-    {"id":"ability.wizard.meteor","class_id":"class.wizard","display_name":"Meteor","max_charges":1,"recharge_progress_required":14,"unlock_mastery":150,"role":"ultimate_area_damage","effect":"damage all revealed monsters"}
+    {"id":"ability.wizard.meteor","class_id":"class.wizard","display_name":"Meteor","max_charges":1,"recharge_progress_required":14,"unlock_mastery":150,"role":"ultimate_area_damage","effect":"damage all revealed monsters"},
+
+    {"id":"ability.paladin.radiant_strike","class_id":"class.paladin","display_name":"Radiant Strike","max_charges":3,"recharge_progress_required":8,"unlock_mastery":0,"role":"melee_sustain","effect":"adjacent attack at normal attack power; on successful hit gain 2 shield"},
+    {"id":"ability.paladin.lay_on_hands","class_id":"class.paladin","display_name":"Lay on Hands","max_charges":2,"recharge_progress_required":10,"unlock_mastery":24,"role":"healing","effect":"restore 5 hp capped at max hp"},
+    {"id":"ability.paladin.consecration","class_id":"class.paladin","display_name":"Consecration","max_charges":2,"recharge_progress_required":10,"unlock_mastery":56,"role":"area_damage_mitigation","effect":"deal 2 damage to each revealed monster within manhattan distance 1, then gain 2 shield"},
+    {"id":"ability.paladin.aegis_of_dawn","class_id":"class.paladin","display_name":"Aegis of Dawn","max_charges":2,"recharge_progress_required":11,"unlock_mastery":96,"role":"temporary_mitigation","effect":"gain 6 shield and +1 temporary defense for the next 2 enemy responses"},
+    {"id":"ability.paladin.divine_bulwark","class_id":"class.paladin","display_name":"Divine Bulwark","max_charges":1,"recharge_progress_required":14,"unlock_mastery":150,"role":"ultimate_sustain","effect":"restore 6 hp capped at max hp and gain 8 shield"},
+
+    {"id":"ability.berserker.cleaving_blow","class_id":"class.berserker","display_name":"Cleaving Blow","max_charges":3,"recharge_progress_required":8,"unlock_mastery":0,"role":"melee_damage","effect":"adjacent attack for normal attack power +2"},
+    {"id":"ability.berserker.bloodrush","class_id":"class.berserker","display_name":"Bloodrush","max_charges":2,"recharge_progress_required":10,"unlock_mastery":24,"role":"risk_buff","effect":"lose 2 hp without dropping below 1; gain +2 temporary attack for the next 2 offensive actions"},
+    {"id":"ability.berserker.war_cry","class_id":"class.berserker","display_name":"War Cry","max_charges":2,"recharge_progress_required":10,"unlock_mastery":56,"role":"intent_control","effect":"force one revealed target's next offensive intent to a basic attack at reduced intent power"},
+    {"id":"ability.berserker.frenzy","class_id":"class.berserker","display_name":"Frenzy","max_charges":2,"recharge_progress_required":10,"unlock_mastery":96,"role":"multi_hit","effect":"make two consecutive adjacent normal attacks against the same target, stopping if defeated after the first"},
+    {"id":"ability.berserker.ragequake","class_id":"class.berserker","display_name":"Ragequake","max_charges":1,"recharge_progress_required":14,"unlock_mastery":150,"role":"area_damage","effect":"deal normal attack power +1 to each revealed monster within manhattan distance 1"},
+
+    {"id":"ability.engineer.shock_wrench","class_id":"class.engineer","display_name":"Shock Wrench","max_charges":3,"recharge_progress_required":8,"unlock_mastery":0,"role":"melee_control","effect":"adjacent attack at normal attack power and root the surviving target for 1 enemy response"},
+    {"id":"ability.engineer.barrier_drone","class_id":"class.engineer","display_name":"Barrier Drone","max_charges":2,"recharge_progress_required":9,"unlock_mastery":24,"role":"mitigation","effect":"gain 5 shield"},
+    {"id":"ability.engineer.snare_mine","class_id":"class.engineer","display_name":"Snare Mine","max_charges":2,"recharge_progress_required":9,"unlock_mastery":56,"role":"control","effect":"root one revealed target for 2 enemy responses"},
+    {"id":"ability.engineer.overclock","class_id":"class.engineer","display_name":"Overclock","max_charges":2,"recharge_progress_required":10,"unlock_mastery":96,"role":"temporary_buff","effect":"gain +1 temporary attack and +1 temporary defense for the next 3 enemy responses; refresh rather than stack"},
+    {"id":"ability.engineer.clockwork_barrage","class_id":"class.engineer","display_name":"Clockwork Barrage","max_charges":1,"recharge_progress_required":14,"unlock_mastery":150,"role":"multi_target","effect":"deal normal attack power to up to 3 revealed monsters using deterministic targeting"},
+
+    {"id":"ability.cleric.smite","class_id":"class.cleric","display_name":"Smite","max_charges":3,"recharge_progress_required":8,"unlock_mastery":0,"role":"ranged_damage","effect":"deal normal attack power +1 to one revealed monster within manhattan distance 2"},
+    {"id":"ability.cleric.mend","class_id":"class.cleric","display_name":"Mend","max_charges":3,"recharge_progress_required":8,"unlock_mastery":24,"role":"healing","effect":"restore 5 hp capped at max hp"},
+    {"id":"ability.cleric.sanctuary","class_id":"class.cleric","display_name":"Sanctuary","max_charges":2,"recharge_progress_required":10,"unlock_mastery":56,"role":"temporary_mitigation","effect":"gain 5 shield and +1 temporary defense for the next 2 enemy responses"},
+    {"id":"ability.cleric.blessing","class_id":"class.cleric","display_name":"Blessing","max_charges":2,"recharge_progress_required":10,"unlock_mastery":96,"role":"temporary_buff","effect":"gain +1 temporary attack and +1 temporary defense for the next 3 enemy responses; refresh rather than stack"},
+    {"id":"ability.cleric.radiant_renewal","class_id":"class.cleric","display_name":"Radiant Renewal","max_charges":1,"recharge_progress_required":14,"unlock_mastery":150,"role":"ultimate_recovery","effect":"restore 8 hp capped at max hp, then gain 5 shield"}
   ]
 }

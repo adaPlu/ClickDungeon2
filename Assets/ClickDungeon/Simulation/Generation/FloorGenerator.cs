@@ -36,6 +36,8 @@ namespace ClickDungeon.Simulation.Generation
         {
             state.Floor = floor;
             state.RouteModifier = route;
+            state.PaladinHalfHpPassiveTriggered=false;
+            state.ClericShrinePassiveTriggered=false;
             state.BiomeId = state.Mode==RunMode.Abyss?_content.BiomeForFloor(((Math.Max(1,floor-_content.Balance.CampaignFloors)-1)%_content.Balance.CampaignFloors)+1):_content.BiomeForFloor(floor);
             state.ArchetypeId = SelectArchetype(state, floor);
             state.FloorSeed = SeedDerivation.Derive(state.RootSeed, $"floor:{floor}:{route}:{state.ArchetypeId}");
@@ -145,7 +147,6 @@ namespace ClickDungeon.Simulation.Generation
         private static void FisherYates(List<TileState> list,IRandomSource rng){for(int i=list.Count-1;i>0;i--){int j=rng.NextInt(i+1);var tmp=list[i];list[i]=list[j];list[j]=tmp;}}
         private static void ReplaceFirstEmpty(List<TileState> list,TileState displaced,int excluded){for(int i=0;i<list.Count;i++)if(i!=excluded&&list[i].Content==TileContentKind.Empty){list[i]=displaced;return;} for(int i=0;i<list.Count;i++)if(i!=excluded&&list[i].Content==TileContentKind.Gold){list[i]=displaced;return;}}
 
-
         private static void ApplyTerrain(RunState state,IRandomSource rng)
         {
             TerrainKind terrain;int count;
@@ -181,6 +182,15 @@ namespace ClickDungeon.Simulation.Generation
             {
                 var candidates=state.Tiles.Where(t=>t.Visibility==TileVisibility.Hidden && ClueFor(t.Content)!=ClueFamily.None).ToList();
                 if(candidates.Count>0){var tile=candidates[rng.NextInt(candidates.Count)];tile.Clue=ClueFor(tile.Content);tile.Visibility=TileVisibility.Clued;}
+            }
+            else if(state.HeroClass==HeroClassId.Engineer)
+            {
+                var target=state.Tiles
+                    .Where(t=>t.Content==TileContentKind.Monster&&t.Resolution==TileResolution.Available&&(t.Visibility==TileVisibility.Hidden||t.Visibility==TileVisibility.Clued))
+                    .OrderBy(t=>Math.Abs(state.PlayerPosition.Row-(t.Index/RunState.BoardSize))+Math.Abs(state.PlayerPosition.Col-(t.Index%RunState.BoardSize)))
+                    .ThenBy(t=>t.Index)
+                    .FirstOrDefault();
+                if(target!=null){target.Clue=ClueFamily.Danger;target.Visibility=TileVisibility.Identified;}
             }
         }
 

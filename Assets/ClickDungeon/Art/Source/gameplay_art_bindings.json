@@ -5,44 +5,71 @@
     "player_facing_brand": "ClickDungeon",
     "canonical_rule": "Gameplay IDs remain authoritative. Presentation assets bind to gameplay IDs; art filenames and display names must not create new gameplay IDs implicitly.",
     "duplicate_rule": "Reuse an existing canonical runtime asset when one already exists. Candidate art from extraction packs must be explicitly bound before import.",
-    "fallback_rule": "Legacy procedural runtime art may remain as a fallback until an approved illustrated replacement is imported and registered."
+    "fallback_rule": "Named hero identities require their own canonical runtime variants; mechanical-class art is not a fallback for identity-specific hero presentation."
   },
   "heroes": [
     {
       "hero_id": "ironheart",
       "class_id": "Knight",
       "campaign_id": "",
-      "canonical_keys": [
-        "hero.ironheart.portrait",
-        "hero.ironheart.roster",
-        "hero.ironheart.select",
-        "hero.ironheart.gameplay",
-        "hero.ironheart.idle",
-        "hero.ironheart.attack",
-        "hero.ironheart.hit",
-        "hero.ironheart.victory",
-        "hero.ironheart.defeat"
-      ],
-      "current_fallback_key": "hero.knight",
-      "status": "approved_identity_binary_import_pending"
+      "canonical_keys": ["hero.ironheart.master", "hero.ironheart.portrait", "hero.ironheart.roster", "hero.ironheart.gameplay", "hero.ironheart.idle", "hero.ironheart.attack", "hero.ironheart.hit", "hero.ironheart.victory", "hero.ironheart.defeat"],
+      "status": "production_ready"
     },
     {
       "hero_id": "clickington",
       "class_id": "Knight",
       "campaign_id": "clickington_campaign",
-      "canonical_keys": [
-        "hero.clickington.portrait",
-        "hero.clickington.roster",
-        "hero.clickington.select",
-        "hero.clickington.gameplay",
-        "hero.clickington.idle",
-        "hero.clickington.attack",
-        "hero.clickington.hit",
-        "hero.clickington.victory",
-        "hero.clickington.defeat"
-      ],
-      "current_fallback_key": "hero.knight",
-      "status": "approved_identity_binary_import_pending"
+      "canonical_keys": ["hero.clickington.master", "hero.clickington.portrait", "hero.clickington.roster", "hero.clickington.gameplay", "hero.clickington.idle", "hero.clickington.attack", "hero.clickington.hit", "hero.clickington.victory", "hero.clickington.defeat"],
+      "status": "production_ready"
+    },
+    {
+      "hero_id": "dawnward",
+      "class_id": "Paladin",
+      "campaign_id": "",
+      "canonical_keys": ["hero.dawnward.master", "hero.dawnward.portrait", "hero.dawnward.roster", "hero.dawnward.gameplay", "hero.dawnward.idle", "hero.dawnward.attack", "hero.dawnward.hit", "hero.dawnward.victory", "hero.dawnward.defeat"],
+      "status": "production_ready"
+    },
+    {
+      "hero_id": "rageclaw",
+      "class_id": "Berserker",
+      "campaign_id": "",
+      "canonical_keys": ["hero.rageclaw.master", "hero.rageclaw.portrait", "hero.rageclaw.roster", "hero.rageclaw.gameplay", "hero.rageclaw.idle", "hero.rageclaw.attack", "hero.rageclaw.hit", "hero.rageclaw.victory", "hero.rageclaw.defeat"],
+      "status": "production_ready"
+    },
+    {
+      "hero_id": "gearspark",
+      "class_id": "Engineer",
+      "campaign_id": "",
+      "canonical_keys": ["hero.gearspark.master", "hero.gearspark.portrait", "hero.gearspark.roster", "hero.gearspark.gameplay", "hero.gearspark.idle", "hero.gearspark.attack", "hero.gearspark.hit", "hero.gearspark.victory", "hero.gearspark.defeat"],
+      "status": "production_ready"
+    },
+    {
+      "hero_id": "windsong",
+      "class_id": "Ranger",
+      "campaign_id": "",
+      "canonical_keys": ["hero.windsong.master", "hero.windsong.portrait", "hero.windsong.roster", "hero.windsong.gameplay", "hero.windsong.idle", "hero.windsong.attack", "hero.windsong.hit", "hero.windsong.victory", "hero.windsong.defeat"],
+      "status": "production_ready"
+    },
+    {
+      "hero_id": "lightbringer",
+      "class_id": "Cleric",
+      "campaign_id": "",
+      "canonical_keys": ["hero.lightbringer.master", "hero.lightbringer.portrait", "hero.lightbringer.roster", "hero.lightbringer.gameplay", "hero.lightbringer.idle", "hero.lightbringer.attack", "hero.lightbringer.hit", "hero.lightbringer.victory", "hero.lightbringer.defeat"],
+      "status": "production_ready"
+    },
+    {
+      "hero_id": "emberwisp",
+      "class_id": "Wizard",
+      "campaign_id": "",
+      "canonical_keys": ["hero.emberwisp.master", "hero.emberwisp.portrait", "hero.emberwisp.roster", "hero.emberwisp.gameplay", "hero.emberwisp.idle", "hero.emberwisp.attack", "hero.emberwisp.hit", "hero.emberwisp.victory", "hero.emberwisp.defeat"],
+      "status": "production_ready"
+    },
+    {
+      "hero_id": "shadowcut",
+      "class_id": "Thief",
+      "campaign_id": "",
+      "canonical_keys": ["hero.shadowcut.master", "hero.shadowcut.portrait", "hero.shadowcut.roster", "hero.shadowcut.gameplay", "hero.shadowcut.idle", "hero.shadowcut.attack", "hero.shadowcut.hit", "hero.shadowcut.victory", "hero.shadowcut.defeat"],
+      "status": "production_ready"
     }
   ],
   "items": [

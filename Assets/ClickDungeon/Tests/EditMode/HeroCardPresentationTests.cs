@@ -7,7 +7,7 @@ using ClickDungeon.Simulation.Model;
 public sealed class HeroCardPresentationTests
 {
     [Test]
-    public void IronheartCardUsesIdentityArtBeforeKnightFallback()
+    public void IronheartCardUsesIdentityArtVariantsOnly()
     {
         var hero=new HeroIdentityDefinition("ironheart","Ironheart",HeroClassId.Knight);
         var card=HeroCardPresentation.Describe(hero);
@@ -15,7 +15,7 @@ public sealed class HeroCardPresentationTests
         Assert.AreEqual("Ironheart",card.DisplayName);
         Assert.AreEqual("KNIGHT",card.ClassLabel);
         Assert.AreEqual(string.Empty,card.Badge);
-        CollectionAssert.AreEqual(new[]{"hero.ironheart.roster","hero.ironheart.portrait","hero.ironheart.select","hero.knight"},card.SpriteKeys);
+        CollectionAssert.AreEqual(new[]{"hero.ironheart.roster","hero.ironheart.portrait","hero.ironheart.master","hero.ironheart.gameplay"},card.SpriteKeys);
     }
 
     [Test]
@@ -27,7 +27,7 @@ public sealed class HeroCardPresentationTests
         Assert.AreEqual("Sir Clickington",card.DisplayName);
         Assert.AreEqual("KNIGHT",card.ClassLabel);
         Assert.AreEqual("STORY CAMPAIGN",card.Badge);
-        CollectionAssert.AreEqual(new[]{"hero.clickington.roster","hero.clickington.portrait","hero.clickington.select","hero.knight"},card.SpriteKeys);
+        CollectionAssert.AreEqual(new[]{"hero.clickington.roster","hero.clickington.portrait","hero.clickington.master","hero.clickington.gameplay"},card.SpriteKeys);
     }
 }
 #endif

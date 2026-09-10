@@ -7,5 +7,6 @@ namespace ClickDungeon.Presentation
     internal static class Application
     {
         public static string dataPath => UnityEngine.Application.dataPath;
+        public static void Quit() => UnityEngine.Application.Quit();
     }
 }

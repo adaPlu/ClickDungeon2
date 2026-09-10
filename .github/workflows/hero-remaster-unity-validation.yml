@@ -1,0 +1,186 @@
+name: Hero Remaster Unity Validation
+
+on:
+  push:
+    branches: [feature/hero-class-remaster-execution]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  editmode:
+    runs-on: ubuntu-latest
+    env:
+      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+      UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+      UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+      UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - name: Require usable Unity activation inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          credentials=false
+          personal=false
+          professional=false
+          [ -n "${UNITY_EMAIL:-}" ] && [ -n "${UNITY_PASSWORD:-}" ] && credentials=true
+          if [ -n "${UNITY_LICENSE:-}" ]; then
+            trimmed="${UNITY_LICENSE#"${UNITY_LICENSE%%[![:space:]]*}"}"
+            if [ "${#UNITY_LICENSE}" -ge 256 ] && [[ "$trimmed" == \<* ]]; then personal=true; fi
+          fi
+          [ -n "${UNITY_SERIAL:-}" ] && professional=true
+          echo "Unity account credentials present: $credentials"
+          echo "Personal .ulf shape ready: $personal"
+          echo "Professional serial ready: $professional"
+          if [ "$credentials" != true ] || { [ "$personal" != true ] && [ "$professional" != true ]; }; then
+            echo "::error::Unity activation inputs are not ready; refusing to skip the required EditMode verification."
+            exit 1
+          fi
+      - name: Strict metadata preflight
+        run: python3 scripts/validate-unity-metadata.py --strict
+      - name: Capture runner ownership identity
+        id: runner-ownership
+        shell: bash
+        run: echo "uid_gid=$(id -u):$(id -g)" >> "$GITHUB_OUTPUT"
+      - name: Run Unity 6000.5.9f1 EditMode tests
+        uses: game-ci/unity-test-runner@32e57712352b500e17974b245a6dce9e11a73213
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          unityVersion: 6000.5.9f1
+          testMode: EditMode
+          artifactsPath: hero-remaster-editmode-results
+          chownFilesTo: ${{ steps.runner-ownership.outputs.uid_gid }}
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Reconcile Unity workspace mutations
+        if: always()
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          evidence="${RUNNER_TEMP}/hero-remaster-unity-evidence"
+          rm -rf "$evidence"
+          mkdir -p "$evidence"
+          printf 'guard-started\n' > "$evidence/guard-started.txt"
+          printf 'RUNNER_TEMP=%q\nGITHUB_WORKSPACE=%q\nEVIDENCE_DIR=%q\n' "$RUNNER_TEMP" "$GITHUB_WORKSPACE" "$evidence" > "$evidence/environment-paths.txt"
+
+          # Diagnostic evidence must never become repository state.
+          printf 'workspace-assertion-started\n' > "$evidence/workspace-assertion-started.txt"
+          case "${evidence}/" in
+            "${GITHUB_WORKSPACE}/"*)
+              printf 'workspace-assertion-failed\n' > "$evidence/workspace-assertion-failed.txt"
+              echo "::error::Unity evidence directory is inside GITHUB_WORKSPACE."
+              exit 1
+              ;;
+          esac
+          printf 'workspace-assertion-passed\n' > "$evidence/workspace-assertion-passed.txt"
+
+          # Keep test-runner output outside the checkout so the final cleanliness assertion covers the whole repository.
+          if [ -d hero-remaster-editmode-results ]; then
+            printf 'test-results-directory-present\n' > "$evidence/test-results-directory-present.txt"
+            ls -ldn hero-remaster-editmode-results > "$evidence/test-results-directory-stat.txt" 2>&1 || true
+            printf 'test-results-move-started\n' > "$evidence/test-results-move-started.txt"
+            if ! mv hero-remaster-editmode-results "$evidence/hero-remaster-editmode-results" 2> "$evidence/test-results-move.stderr.txt"; then
+              printf 'test-results-move-failed\n' > "$evidence/test-results-move-failed.txt"
+              echo "::error::Failed to move Unity test-runner artifacts out of the checkout."
+              cat "$evidence/test-results-move.stderr.txt"
+              exit 1
+            fi
+            printf 'test-results-move-passed\n' > "$evidence/test-results-move-passed.txt"
+          else
+            printf 'test-results-directory-absent\n' > "$evidence/test-results-directory-absent.txt"
+          fi
+
+          echo "=== PRE-RESTORE STATUS ==="
+          printf 'pre-restore-status-started\n' > "$evidence/pre-restore-status-started.txt"
+          if ! git status --porcelain=v1 --untracked-files=all > "$evidence/status-before.txt" 2> "$evidence/status-before.stderr.txt"; then
+            printf 'pre-restore-status-failed\n' > "$evidence/pre-restore-status-failed.txt"
+            echo "::error::Failed to capture pre-restore repository status."
+            cat "$evidence/status-before.stderr.txt"
+            exit 1
+          fi
+          printf 'pre-restore-status-passed\n' > "$evidence/pre-restore-status-passed.txt"
+          cat "$evidence/status-before.txt"
+          git diff --binary HEAD -- > "$evidence/working-tree-diff-before.patch" || true
+          git diff --cached --binary HEAD -- > "$evidence/index-diff-before.patch" || true
+
+          # Keep the existing strict post-Unity metadata audit; reconciliation must not weaken validation.
+          metadata_rc=0
+          python3 scripts/validate-unity-metadata.py --strict > "$evidence/metadata-audit.txt" 2>&1 || metadata_rc=$?
+
+          # Inspect unstaged, staged, and untracked mutations separately using NUL-delimited paths.
+          mapfile -d '' -t WORKTREE_PATHS < <(git diff --name-only -z --)
+          mapfile -d '' -t INDEX_PATHS < <(git diff --cached --name-only -z --)
+          mapfile -d '' -t UNTRACKED_PATHS < <(git ls-files --others --exclude-standard -z)
+
+          : > "$evidence/paths-before.txt"
+          : > "$evidence/unexpected-paths.txt"
+          unexpected=0
+
+          validate_path() {
+            local path="$1"
+            [ -z "$path" ] && return 0
+
+            printf '%q\n' "$path" >> "$evidence/paths-before.txt"
+            case "$path" in
+              Packages/manifest.json|Packages/packages-lock.json)
+                ;;
+              *)
+                printf '%q\n' "$path" >> "$evidence/unexpected-paths.txt"
+                unexpected=1
+                ;;
+            esac
+          }
+
+          for path in "${WORKTREE_PATHS[@]}"; do validate_path "$path"; done
+          for path in "${INDEX_PATHS[@]}"; do validate_path "$path"; done
+          for path in "${UNTRACKED_PATHS[@]}"; do validate_path "$path"; done
+
+          if [ "$unexpected" -ne 0 ]; then
+            echo "::error::Unexpected repository mutation detected after Unity."
+            echo "Unexpected paths:"
+            cat "$evidence/unexpected-paths.txt"
+            exit 1
+          fi
+
+          echo "Mutation allowlist check passed."
+
+          # Restore ONLY the two proven GameCI environmental mutations.
+          if ! git restore --source=HEAD --staged --worktree -- Packages/manifest.json Packages/packages-lock.json 2> "$evidence/restore.stderr.txt"; then
+            echo "::error::Failed to restore approved GameCI package mutations."
+            cat "$evidence/restore.stderr.txt"
+            exit 1
+          fi
+
+          echo "=== POST-RESTORE STATUS ==="
+          git status --porcelain=v1 --untracked-files=all | tee "$evidence/status-after.txt"
+          git status --porcelain=v1 -z --untracked-files=all > "$evidence/status-after.z"
+
+          if [ -s "$evidence/status-after.z" ]; then
+            echo "::error::Repository remains dirty after approved GameCI restoration."
+            cat "$evidence/status-after.txt"
+            exit 1
+          fi
+
+          if [ "$metadata_rc" -ne 0 ]; then
+            echo "::error::Strict Unity metadata audit failed after EditMode verification."
+            cat "$evidence/metadata-audit.txt"
+            exit "$metadata_rc"
+          fi
+
+          echo "Unity workspace reconciliation passed."
+          echo "Repository is completely clean."
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: hero-remaster-unity-evidence-${{ github.run_id }}
+          path: ${{ runner.temp }}/hero-remaster-unity-evidence
+          if-no-files-found: error

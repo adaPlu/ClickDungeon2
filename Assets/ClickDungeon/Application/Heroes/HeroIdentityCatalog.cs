@@ -26,17 +26,34 @@ namespace ClickDungeon.Application.Heroes
         {
             new HeroIdentityDefinition("ironheart","Ironheart",HeroClassId.Knight),
             new HeroIdentityDefinition("clickington","Sir Clickington",HeroClassId.Knight,"clickington_campaign"),
+            new HeroIdentityDefinition("dawnward","Dawnward",HeroClassId.Paladin),
+            new HeroIdentityDefinition("rageclaw","Rageclaw",HeroClassId.Berserker),
+            new HeroIdentityDefinition("gearspark","Gearspark",HeroClassId.Engineer),
             new HeroIdentityDefinition("windsong","Windsong",HeroClassId.Ranger),
-            new HeroIdentityDefinition("shadowcut","Shadowcut",HeroClassId.Thief),
-            new HeroIdentityDefinition("emberwisp","Emberwisp",HeroClassId.Wizard)
+            new HeroIdentityDefinition("lightbringer","Lightbringer",HeroClassId.Cleric),
+            new HeroIdentityDefinition("emberwisp","Emberwisp",HeroClassId.Wizard),
+            new HeroIdentityDefinition("shadowcut","Shadowcut",HeroClassId.Thief)
+        };
+
+        private static readonly HeroClassId[] OrderedClasses =
+        {
+            HeroClassId.Knight,
+            HeroClassId.Paladin,
+            HeroClassId.Berserker,
+            HeroClassId.Engineer,
+            HeroClassId.Ranger,
+            HeroClassId.Cleric,
+            HeroClassId.Wizard,
+            HeroClassId.Thief
         };
 
         private static readonly HashSet<string> VisualVariants = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            "portrait","roster","select","gameplay","idle","attack","hit","victory","defeat"
+            "master","portrait","roster","gameplay","idle","attack","hit","victory","defeat"
         };
 
-        public static IEnumerable<HeroIdentityDefinition> All => Definitions;
+        public static IReadOnlyList<HeroIdentityDefinition> All => Definitions;
+        public static IReadOnlyList<HeroClassId> ClassDisplayOrder => OrderedClasses;
 
         public static IEnumerable<HeroIdentityDefinition> ForClass(HeroClassId classId)
         {
@@ -92,9 +109,13 @@ namespace ClickDungeon.Application.Heroes
             switch(classId)
             {
                 case HeroClassId.Knight:return "ironheart";
+                case HeroClassId.Paladin:return "dawnward";
+                case HeroClassId.Berserker:return "rageclaw";
+                case HeroClassId.Engineer:return "gearspark";
                 case HeroClassId.Ranger:return "windsong";
-                case HeroClassId.Thief:return "shadowcut";
+                case HeroClassId.Cleric:return "lightbringer";
                 case HeroClassId.Wizard:return "emberwisp";
+                case HeroClassId.Thief:return "shadowcut";
                 default:throw new ArgumentOutOfRangeException(nameof(classId),classId,"Unsupported gameplay class.");
             }
         }

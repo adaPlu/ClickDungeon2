@@ -47,10 +47,12 @@ namespace ClickDungeon.Presentation.Menu
         private TMP_Text _continueFloor;
         private TMP_Text _continueDetail;
         private TMP_Text _continueActionLabel;
+        private Button _continueAction;
         private readonly Image[] _slotButtonBackgrounds=new Image[4];
         private GameObject _heroSelectOverlay;
         private RectTransform _heroSelectContent;
-        private int _heroCardIndex;
+        private RectTransform _heroSelectPageHost;
+        private int _heroSelectIndex;
         private GameObject _utilityDrawer;
 
         private void Start()
@@ -177,8 +179,8 @@ namespace ClickDungeon.Presentation.Menu
             var preview=CreateSprite("DungeonPreview",previewFrame,FirstSprite("biome.crypt","dungeon.door.locked","dungeon.floor.stone"),new Vector2(.03f,.03f),new Vector2(.97f,.97f),true);
             preview.color=new Color(.88f,.88f,.88f,1f);
 
-            _continueFloor=CreateLabel("ContinueFloor",panel,"FLOOR 1",30,new Vector2(.08f,.31f),new Vector2(.92f,.43f),TextAlignmentOptions.Center,Cream,true);
-            _continueDetail=CreateLabel("ContinueDetail",panel,"SLOT 1 — EMPTY",17,new Vector2(.08f,.23f),new Vector2(.92f,.32f),TextAlignmentOptions.Center,Muted,false);
+            _continueFloor=CreateLabel("ContinueFloor",panel,"NO ACTIVE RUN",30,new Vector2(.08f,.31f),new Vector2(.92f,.43f),TextAlignmentOptions.Center,Cream,true);
+            _continueDetail=CreateLabel("ContinueDetail",panel,"SLOT 1 — NO ACTIVE RUN",17,new Vector2(.08f,.23f),new Vector2(.92f,.32f),TextAlignmentOptions.Center,Muted,false);
 
             for(int slot=1;slot<=4;slot++)
             {
@@ -188,8 +190,9 @@ namespace ClickDungeon.Presentation.Menu
                 _slotButtonBackgrounds[slot-1]=b.targetGraphic as Image;
             }
 
-            Button action=CreateButton("ContinueAction",panel,"PLAY",PrimaryPlay,new Vector2(.16f,.015f),new Vector2(.84f,.105f),PlayGreen,GoldSoft,23);
-            _continueActionLabel=action.GetComponentInChildren<TextMeshProUGUI>();
+            _continueAction=CreateButton("ContinueAction",panel,"NO ACTIVE RUN",Continue,new Vector2(.16f,.015f),new Vector2(.84f,.105f),PlayGreen,GoldSoft,23);
+            _continueActionLabel=_continueAction.GetComponentInChildren<TextMeshProUGUI>();
+            _continueAction.interactable=false;
         }
 
         private void BuildHeroShowcase()
@@ -214,7 +217,7 @@ namespace ClickDungeon.Presentation.Menu
         {
             var bar=CreatePanel("BottomNavigation",_root,new Vector2(.035f,.018f),new Vector2(.965f,.145f),new Color(.012f,.027f,.045f,.98f),Gold);
             string[] labels={"PLAY","HERO SELECT","INVENTORY","TALENTS","SHOP","SETTINGS","QUIT"};
-            UnityEngine.Events.UnityAction[] actions={PrimaryPlay,ShowHeroSelect,ShowInventory,ShowTalents,ShowShop,ShowSettings,QuitGame};
+            UnityEngine.Events.UnityAction[] actions={ShowHeroSelect,ShowHeroSelect,ShowInventory,ShowTalents,ShowShop,ShowSettings,QuitGame};
             for(int i=0;i<labels.Length;i++)
             {
                 float left=.012f+i*.141f;
@@ -226,7 +229,7 @@ namespace ClickDungeon.Presentation.Menu
 
         private void BuildStatusBar()
         {
-            _status=CreateLabel("Status",_root,"Choose PLAY to continue or begin a run.",17,new Vector2(.30f,.145f),new Vector2(.70f,.18f),TextAlignmentOptions.Center,Muted,false);
+            _status=CreateLabel("Status",_root,"Choose PLAY for a new run, or CONTINUE when a resumable run exists.",17,new Vector2(.30f,.145f),new Vector2(.70f,.18f),TextAlignmentOptions.Center,Muted,false);
         }
 
         private void BuildUtilityDrawer()
@@ -244,37 +247,138 @@ namespace ClickDungeon.Presentation.Menu
 
         private void BuildHeroSelectOverlay()
         {
-            var overlay=CreatePanel("HeroSelectOverlay",_root,new Vector2(0,0),new Vector2(1,1),new Color(0,0,0,.86f),Color.clear);
+            var overlay=CreatePanel("HeroSelectOverlay",_root,new Vector2(0,0),new Vector2(1,1),new Color(0,0,0,.90f),Color.clear);
             _heroSelectOverlay=overlay.gameObject;
-            var panel=CreatePanel("HeroSelectPanel",overlay,new Vector2(.27f,.10f),new Vector2(.73f,.90f),new Color(.015f,.035f,.055f,.99f),Gold);
+            var panel=CreatePanel("HeroSelectPanel",overlay,new Vector2(.045f,.035f),new Vector2(.955f,.965f),new Color(.012f,.026f,.040f,.995f),Gold);
             _heroSelectContent=panel;
-            CreateLabel("HeroSelectTitle",panel,"CHOOSE YOUR HERO",34,new Vector2(.08f,.89f),new Vector2(.92f,.98f),TextAlignmentOptions.Center,Cream,true);
-            CreateLabel("HeroSelectHint",panel,"Selecting a hero starts a new run in the selected save slot.",15,new Vector2(.08f,.84f),new Vector2(.92f,.89f),TextAlignmentOptions.Center,Muted,false);
-            _heroCardIndex=0;
-            foreach(var hero in HeroIdentityCatalog.All)AddHeroCard(hero);
-            CreateButton("HeroSelectClose",panel,"CLOSE",HideHeroSelect,new Vector2(.34f,.02f),new Vector2(.66f,.085f),PanelBlue,Gold,16);
+
+            CreateLabel("HeroSelectBrand",panel,"ClickDungeon",34,new Vector2(.03f,.925f),new Vector2(.25f,.985f),TextAlignmentOptions.Left,GoldSoft,true);
+            CreateLabel("HeroSelectTitle",panel,"CHOOSE YOUR HERO",38,new Vector2(.28f,.925f),new Vector2(.72f,.985f),TextAlignmentOptions.Center,Cream,true);
+            CreateLabel("HeroSelectHint",panel,"Review the hero, then SELECT to begin or NEXT to view another hero.",15,new Vector2(.28f,.892f),new Vector2(.72f,.93f),TextAlignmentOptions.Center,Muted,false);
+            CreateButton("HeroSelectClose",panel,"CLOSE",HideHeroSelect,new Vector2(.895f,.925f),new Vector2(.975f,.98f),PanelBlue,Gold,15);
+
+            _heroSelectPageHost=CreateRect("HeroSelectionPageHost",panel);
+            SetAnchors(_heroSelectPageHost,new Vector2(.025f,.125f),new Vector2(.975f,.885f));
+            _heroSelectIndex=0;
+            RefreshHeroSelectionPage();
+
+            CreateButton("HeroSelectSelect",panel,"SELECT",SelectCurrentHero,new Vector2(.275f,.025f),new Vector2(.49f,.10f),PlayGreen,GoldSoft,25);
+            CreateButton("HeroSelectNext",panel,"NEXT  ▶",NextHeroSelection,new Vector2(.51f,.025f),new Vector2(.725f,.10f),PanelBlue,Gold,25);
             _heroSelectOverlay.SetActive(false);
         }
 
-        private void AddHeroCard(HeroIdentityDefinition hero)
+        private HeroIdentityDefinition CurrentHeroSelection()
         {
-            HeroCardDescriptor card=HeroCardPresentation.Describe(hero);
-            float top=.81f-_heroCardIndex*.142f;
-            float bottom=top-.122f;
-            _heroCardIndex++;
-            var rt=CreatePanel("HeroCard_"+card.HeroId,_heroSelectContent,new Vector2(.06f,bottom),new Vector2(.94f,top),new Color(.035f,.055f,.075f,.98f),new Color(.55f,.42f,.18f,.85f));
-            var background=rt.GetComponent<Image>();
-            var button=rt.gameObject.AddComponent<Button>();
-            button.targetGraphic=background;
-            button.onClick.AddListener(()=>StartNew(card.HeroId));
+            _heroSelectIndex=HeroCardPresentation.WrapSelectionIndex(_heroSelectIndex);
+            return HeroCardPresentation.SelectionHeroAt(_heroSelectIndex);
+        }
 
-            var portraitFrame=CreatePanel("PortraitFrame",rt,new Vector2(.015f,.10f),new Vector2(.17f,.90f),new Color(.012f,.018f,.028f,1f),new Color(.45f,.31f,.10f,.9f));
-            var portrait=CreateSprite("Portrait",portraitFrame,ResolveHeroCardSprite(card),new Vector2(.06f,.06f),new Vector2(.94f,.94f),true);
-            portrait.raycastTarget=false;
+        private void NextHeroSelection()
+        {
+            _heroSelectIndex=HeroCardPresentation.WrapSelectionIndex(_heroSelectIndex+1);
+            RefreshHeroSelectionPage();
+        }
 
-            CreateLabel("Name",rt,card.DisplayName,24,new Vector2(.20f,.48f),new Vector2(.68f,.88f),TextAlignmentOptions.Left,Cream,true);
-            CreateLabel("Class",rt,card.ClassLabel,16,new Vector2(.20f,.14f),new Vector2(.55f,.52f),TextAlignmentOptions.Left,Muted,false);
-            if(!string.IsNullOrEmpty(card.Badge))CreateLabel("Badge",rt,card.Badge,13,new Vector2(.60f,.17f),new Vector2(.95f,.48f),TextAlignmentOptions.Center,GoldSoft,true);
+        private void SelectCurrentHero()
+        {
+            StartNew(CurrentHeroSelection().HeroId);
+        }
+
+        private void RefreshHeroSelectionPage()
+        {
+            if(_heroSelectPageHost==null)return;
+            for(int i=_heroSelectPageHost.childCount-1;i>=0;i--)
+                Destroy(_heroSelectPageHost.GetChild(i).gameObject);
+
+            HeroIdentityDefinition hero=CurrentHeroSelection();
+            HeroDefinition mechanics=_content.Hero(hero.ClassId);
+            HeroCardDescriptor card=HeroCardPresentation.Describe(hero,mechanics);
+            BuildHeroSelectionPage(card);
+        }
+
+        private void BuildHeroSelectionPage(HeroCardDescriptor card)
+        {
+            var page=CreatePanel("HeroPage_"+card.HeroId,_heroSelectPageHost,new Vector2(0,0),new Vector2(1,1),new Color(.020f,.040f,.058f,.985f),new Color(.55f,.36f,.10f,.95f));
+            CreateLabel("HeroName",page,card.DisplayName.ToUpperInvariant(),48,new Vector2(.03f,.875f),new Vector2(.60f,.985f),TextAlignmentOptions.Left,GoldSoft,true);
+            string classLine=$"CLASS: {card.ClassLabel}"+(string.IsNullOrEmpty(card.Badge)?string.Empty:$"   •   {card.Badge}");
+            CreateLabel("HeroClass",page,classLine,21,new Vector2(.03f,.825f),new Vector2(.60f,.885f),TextAlignmentOptions.Left,Cream,true);
+            CreateLabel("HeroPageCount",page,$"HERO {_heroSelectIndex+1} / {HeroCardPresentation.SelectionOrder.Count}",16,new Vector2(.78f,.92f),new Vector2(.97f,.98f),TextAlignmentOptions.Right,Muted,true);
+
+            var artFrame=CreatePanel("HeroMasterArtFrame",page,new Vector2(.025f,.315f),new Vector2(.49f,.815f),new Color(.008f,.016f,.024f,.92f),new Color(.50f,.31f,.08f,.90f));
+            Sprite heroArt=ResolveHeroCardSprite(card);
+            var art=CreateSprite("HeroMasterArt",artFrame,heroArt,new Vector2(.015f,.015f),new Vector2(.985f,.985f),true);
+            art.color=Color.white;
+
+            var facts=CreatePanel("HeroFacts",page,new Vector2(.515f,.595f),new Vector2(.975f,.815f),new Color(.012f,.028f,.044f,.96f),new Color(.46f,.30f,.09f,.90f));
+            CreateLabel("FactsTitle",facts,"HERO STATS",22,new Vector2(.03f,.78f),new Vector2(.97f,.98f),TextAlignmentOptions.Center,GoldSoft,true);
+            CreateStatCard(facts,"HpStat","HP",card.BaseHp.ToString(),new Vector2(.03f,.08f),new Vector2(.24f,.73f));
+            CreateStatCard(facts,"AttackStat","ATTACK",card.BaseAttack.ToString(),new Vector2(.27f,.08f),new Vector2(.48f,.73f));
+            CreateStatCard(facts,"DefenseStat","DEFENSE",card.BaseDefense.ToString(),new Vector2(.51f,.08f),new Vector2(.72f,.73f));
+            CreateStatCard(facts,"AbilityCountStat","ABILITIES",card.AbilityIds.Length.ToString(),new Vector2(.75f,.08f),new Vector2(.97f,.73f));
+
+            var core=CreatePanel("CoreStatsPanel",page,new Vector2(.515f,.315f),new Vector2(.975f,.575f),new Color(.012f,.028f,.044f,.96f),new Color(.46f,.30f,.09f,.90f));
+            CreateLabel("CoreStatsTitle",core,"CORE STATS",22,new Vector2(.03f,.80f),new Vector2(.97f,.98f),TextAlignmentOptions.Center,GoldSoft,true);
+            CreateLabel("CoreStatsSummary",core,$"BASE HP  {card.BaseHp}     •     BASE ATTACK  {card.BaseAttack}     •     BASE DEFENSE  {card.BaseDefense}",18,new Vector2(.05f,.58f),new Vector2(.95f,.80f),TextAlignmentOptions.Center,Cream,true);
+            CreateLabel("SignatureLabel",core,"SIGNATURE ABILITY",14,new Vector2(.05f,.40f),new Vector2(.95f,.57f),TextAlignmentOptions.Center,Muted,true);
+            CreateLabel("SignatureValue",core,SignatureAbilityText(card),20,new Vector2(.05f,.09f),new Vector2(.95f,.42f),TextAlignmentOptions.Center,Cream,true);
+
+            var kit=CreatePanel("ClassKitPanel",page,new Vector2(.025f,.025f),new Vector2(.49f,.29f),new Color(.012f,.028f,.044f,.96f),new Color(.46f,.30f,.09f,.90f));
+            CreateLabel("ClassKitTitle",kit,"CLASS KIT",22,new Vector2(.04f,.78f),new Vector2(.96f,.98f),TextAlignmentOptions.Center,GoldSoft,true);
+            CreateLabel("ClassKitText",kit,AbilityKitText(card),16,new Vector2(.05f,.07f),new Vector2(.95f,.78f),TextAlignmentOptions.TopLeft,Cream,false);
+
+            var identity=CreatePanel("GameplayIdentityPanel",page,new Vector2(.515f,.025f),new Vector2(.975f,.29f),new Color(.012f,.028f,.044f,.96f),new Color(.46f,.30f,.09f,.90f));
+            CreateLabel("GameplayIdentityTitle",identity,"GAMEPLAY IDENTITY",22,new Vector2(.04f,.78f),new Vector2(.96f,.98f),TextAlignmentOptions.Center,GoldSoft,true);
+            CreateLabel("GameplayIdentityStyle",identity,GameplayIdentityText(card),16,new Vector2(.05f,.07f),new Vector2(.95f,.78f),TextAlignmentOptions.TopLeft,Cream,false);
+        }
+
+        private void CreateStatCard(Transform parent,string name,string label,string value,Vector2 min,Vector2 max)
+        {
+            var card=CreatePanel(name,parent,min,max,new Color(.025f,.065f,.095f,.98f),new Color(.55f,.36f,.10f,.82f));
+            CreateLabel("Value",card,value,35,new Vector2(.06f,.38f),new Vector2(.94f,.94f),TextAlignmentOptions.Center,GoldSoft,true);
+            CreateLabel("Label",card,label,13,new Vector2(.06f,.08f),new Vector2(.94f,.39f),TextAlignmentOptions.Center,Muted,true);
+        }
+
+        private string SignatureAbilityText(HeroCardDescriptor card)
+        {
+            if(card.AbilityIds==null||card.AbilityIds.Length==0)return "NO ABILITY DATA";
+            try
+            {
+                AbilityDefinition ability=_content.Ability(card.AbilityIds[0]);
+                string name=string.IsNullOrWhiteSpace(ability.DisplayName)?HumanizeToken(card.AbilityIds[0].Substring(card.AbilityIds[0].LastIndexOf('.')+1)):ability.DisplayName;
+                return $"{name}   •   {ability.MaxCharges} CHARGES   •   {ability.RechargeProgressRequired} RECHARGE";
+            }
+            catch{return HumanizeToken(card.AbilityIds[0]);}
+        }
+
+        private string AbilityKitText(HeroCardDescriptor card)
+        {
+            if(card.AbilityIds==null||card.AbilityIds.Length==0)return "No ability data loaded.";
+            var lines=new System.Collections.Generic.List<string>();
+            foreach(string id in card.AbilityIds)
+            {
+                try
+                {
+                    AbilityDefinition ability=_content.Ability(id);
+                    string name=string.IsNullOrWhiteSpace(ability.DisplayName)?HumanizeToken(id.Substring(id.LastIndexOf('.')+1)):ability.DisplayName;
+                    string role=string.IsNullOrWhiteSpace(ability.Role)?string.Empty:$" — {ability.Role}";
+                    lines.Add($"• {name}{role}");
+                }
+                catch{lines.Add("• "+HumanizeToken(id));}
+            }
+            return string.Join("\n",lines);
+        }
+
+        private static string GameplayIdentityText(HeroCardDescriptor card)
+        {
+            string identity=string.IsNullOrWhiteSpace(card.GameplayIdentity)?"CLASS IDENTITY":HumanizeToken(card.GameplayIdentity);
+            string passive=string.IsNullOrWhiteSpace(card.BoardPassive)?"PASSIVE DATA LOADS FROM THE CANONICAL CLASS RECORD":HumanizeToken(card.BoardPassive);
+            return $"STYLE\n{identity}\n\nPASSIVE\n{passive}";
+        }
+
+        private static string HumanizeToken(string value)
+        {
+            if(string.IsNullOrWhiteSpace(value))return string.Empty;
+            return value.Replace('_',' ').Replace('.',' ').ToUpperInvariant();
         }
 
         private void AddBanner(string name,Vector2 min,Vector2 max,string text)
@@ -293,8 +397,9 @@ namespace ClickDungeon.Presentation.Menu
 
         private void RefreshSelectedSlotPresentation()
         {
+            SlotSavePayload payload=LoadSelectedPayload();
+            SlotMetaState meta=payload?.Meta;
             HeroCardDescriptor card=SelectedHeroCard();
-            SlotMetaState meta=LoadSelectedMeta();
             if(card!=null)
             {
                 if(_selectedHeroName!=null)_selectedHeroName.text=card.DisplayName;
@@ -305,11 +410,24 @@ namespace ClickDungeon.Presentation.Menu
                 if(_heroShowcase!=null){_heroShowcase.sprite=showcase;_heroShowcase.enabled=showcase!=null;}
             }
 
-            bool exists=_saves.SlotExists(_selectedSlot);
-            if(_continueFloor!=null)_continueFloor.text=exists?$"FLOOR {Math.Max(1,meta?.BestFloor??1)}":"NEW ADVENTURE";
-            if(_continueDetail!=null)_continueDetail.text=exists?$"SLOT {_selectedSlot} • {(card?.DisplayName??"HERO")}":$"SLOT {_selectedSlot} — EMPTY";
-            if(_continueActionLabel!=null)_continueActionLabel.text=exists?"CONTINUE":"PLAY";
+            RunState activeRun=payload?.ActiveRun;
+            bool canContinue=MainMenuRunRouting.CanContinue(activeRun);
+            if(_continueFloor!=null)_continueFloor.text=canContinue?$"FLOOR {Math.Max(1,activeRun.Floor)}":"NO ACTIVE RUN";
+            if(_continueDetail!=null)_continueDetail.text=canContinue?$"SLOT {_selectedSlot} • {(card?.DisplayName??"HERO")} • {ContinueBiomeLabel(activeRun)}":$"SLOT {_selectedSlot} — NO ACTIVE RUN";
+            if(_continueActionLabel!=null)_continueActionLabel.text=canContinue?"CONTINUE":"NO ACTIVE RUN";
+            if(_continueAction!=null)_continueAction.interactable=canContinue;
             for(int i=0;i<_slotButtonBackgrounds.Length;i++)if(_slotButtonBackgrounds[i]!=null)_slotButtonBackgrounds[i].color=i==_selectedSlot-1?new Color(.18f,.27f,.40f,1f):PanelBlue;
+        }
+
+        private string ContinueBiomeLabel(RunState run)
+        {
+            if(run==null||string.IsNullOrWhiteSpace(run.BiomeId))return "DUNGEON";
+            try
+            {
+                string display=_content.Biome(run.BiomeId).DisplayName;
+                return string.IsNullOrWhiteSpace(display)?HumanizeToken(run.BiomeId):display.ToUpperInvariant();
+            }
+            catch{return HumanizeToken(run.BiomeId);}
         }
 
         private HeroCardDescriptor SelectedHeroCard()
@@ -334,7 +452,12 @@ namespace ClickDungeon.Presentation.Menu
 
         private SlotMetaState LoadSelectedMeta()
         {
-            try{return _saves.LoadSlot(_selectedSlot)?.payload?.Meta;}
+            return LoadSelectedPayload()?.Meta;
+        }
+
+        private SlotSavePayload LoadSelectedPayload()
+        {
+            try{return _saves.LoadSlot(_selectedSlot)?.payload;}
             catch(Exception ex){Debug.LogWarning($"Slot {_selectedSlot} preview failed: {ex.Message}");return null;}
         }
 
@@ -353,7 +476,7 @@ namespace ClickDungeon.Presentation.Menu
         {
             if(_assets==null||card==null)return null;
             string prefix="hero."+card.HeroId.ToLowerInvariant()+".";
-            string[] keys={prefix+"select",prefix+"roster",prefix+"gameplay",prefix+"portrait"};
+            string[] keys={prefix+"master",prefix+"gameplay",prefix+"roster",prefix+"portrait"};
             foreach(string key in keys)
             {
                 Sprite sprite=_assets.SpriteFor(key);
@@ -404,7 +527,8 @@ namespace ClickDungeon.Presentation.Menu
                 string heroId=HeroIdentityCatalog.ResolveHeroId(cls,meta.HeroId);
                 string heroName=HeroIdentityCatalog.DisplayNameForHero(heroId);
                 string complete=meta.CampaignCompleted?" ✓":"";
-                return $"Slot {slot} — {heroName} ({cls}){complete} — Mastery {meta.ClassMastery} — Floor {meta.BestFloor} — Abyss {meta.BestAbyssDepth}";
+                string resumable=MainMenuRunRouting.CanContinue(doc.payload.ActiveRun)?"ACTIVE RUN":"NO ACTIVE RUN";
+                return $"Slot {slot} — {heroName} ({cls}){complete} — {resumable} — Mastery {meta.ClassMastery} — Floor {meta.BestFloor} — Abyss {meta.BestAbyssDepth}";
             }
             catch(Exception ex){Debug.LogWarning($"Slot {slot} preview failed: {ex.Message}");return $"Slot {slot} — Recovery Required";}
         }
@@ -418,11 +542,10 @@ namespace ClickDungeon.Presentation.Menu
 
         private void PrimaryPlay()
         {
-            if(_saves.SlotExists(_selectedSlot))Continue();
-            else ShowHeroSelect();
+            ShowHeroSelect();
         }
 
-        private void ShowHeroSelect(){if(_heroSelectOverlay!=null)_heroSelectOverlay.SetActive(true);}
+        private void ShowHeroSelect(){RefreshHeroSelectionPage();if(_heroSelectOverlay!=null)_heroSelectOverlay.SetActive(true);}
         private void HideHeroSelect(){if(_heroSelectOverlay!=null)_heroSelectOverlay.SetActive(false);}
         private void ToggleUtilityDrawer(){if(_utilityDrawer!=null)_utilityDrawer.SetActive(!_utilityDrawer.activeSelf);}
         private void ShowInventory(){ShowStatus("Inventory is managed inside an active dungeon run.");}
@@ -441,7 +564,8 @@ namespace ClickDungeon.Presentation.Menu
 
         private void Continue()
         {
-            if(!_saves.SlotExists(_selectedSlot)){ShowStatus("That slot is empty.");return;}
+            SlotSavePayload payload=LoadSelectedPayload();
+            if(!MainMenuRunRouting.CanContinue(payload?.ActiveRun)){ShowStatus("No active run is available to continue on this slot.");RefreshSelectedSlotPresentation();return;}
             PlayerPrefs.SetInt("cd2.slot",_selectedSlot);PlayerPrefs.SetInt("cd2.continue",1);PlayerPrefs.SetInt("cd2.abyss",0);PlayerPrefs.Save();SceneManager.LoadScene("Game");
         }
 
