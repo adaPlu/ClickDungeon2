@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -50,7 +51,11 @@ namespace ClickDungeon.Presentation.Menu
         private readonly Image[] _slotButtonBackgrounds=new Image[4];
         private GameObject _heroSelectOverlay;
         private RectTransform _heroSelectContent;
-        private int _heroCardIndex;
+        private RectTransform _heroSelectCardHost;
+        private TMP_Text _heroSelectClassLabel;
+        private TMP_Text _heroSelectHeroLabel;
+        private int _heroSelectClassIndex;
+        private int _heroSelectHeroIndex;
         private GameObject _utilityDrawer;
 
         private void Start()
@@ -249,32 +254,104 @@ namespace ClickDungeon.Presentation.Menu
             var panel=CreatePanel("HeroSelectPanel",overlay,new Vector2(.27f,.10f),new Vector2(.73f,.90f),new Color(.015f,.035f,.055f,.99f),Gold);
             _heroSelectContent=panel;
             CreateLabel("HeroSelectTitle",panel,"CHOOSE YOUR HERO",34,new Vector2(.08f,.89f),new Vector2(.92f,.98f),TextAlignmentOptions.Center,Cream,true);
-            CreateLabel("HeroSelectHint",panel,"Selecting a hero starts a new run in the selected save slot.",15,new Vector2(.08f,.84f),new Vector2(.92f,.89f),TextAlignmentOptions.Center,Muted,false);
-            _heroCardIndex=0;
-            foreach(var hero in HeroIdentityCatalog.All)AddHeroCard(hero);
+            CreateLabel("HeroSelectHint",panel,"Choose a class, then choose its hero identity. Selecting the card starts a new run.",15,new Vector2(.08f,.83f),new Vector2(.92f,.89f),TextAlignmentOptions.Center,Muted,false);
+
+            CreateButton("PreviousClass",panel,"◀",()=>CycleHeroClass(-1),new Vector2(.06f,.72f),new Vector2(.16f,.81f),PanelBlue,Gold,22);
+            _heroSelectClassLabel=CreateLabel("HeroClassLabel",panel,string.Empty,25,new Vector2(.18f,.72f),new Vector2(.82f,.81f),TextAlignmentOptions.Center,GoldSoft,true);
+            CreateButton("NextClass",panel,"▶",()=>CycleHeroClass(1),new Vector2(.84f,.72f),new Vector2(.94f,.81f),PanelBlue,Gold,22);
+
+            CreateButton("PreviousHero",panel,"◀",()=>CycleHeroIdentity(-1),new Vector2(.06f,.62f),new Vector2(.16f,.70f),PanelBlue,Gold,20);
+            _heroSelectHeroLabel=CreateLabel("HeroIdentityLabel",panel,string.Empty,21,new Vector2(.18f,.62f),new Vector2(.82f,.70f),TextAlignmentOptions.Center,Cream,true);
+            CreateButton("NextHero",panel,"▶",()=>CycleHeroIdentity(1),new Vector2(.84f,.62f),new Vector2(.94f,.70f),PanelBlue,Gold,20);
+
+            _heroSelectCardHost=CreateRect("HeroCardHost",panel);
+            SetAnchors(_heroSelectCardHost,new Vector2(.06f,.13f),new Vector2(.94f,.59f));
+            _heroSelectClassIndex=0;
+            _heroSelectHeroIndex=0;
+            RefreshHeroSelectCard();
+
             CreateButton("HeroSelectClose",panel,"CLOSE",HideHeroSelect,new Vector2(.34f,.02f),new Vector2(.66f,.085f),PanelBlue,Gold,16);
             _heroSelectOverlay.SetActive(false);
+        }
+
+        private void CycleHeroClass(int delta)
+        {
+            int count=HeroIdentityCatalog.ClassDisplayOrder.Count;
+            if(count==0)return;
+            _heroSelectClassIndex=WrapIndex(_heroSelectClassIndex+delta,count);
+            _heroSelectHeroIndex=0;
+            RefreshHeroSelectCard();
+        }
+
+        private void CycleHeroIdentity(int delta)
+        {
+            var heroes=HeroIdentityCatalog.ForClass(CurrentHeroSelectClass()).ToArray();
+            if(heroes.Length<=1)
+            {
+                _heroSelectHeroIndex=0;
+                RefreshHeroSelectCard();
+                return;
+            }
+            _heroSelectHeroIndex=WrapIndex(_heroSelectHeroIndex+delta,heroes.Length);
+            RefreshHeroSelectCard();
+        }
+
+        private HeroClassId CurrentHeroSelectClass()
+        {
+            int count=HeroIdentityCatalog.ClassDisplayOrder.Count;
+            if(count==0)return HeroClassId.Knight;
+            _heroSelectClassIndex=WrapIndex(_heroSelectClassIndex,count);
+            return HeroIdentityCatalog.ClassDisplayOrder[_heroSelectClassIndex];
+        }
+
+        private void RefreshHeroSelectCard()
+        {
+            if(_heroSelectCardHost==null)return;
+            HeroClassId selectedClass=CurrentHeroSelectClass();
+            var heroes=HeroIdentityCatalog.ForClass(selectedClass).ToArray();
+            if(_heroSelectClassLabel!=null)_heroSelectClassLabel.text=selectedClass.ToString().ToUpperInvariant();
+
+            for(int i=_heroSelectCardHost.childCount-1;i>=0;i--)
+                Destroy(_heroSelectCardHost.GetChild(i).gameObject);
+
+            if(heroes.Length==0)
+            {
+                _heroSelectHeroIndex=0;
+                if(_heroSelectHeroLabel!=null)_heroSelectHeroLabel.text="NO HERO REGISTERED";
+                return;
+            }
+
+            _heroSelectHeroIndex=WrapIndex(_heroSelectHeroIndex,heroes.Length);
+            HeroIdentityDefinition hero=heroes[_heroSelectHeroIndex];
+            if(_heroSelectHeroLabel!=null)
+                _heroSelectHeroLabel.text=heroes.Length>1?$"{hero.DisplayName}  {_heroSelectHeroIndex+1}/{heroes.Length}":hero.DisplayName;
+            AddHeroCard(hero);
         }
 
         private void AddHeroCard(HeroIdentityDefinition hero)
         {
             HeroCardDescriptor card=HeroCardPresentation.Describe(hero);
-            float top=.81f-_heroCardIndex*.142f;
-            float bottom=top-.122f;
-            _heroCardIndex++;
-            var rt=CreatePanel("HeroCard_"+card.HeroId,_heroSelectContent,new Vector2(.06f,bottom),new Vector2(.94f,top),new Color(.035f,.055f,.075f,.98f),new Color(.55f,.42f,.18f,.85f));
+            var rt=CreatePanel("HeroCard_"+card.HeroId,_heroSelectCardHost,new Vector2(0,0),new Vector2(1,1),new Color(.035f,.055f,.075f,.98f),new Color(.55f,.42f,.18f,.85f));
             var background=rt.GetComponent<Image>();
             var button=rt.gameObject.AddComponent<Button>();
             button.targetGraphic=background;
             button.onClick.AddListener(()=>StartNew(card.HeroId));
 
-            var portraitFrame=CreatePanel("PortraitFrame",rt,new Vector2(.015f,.10f),new Vector2(.17f,.90f),new Color(.012f,.018f,.028f,1f),new Color(.45f,.31f,.10f,.9f));
+            var portraitFrame=CreatePanel("PortraitFrame",rt,new Vector2(.04f,.10f),new Vector2(.34f,.90f),new Color(.012f,.018f,.028f,1f),new Color(.45f,.31f,.10f,.9f));
             var portrait=CreateSprite("Portrait",portraitFrame,ResolveHeroCardSprite(card),new Vector2(.06f,.06f),new Vector2(.94f,.94f),true);
             portrait.raycastTarget=false;
 
-            CreateLabel("Name",rt,card.DisplayName,24,new Vector2(.20f,.48f),new Vector2(.68f,.88f),TextAlignmentOptions.Left,Cream,true);
-            CreateLabel("Class",rt,card.ClassLabel,16,new Vector2(.20f,.14f),new Vector2(.55f,.52f),TextAlignmentOptions.Left,Muted,false);
-            if(!string.IsNullOrEmpty(card.Badge))CreateLabel("Badge",rt,card.Badge,13,new Vector2(.60f,.17f),new Vector2(.95f,.48f),TextAlignmentOptions.Center,GoldSoft,true);
+            CreateLabel("Name",rt,card.DisplayName,30,new Vector2(.39f,.53f),new Vector2(.94f,.88f),TextAlignmentOptions.Left,Cream,true);
+            CreateLabel("Class",rt,card.ClassLabel,19,new Vector2(.39f,.31f),new Vector2(.82f,.54f),TextAlignmentOptions.Left,Muted,false);
+            if(!string.IsNullOrEmpty(card.Badge))CreateLabel("Badge",rt,card.Badge,14,new Vector2(.39f,.16f),new Vector2(.94f,.32f),TextAlignmentOptions.Left,GoldSoft,true);
+            CreateLabel("SelectHint",rt,"SELECT",15,new Vector2(.74f,.04f),new Vector2(.94f,.16f),TextAlignmentOptions.Right,GoldSoft,true);
+        }
+
+        private static int WrapIndex(int value,int count)
+        {
+            if(count<=0)return 0;
+            int wrapped=value%count;
+            return wrapped<0?wrapped+count:wrapped;
         }
 
         private void AddBanner(string name,Vector2 min,Vector2 max,string text)
@@ -422,7 +499,7 @@ namespace ClickDungeon.Presentation.Menu
             else ShowHeroSelect();
         }
 
-        private void ShowHeroSelect(){if(_heroSelectOverlay!=null)_heroSelectOverlay.SetActive(true);}
+        private void ShowHeroSelect(){RefreshHeroSelectCard();if(_heroSelectOverlay!=null)_heroSelectOverlay.SetActive(true);}
         private void HideHeroSelect(){if(_heroSelectOverlay!=null)_heroSelectOverlay.SetActive(false);}
         private void ToggleUtilityDrawer(){if(_utilityDrawer!=null)_utilityDrawer.SetActive(!_utilityDrawer.activeSelf);}
         private void ShowInventory(){ShowStatus("Inventory is managed inside an active dungeon run.");}
