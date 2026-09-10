@@ -61,11 +61,55 @@ namespace ClickDungeon.Tests.ApplicationEditMode
             Assert.AreEqual(HeroClassId.Knight,loaded.payload.ActiveRun.HeroClass);
         }
 
-        [Test]
-        public void SchemaOneMigrationAssignsStandardHeroIdentityWithoutChangingClass()
+        [TestCase(HeroClassId.Paladin,"dawnward")]
+        [TestCase(HeroClassId.Berserker,"rageclaw")]
+        [TestCase(HeroClassId.Engineer,"gearspark")]
+        [TestCase(HeroClassId.Cleric,"lightbringer")]
+        public void MissingHeroIdentityResolvesToClassDefaultOnLoad(HeroClassId heroClass,string expectedHeroId)
         {
             var content=GameContent.CreateDevelopmentFallback();
-            var run=new FloorGenerator(content).CreateNewRun(316,HeroClassId.Knight);
+            var run=new FloorGenerator(content).CreateNewRun(400+(int)heroClass,heroClass);
+            var repo=new LocalSaveRepository(_dir);
+            repo.SaveSlot(1,new SlotSavePayload
+            {
+                Meta=new SlotMetaState{HeroClassId=heroClass.ToString(),HeroId=null},
+                ActiveRun=run
+            },1);
+
+            var loaded=repo.LoadSlot(1);
+
+            Assert.AreEqual(heroClass,loaded.payload.ActiveRun.HeroClass);
+            Assert.AreEqual(expectedHeroId,loaded.payload.Meta.HeroId);
+        }
+
+        [Test]
+        public void MismatchedHeroIdentityNormalizesToSavedClassWithoutChangingMechanics()
+        {
+            var content=GameContent.CreateDevelopmentFallback();
+            var run=new FloorGenerator(content).CreateNewRun(500,HeroClassId.Paladin);
+            var repo=new LocalSaveRepository(_dir);
+            repo.SaveSlot(1,new SlotSavePayload
+            {
+                Meta=new SlotMetaState{HeroClassId="Paladin",HeroId="clickington"},
+                ActiveRun=run
+            },1);
+
+            var loaded=repo.LoadSlot(1);
+
+            Assert.AreEqual(HeroClassId.Paladin,loaded.payload.ActiveRun.HeroClass);
+            Assert.AreEqual("Paladin",loaded.payload.Meta.HeroClassId);
+            Assert.AreEqual("dawnward",loaded.payload.Meta.HeroId);
+        }
+
+        [TestCase(0,"ironheart")]
+        [TestCase(1,"windsong")]
+        [TestCase(2,"shadowcut")]
+        [TestCase(3,"emberwisp")]
+        public void SchemaOneMigrationPreservesLegacyNumericClassAndAssignsCanonicalIdentity(int legacyClassValue,string expectedHeroId)
+        {
+            var content=GameContent.CreateDevelopmentFallback();
+            var heroClass=(HeroClassId)legacyClassValue;
+            var run=new FloorGenerator(content).CreateNewRun((uint)(600+legacyClassValue),heroClass);
             string legacyJson=JsonConvert.SerializeObject(new
             {
                 schema_version=1,
@@ -79,8 +123,9 @@ namespace ClickDungeon.Tests.ApplicationEditMode
 
             var migrated=SaveMigrator.DeserializeAndMigrate(legacyJson);
 
-            Assert.AreEqual("ironheart",migrated.payload.Meta.HeroId);
-            Assert.AreEqual(HeroClassId.Knight,migrated.payload.ActiveRun.HeroClass);
+            Assert.AreEqual(expectedHeroId,migrated.payload.Meta.HeroId);
+            Assert.AreEqual(heroClass,migrated.payload.ActiveRun.HeroClass);
+            Assert.AreEqual(heroClass.ToString(),migrated.payload.Meta.HeroClassId);
             Assert.AreEqual(GameVersionInfo.SaveSchemaVersion,migrated.schema_version);
         }
     }
