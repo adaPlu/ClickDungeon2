@@ -1,0 +1,98 @@
+# Hero GUID Reconciliation Checkpoint — 2026-09-10
+
+Task 6 pre-reconciliation evidence for the approved hero/class remaster.
+
+- Branch at capture: `feature/hero-class-remaster-execution`
+- Capture commit: `054c5cfe9ae52a5c28621c1b9fb0b70885aa65ab`
+- Runtime hero coverage: 9 identities × 9 required variants = 81 PNGs
+- Unity metadata audit: 1,311 Assets entries / 1,311 `.meta` sidecars; strict audit passed
+- Hero GUID uniqueness: 81/81 unique
+- Snapshot SHA-256: `037ea546a8006f8c6317e3d57504bff427e45d0b22e00d8053a980654f7a1367`
+- Art-byte status at capture: unchanged from PR #5 for the existing hero runtime files
+- Visual-isolation status: **RED**. Runtime crops inspected against the approved hero sheets still contain sheet labels/panel remnants in multiple variants, so Task 6 is not complete. This checkpoint records identity stability before any future authorized art correction.
+
+## Path → GUID snapshot
+
+```text
+Assets/ClickDungeon/Art/Runtime/hero_ironheart_master.png	427febb1d55f0b4b914af79c2a0c1611
+Assets/ClickDungeon/Art/Runtime/hero_ironheart_portrait.png	80ca36fdf3a486edb501404764eb9080
+Assets/ClickDungeon/Art/Runtime/hero_ironheart_roster.png	e684b5450dff73f936f2fc7de5c25bf0
+Assets/ClickDungeon/Art/Runtime/hero_ironheart_gameplay.png	d23b7c09cb9d9a51dcd6f90e37f61685
+Assets/ClickDungeon/Art/Runtime/hero_ironheart_idle.png	4091441793a326a6e2abd484e4bd8759
+Assets/ClickDungeon/Art/Runtime/hero_ironheart_attack.png	58a55fd833d0f14104fd0354a5737af8
+Assets/ClickDungeon/Art/Runtime/hero_ironheart_hit.png	b10381a2f109f6adf68ff16b187dcbb7
+Assets/ClickDungeon/Art/Runtime/hero_ironheart_victory.png	1a3a39843e69e336779a16d5cc0415e1
+Assets/ClickDungeon/Art/Runtime/hero_ironheart_defeat.png	4e43026c11f60ea3578c77410a654ec2
+Assets/ClickDungeon/Art/Runtime/hero_clickington_master.png	cf741c0e15eee54a95f1e6d20cfce14a
+Assets/ClickDungeon/Art/Runtime/hero_clickington_portrait.png	c26fe785edf95fe4ad0efdcdb346356d
+Assets/ClickDungeon/Art/Runtime/hero_clickington_roster.png	712b68d49ec7f09c6e98a06aebb9b1e4
+Assets/ClickDungeon/Art/Runtime/hero_clickington_gameplay.png	d8b303db0a57c3d022fe55fe0ac2faa0
+Assets/ClickDungeon/Art/Runtime/hero_clickington_idle.png	f07d0715d827fb4f247deca42d71f70f
+Assets/ClickDungeon/Art/Runtime/hero_clickington_attack.png	06274e19c31359e0d006319467bcc8d7
+Assets/ClickDungeon/Art/Runtime/hero_clickington_hit.png	82014026aac054443c43c9a90d98c2f1
+Assets/ClickDungeon/Art/Runtime/hero_clickington_victory.png	70c8f992a481b499d7bff638b90167f7
+Assets/ClickDungeon/Art/Runtime/hero_clickington_defeat.png	8ac9cb7303afc614d874536590c7b896
+Assets/ClickDungeon/Art/Runtime/hero_dawnward_master.png	f4c8a464286acf843a9c4b3c4f20de9e
+Assets/ClickDungeon/Art/Runtime/hero_dawnward_portrait.png	35dba4788a7ec6a1fa9b8b7325ea710c
+Assets/ClickDungeon/Art/Runtime/hero_dawnward_roster.png	ea5024f0a8caca30466e8f1dc295ec3a
+Assets/ClickDungeon/Art/Runtime/hero_dawnward_gameplay.png	3842a1575f5df18a63d3d05052adf09f
+Assets/ClickDungeon/Art/Runtime/hero_dawnward_idle.png	7f5abaffe4bc17a376ee1cf926a0cab5
+Assets/ClickDungeon/Art/Runtime/hero_dawnward_attack.png	ba806ff826ccd62c0e3e93b0454b8d6f
+Assets/ClickDungeon/Art/Runtime/hero_dawnward_hit.png	f83375900fefac2d07ef84f333fcebcc
+Assets/ClickDungeon/Art/Runtime/hero_dawnward_victory.png	f497c8fd073e9cdbe0d54f625cf06fdf
+Assets/ClickDungeon/Art/Runtime/hero_dawnward_defeat.png	5a5e36a7ddd1e218195f9c168d357390
+Assets/ClickDungeon/Art/Runtime/hero_rageclaw_master.png	4efcf318df9e2e66132250749d2edf23
+Assets/ClickDungeon/Art/Runtime/hero_rageclaw_portrait.png	512a29ba64fe24e6efacbb8ea2832461
+Assets/ClickDungeon/Art/Runtime/hero_rageclaw_roster.png	84b2af2f4f902b40c049961e7116301e
+Assets/ClickDungeon/Art/Runtime/hero_rageclaw_gameplay.png	6214dbf51bb945186573b09fe5a767e1
+Assets/ClickDungeon/Art/Runtime/hero_rageclaw_idle.png	741f0cb70cb6b02048bde995ff6713ad
+Assets/ClickDungeon/Art/Runtime/hero_rageclaw_attack.png	d45ad0a5b03a2822e84d2a4a11510777
+Assets/ClickDungeon/Art/Runtime/hero_rageclaw_hit.png	08a0ba330e9084e389933b0b05ea07ad
+Assets/ClickDungeon/Art/Runtime/hero_rageclaw_victory.png	c923f41e15c698db0633a69d14817e65
+Assets/ClickDungeon/Art/Runtime/hero_rageclaw_defeat.png	4610b40905205734a777cbb31a7e000a
+Assets/ClickDungeon/Art/Runtime/hero_gearspark_master.png	776008833f63c69496e0a813d9876efe
+Assets/ClickDungeon/Art/Runtime/hero_gearspark_portrait.png	8959bd84b9ea62af5916037d320c28b7
+Assets/ClickDungeon/Art/Runtime/hero_gearspark_roster.png	91d3d7a8e3bebb1693e1ef67fcacbc45
+Assets/ClickDungeon/Art/Runtime/hero_gearspark_gameplay.png	39f484017e7507a0150880828bc0212a
+Assets/ClickDungeon/Art/Runtime/hero_gearspark_idle.png	20a55c2f5e5e5847d8e4f7eec78fd482
+Assets/ClickDungeon/Art/Runtime/hero_gearspark_attack.png	febda33bc742569c758385c04c9c34b2
+Assets/ClickDungeon/Art/Runtime/hero_gearspark_hit.png	b959c676f2a2075e37587406c2f0b67e
+Assets/ClickDungeon/Art/Runtime/hero_gearspark_victory.png	3ff0c2ccf56b95dbfa8a9ddeb474f34e
+Assets/ClickDungeon/Art/Runtime/hero_gearspark_defeat.png	5242cda9eb94b8b94f473f1bcbaa200f
+Assets/ClickDungeon/Art/Runtime/hero_windsong_master.png	e1029d8880436d58d722fdb9c67874aa
+Assets/ClickDungeon/Art/Runtime/hero_windsong_portrait.png	2b2efd29e46363cd5a02024911d76c02
+Assets/ClickDungeon/Art/Runtime/hero_windsong_roster.png	71a7e6fa813a1ea447ea032ca600f8c2
+Assets/ClickDungeon/Art/Runtime/hero_windsong_gameplay.png	2546b63c787c6deb13e40a413d3da753
+Assets/ClickDungeon/Art/Runtime/hero_windsong_idle.png	9ea432d0050e0cc3806839bdd3726f73
+Assets/ClickDungeon/Art/Runtime/hero_windsong_attack.png	715a093218d302d2d0202d5a60e89b3e
+Assets/ClickDungeon/Art/Runtime/hero_windsong_hit.png	3a3fc7dcc854942a726c761eaf97ed3e
+Assets/ClickDungeon/Art/Runtime/hero_windsong_victory.png	1f6aeff9bf457c95d0e161b1936c8020
+Assets/ClickDungeon/Art/Runtime/hero_windsong_defeat.png	8be779342be236ab97c08c78e9ecbadf
+Assets/ClickDungeon/Art/Runtime/hero_lightbringer_master.png	08d4c83fc3450f72fe199a99b5bb12b2
+Assets/ClickDungeon/Art/Runtime/hero_lightbringer_portrait.png	cc6766bef0674f3d16adde1f5fe7d9a7
+Assets/ClickDungeon/Art/Runtime/hero_lightbringer_roster.png	dcda744557c43bdb9c990e0497222155
+Assets/ClickDungeon/Art/Runtime/hero_lightbringer_gameplay.png	f7526ffda34145edc122c438277b6c2f
+Assets/ClickDungeon/Art/Runtime/hero_lightbringer_idle.png	60c127a4386bfb939cbb9f0d9c8cbd5d
+Assets/ClickDungeon/Art/Runtime/hero_lightbringer_attack.png	3649ac72519d0d572e4533e36948a56e
+Assets/ClickDungeon/Art/Runtime/hero_lightbringer_hit.png	94e3011dc52fbc10d7eefdf9a564ed92
+Assets/ClickDungeon/Art/Runtime/hero_lightbringer_victory.png	80fb7b3c74de530f096de91634f95c88
+Assets/ClickDungeon/Art/Runtime/hero_lightbringer_defeat.png	154189f827e6a7463a4fe86983e66003
+Assets/ClickDungeon/Art/Runtime/hero_emberwisp_master.png	29cccb7d390393f23f2e83ba2b2be4c0
+Assets/ClickDungeon/Art/Runtime/hero_emberwisp_portrait.png	6fdab5fef0c0e544607b2de03c75a7cc
+Assets/ClickDungeon/Art/Runtime/hero_emberwisp_roster.png	5a10f05de9d769a36f3725afd49d223a
+Assets/ClickDungeon/Art/Runtime/hero_emberwisp_gameplay.png	d980651d97fb907efa6ae458622cb87e
+Assets/ClickDungeon/Art/Runtime/hero_emberwisp_idle.png	61421b227c05a7755a42ab85e6c7940d
+Assets/ClickDungeon/Art/Runtime/hero_emberwisp_attack.png	48f87d56195d75a62d9e3ba1f2a0f37f
+Assets/ClickDungeon/Art/Runtime/hero_emberwisp_hit.png	680ca6723ddc1b3e93005fcd7edba079
+Assets/ClickDungeon/Art/Runtime/hero_emberwisp_victory.png	fabd313f1a95f87bf175f5910b89b199
+Assets/ClickDungeon/Art/Runtime/hero_emberwisp_defeat.png	9caf4b57c63677a22420fb46aec529f1
+Assets/ClickDungeon/Art/Runtime/hero_shadowcut_master.png	acad851a1294af3b8cf207a3231f1b39
+Assets/ClickDungeon/Art/Runtime/hero_shadowcut_portrait.png	28bbdac3f3e9096adcf1aafb6b35203a
+Assets/ClickDungeon/Art/Runtime/hero_shadowcut_roster.png	cdf9f3c89c28611ed365db362674699f
+Assets/ClickDungeon/Art/Runtime/hero_shadowcut_gameplay.png	7a4589db70c1eacc869382ea787f7df2
+Assets/ClickDungeon/Art/Runtime/hero_shadowcut_idle.png	a3bb5da0071d087fa3c152e84d6dd227
+Assets/ClickDungeon/Art/Runtime/hero_shadowcut_attack.png	acf3396527d8950bc03995b564119000
+Assets/ClickDungeon/Art/Runtime/hero_shadowcut_hit.png	ba97922857494316b32d917d65333bd2
+Assets/ClickDungeon/Art/Runtime/hero_shadowcut_victory.png	e66aa6ad593b4c095f4e88b46e7961f4
+Assets/ClickDungeon/Art/Runtime/hero_shadowcut_defeat.png	d689c0c5617aee8cdcdaeab509d88957
+```
