@@ -455,7 +455,7 @@ namespace ClickDungeon.Presentation.Menu
         {
             if(_assets==null||card==null)return null;
             string prefix="hero."+card.HeroId.ToLowerInvariant()+".";
-            string[] keys={prefix+".master",prefix+".gameplay",prefix+".roster",prefix+".portrait"};
+            string[] keys={prefix+"master",prefix+"gameplay",prefix+"roster",prefix+"portrait"};
             foreach(string key in keys)
             {
                 Sprite sprite=_assets.SpriteFor(key);
