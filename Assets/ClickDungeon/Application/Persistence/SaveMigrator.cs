@@ -55,6 +55,7 @@ namespace ClickDungeon.Application.Persistence
                     LastPlayedAt = now
                 }
             };
+            NormalizeHeroIdentity(payload);
             var migrated = new SaveDocument
             {
                 revision_number = root.Value<long?>("revision_number") ?? 0,
@@ -63,6 +64,28 @@ namespace ClickDungeon.Application.Persistence
             };
             migrated.checksum = ChecksumUtility.Sha256(JsonConvert.SerializeObject(migrated.payload, Formatting.None));
             return migrated;
+        }
+
+        public static void NormalizeHeroIdentity(SlotSavePayload payload)
+        {
+            if(payload==null)throw new ArgumentNullException(nameof(payload));
+            if(payload.Meta==null)payload.Meta=new SlotMetaState();
+
+            HeroClassId heroClass;
+            if(payload.ActiveRun!=null)
+            {
+                heroClass=payload.ActiveRun.HeroClass;
+                if(!Enum.IsDefined(typeof(HeroClassId),heroClass))
+                    throw new InvalidDataException($"Save contains unsupported hero class value {(int)heroClass}.");
+            }
+            else
+            {
+                if(!Enum.TryParse(payload.Meta.HeroClassId,true,out heroClass)||!Enum.IsDefined(typeof(HeroClassId),heroClass))
+                    throw new InvalidDataException($"Save contains unsupported hero class '{payload.Meta.HeroClassId}'.");
+            }
+
+            payload.Meta.HeroClassId=heroClass.ToString();
+            payload.Meta.HeroId=HeroIdentityCatalog.ResolveHeroId(heroClass,payload.Meta.HeroId);
         }
     }
 }
