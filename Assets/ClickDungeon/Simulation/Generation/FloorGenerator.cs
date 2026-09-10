@@ -51,6 +51,7 @@ namespace ClickDungeon.Simulation.Generation
             ReplaceFirstEmpty(state.Tiles, displaced, start);
             for (int i = 0; i < state.Tiles.Count; i++) state.Tiles[i].Index = i;
             state.PlayerPosition = new GridPosition(2, 2);
+            ApplySpecialFeature(state,rng);
             InitializeMonsters(state);
             ApplyTerrain(state, rng);
             ApplyClues(state, rng);
@@ -88,6 +89,68 @@ namespace ClickDungeon.Simulation.Generation
                 if(index>=0){ list.RemoveAt(index); return; }
             }
             list.RemoveAt(list.Count-1);
+        }
+
+        private static void ApplySpecialFeature(RunState state,IRandomSource rng)
+        {
+            int feature=rng.NextInt(3);
+            var used=new HashSet<int>();
+            int first=TakeSpecialCandidate(state,rng,used);
+            if(first<0)return;
+
+            if(feature==0)
+            {
+                state.Tiles[first]=NewSpecialTile(first,"special.fountain.heal",5);
+                return;
+            }
+
+            if(feature==1)
+            {
+                int second=TakeSpecialCandidate(state,rng,used);
+                if(second<0)
+                {
+                    state.Tiles[first]=NewSpecialTile(first,"special.fountain.heal",5);
+                    return;
+                }
+                var a=NewSpecialTile(first,"special.teleport");
+                var b=NewSpecialTile(second,"special.teleport");
+                a.TeleportDestinationIndex=second;
+                b.TeleportDestinationIndex=first;
+                state.Tiles[first]=a;
+                state.Tiles[second]=b;
+                return;
+            }
+
+            var routes=state.Tiles.Where(t=>t.Content==TileContentKind.SafeExit||t.Content==TileContentKind.ForbiddenExit).OrderBy(t=>t.Index).ToArray();
+            if(routes.Length==0)
+            {
+                state.Tiles[first]=NewSpecialTile(first,"special.fountain.heal",5);
+                return;
+            }
+            var target=routes[rng.NextInt(routes.Length)];
+            target.Resolution=TileResolution.Disabled;
+            var plate=NewSpecialTile(first,"special.pressure_plate");
+            plate.LinkedTileIndex=target.Index;
+            state.Tiles[first]=plate;
+        }
+
+        private static int TakeSpecialCandidate(RunState state,IRandomSource rng,HashSet<int> used)
+        {
+            var priorities=new[]{TileContentKind.Empty,TileContentKind.Gold,TileContentKind.Chest,TileContentKind.Trap,TileContentKind.Monster};
+            foreach(var kind in priorities)
+            {
+                var candidates=state.Tiles.Where(t=>t.Index!=12&&!used.Contains(t.Index)&&t.Content==kind).Select(t=>t.Index).OrderBy(i=>i).ToArray();
+                if(candidates.Length==0)continue;
+                int chosen=candidates[rng.NextInt(candidates.Length)];
+                used.Add(chosen);
+                return chosen;
+            }
+            return -1;
+        }
+
+        private static TileState NewSpecialTile(int index,string id,int amount=0)
+        {
+            return new TileState{Index=index,Content=TileContentKind.SpecialEvent,ContentId=id,Amount=amount,Visibility=TileVisibility.Hidden,Resolution=TileResolution.Available,Occupancy=OccupancyKind.None};
         }
 
         private void InitializeMonsters(RunState state)
