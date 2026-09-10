@@ -1,6 +1,7 @@
 using System.Linq;
 using ClickDungeon.Simulation;
 using ClickDungeon.Simulation.Commands;
+using ClickDungeon.Simulation.Content;
 using ClickDungeon.Simulation.Generation;
 using ClickDungeon.Simulation.Model;
 using NUnit.Framework;
@@ -56,19 +57,20 @@ public sealed class SpecialDungeonTileTests
         Assert.IsTrue(result.Events.Any(e=>e.Type=="pressure_plate.activated"&&e.Amount==14));
     }
 
-    [TestCase("trap.bomb")]
-    [TestCase("trap.spike")]
-    public void NewTrapTilesUseTheExistingDeterministicRevealDamagePipeline(string trapId)
+    [TestCase("trap.bomb",4)]
+    [TestCase("trap.spike",2)]
+    public void NewTrapTilesUseTheExistingDeterministicRevealDamagePipeline(string trapId,int damage)
     {
-        var g=new FloorGenerator();var state=g.CreateNewRun(2104,HeroClassId.Knight);ClearBoard(state);PlacePlayer(state,12);
+        var content=GameContent.CreateDevelopmentFallback();
+        content.Add(new TrapDefinition{Id=trapId,Damage=damage,StatusId="",StatusDuration=0,MinFloor=1});
+        var g=new FloorGenerator(content);var state=g.CreateNewRun(2104,HeroClassId.Knight);ClearBoard(state);PlacePlayer(state,12);
         ConfigureTrap(state.Tiles[13],trapId);int hpBefore=state.Hp;
-        int expectedDamage=g.Content.Trap(trapId).Damage;
-        var result=new GameSession(state,g).Apply(new RevealTileCommand(13));
+        var result=new GameSession(state,g,content).Apply(new RevealTileCommand(13));
 
         Assert.IsTrue(result.Accepted);
-        Assert.AreEqual(hpBefore-expectedDamage,state.Hp);
+        Assert.AreEqual(hpBefore-damage,state.Hp);
         Assert.AreEqual(TileResolution.Resolved,state.Tiles[13].Resolution);
-        Assert.IsTrue(result.Events.Any(e=>e.Type=="trap.triggered"&&e.Id==trapId&&e.Amount==expectedDamage));
+        Assert.IsTrue(result.Events.Any(e=>e.Type=="trap.triggered"&&e.Id==trapId&&e.Amount==damage));
     }
 
     [Test]
@@ -89,6 +91,7 @@ public sealed class SpecialDungeonTileTests
             tile.Content=TileContentKind.Empty;tile.ContentId="tile.empty";tile.Visibility=TileVisibility.Revealed;
             tile.Resolution=TileResolution.Resolved;tile.Occupancy=OccupancyKind.None;tile.MonsterHp=0;tile.MonsterMaxHp=0;
             tile.ThreatPattern=ThreatPattern.None;tile.Terrain=TerrainKind.Normal;tile.TerrainTriggered=false;
+            tile.LinkedTileIndex=-1;tile.TeleportDestinationIndex=-1;
         }
     }
 
