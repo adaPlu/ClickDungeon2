@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using ClickDungeon.Simulation.Model;
 
 namespace ClickDungeon.Presentation.Assets
@@ -10,6 +11,51 @@ namespace ClickDungeon.Presentation.Assets
     public static class PresentationAssetIdMapper
     {
         public static string SpriteId(string file)=>PresentationAssetId.FromRuntimeArtFile(file);
+    }
+
+    /// <summary>
+    /// Validates that a runtime-art filename collection contains exactly one file resolving to each
+    /// canonical dungeon tile identity. Non-tile runtime art is ignored so the validator can operate
+    /// over the shared Art/Runtime tree without treating heroes, monsters or items as errors.
+    /// </summary>
+    public static class CanonicalDungeonTileSetValidator
+    {
+        public static string Validate(IEnumerable<string> runtimeFileNames)
+        {
+            var canonicalIds = new HashSet<string>(DungeonRoomPresentationLayout.CanonicalTileIds, StringComparer.Ordinal);
+            var counts = new Dictionary<string, int>(StringComparer.Ordinal);
+
+            if (runtimeFileNames != null)
+            {
+                foreach (string file in runtimeFileNames)
+                {
+                    string id = PresentationAssetIdMapper.SpriteId(file);
+                    if (string.IsNullOrEmpty(id) || !canonicalIds.Contains(id)) continue;
+
+                    int count;
+                    counts.TryGetValue(id, out count);
+                    counts[id] = count + 1;
+                }
+            }
+
+            var missing = new List<string>();
+            var duplicates = new List<string>();
+            foreach (string id in DungeonRoomPresentationLayout.CanonicalTileIds)
+            {
+                int count;
+                if (!counts.TryGetValue(id, out count))
+                    missing.Add(id);
+                else if (count > 1)
+                    duplicates.Add(id);
+            }
+
+            var errors = new List<string>();
+            if (missing.Count > 0)
+                errors.Add("Missing canonical tile identities: " + string.Join(", ", missing));
+            if (duplicates.Count > 0)
+                errors.Add("Duplicate canonical tile identities: " + string.Join(", ", duplicates));
+            return string.Join("\n", errors);
+        }
     }
 
     /// <summary>
