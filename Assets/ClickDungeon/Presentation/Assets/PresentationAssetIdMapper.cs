@@ -33,20 +33,81 @@ namespace ClickDungeon.Presentation.Assets
     }
 
     /// <summary>
-    /// Converts simulation tile state into the one canonical sprite ID that the board should display.
-    /// This deliberately contains presentation policy only; it never changes simulation state.
+    /// Converts simulation tile state into canonical layered presentation keys. These methods are
+    /// pure presentation policy: they never mutate tile/run state and never choose gameplay effects.
     /// </summary>
     public static class TilePresentationAssetResolver
     {
+        /// <summary>
+        /// Base terrain beneath every cell. Existing terrain semantics remain authoritative; art is
+        /// selected only from state already stored by simulation/generation.
+        /// </summary>
+        public static string BaseAssetId(TileState tile,int index)
+        {
+            if(tile==null)return BaseFloorId(index);
+            switch(tile.Terrain)
+            {
+                case TerrainKind.Flooded:return DungeonRoomPresentationLayout.TileWaterId;
+                case TerrainKind.Lava:return DungeonRoomPresentationLayout.TileLavaId;
+                case TerrainKind.Arcane:return DungeonRoomPresentationLayout.TileShadowId;
+                default:return BaseFloorId(index);
+            }
+        }
+
+        /// <summary>
+        /// Stateful board structures and interactables that occupy the structural layer. Hidden and
+        /// clued tiles never leak their exact structure; identified traps are the sole pre-reveal case.
+        /// </summary>
+        public static string StructuralAssetId(TileState tile)
+        {
+            if(tile==null)return string.Empty;
+            bool revealed=tile.Visibility==TileVisibility.Revealed;
+            bool identifiedTrap=tile.Content==TileContentKind.Trap&&tile.Visibility==TileVisibility.Identified;
+            if(!revealed&&!identifiedTrap)return string.Empty;
+
+            if(tile.Content==TileContentKind.Trap)
+            {
+                if(tile.Resolution!=TileResolution.Available)return string.Empty;
+                switch(tile.ContentId)
+                {
+                    case "trap.pitfall":return DungeonRoomPresentationLayout.TileTrapPitId;
+                    case "trap.bomb":return DungeonRoomPresentationLayout.TileTrapBombId;
+                    case "trap.spike":
+                    case "trap.spikes":return DungeonRoomPresentationLayout.TileTrapSpikeId;
+                    default:return string.Empty;
+                }
+            }
+
+            if(!revealed)return string.Empty;
+            switch(tile.Content)
+            {
+                case TileContentKind.Chest:
+                    return tile.Resolution==TileResolution.Resolved?DungeonRoomPresentationLayout.TileChestOpenId:DungeonRoomPresentationLayout.TileChestClosedId;
+                case TileContentKind.SmallKey:
+                case TileContentKind.BigKey:
+                    return tile.Resolution==TileResolution.Available?DungeonRoomPresentationLayout.TileKeyId:string.Empty;
+                case TileContentKind.SafeExit:
+                    return tile.Resolution==TileResolution.Disabled?DungeonRoomPresentationLayout.TileLockedStairDownId:DungeonRoomPresentationLayout.TileStairDownId;
+                case TileContentKind.ForbiddenExit:
+                    return DungeonRoomPresentationLayout.TileLockedStairDownId;
+                case TileContentKind.SealedVault:
+                    return tile.Resolution==TileResolution.Resolved?DungeonRoomPresentationLayout.TileDoorOpenId:DungeonRoomPresentationLayout.TileDoorLockedId;
+                case TileContentKind.SpecialEvent:
+                    return SpecialEventAssetId(tile.ContentId);
+                default:return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Compatibility/content layer used for occupants, clues and legacy assets. Stateful canonical
+        /// structures are rendered separately by StructuralAssetId in the live board.
+        /// </summary>
         public static string PrimaryAssetId(TileState tile)
         {
             if(tile==null)return string.Empty;
             if(tile.Visibility==TileVisibility.Hidden)return string.Empty;
             if(tile.Visibility==TileVisibility.Clued)return ClueAssetId(tile.Clue);
 
-            // A resolved chest is the one interactable with an approved post-resolution visual.
-            // Other resolved content disappears from the active-content layer instead of remaining
-            // visually collectible, locked, dangerous, or alive.
             if(tile.Resolution!=TileResolution.Available)
                 return tile.Content==TileContentKind.Chest&&tile.Visibility==TileVisibility.Revealed?"chest.open":string.Empty;
 
@@ -62,6 +123,24 @@ namespace ClickDungeon.Presentation.Assets
                 case TileContentKind.ForbiddenExit:return "exit.forbidden";
                 case TileContentKind.Trap:return CanonicalTrapAssetId(tile.ContentId);
                 default:return tile.ContentId??string.Empty;
+            }
+        }
+
+        private static string BaseFloorId(int index)
+        {
+            if(index==4||index==20)return DungeonRoomPresentationLayout.TileFloorMossId;
+            if(index==6||index==12||index==18)return DungeonRoomPresentationLayout.TileFloorCrackedId;
+            return DungeonRoomPresentationLayout.TileFloorStoneId;
+        }
+
+        private static string SpecialEventAssetId(string contentId)
+        {
+            switch(contentId)
+            {
+                case "special.pressure_plate":return DungeonRoomPresentationLayout.TilePressurePlateId;
+                case "special.teleport":return DungeonRoomPresentationLayout.TileTeleportId;
+                case "special.fountain.heal":return DungeonRoomPresentationLayout.TileHealingFountainId;
+                default:return string.Empty;
             }
         }
 
