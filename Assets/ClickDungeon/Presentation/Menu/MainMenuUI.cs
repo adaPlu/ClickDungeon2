@@ -47,6 +47,7 @@ namespace ClickDungeon.Presentation.Menu
         private TMP_Text _continueFloor;
         private TMP_Text _continueDetail;
         private TMP_Text _continueActionLabel;
+        private Button _continueAction;
         private readonly Image[] _slotButtonBackgrounds=new Image[4];
         private GameObject _heroSelectOverlay;
         private RectTransform _heroSelectContent;
@@ -178,8 +179,8 @@ namespace ClickDungeon.Presentation.Menu
             var preview=CreateSprite("DungeonPreview",previewFrame,FirstSprite("biome.crypt","dungeon.door.locked","dungeon.floor.stone"),new Vector2(.03f,.03f),new Vector2(.97f,.97f),true);
             preview.color=new Color(.88f,.88f,.88f,1f);
 
-            _continueFloor=CreateLabel("ContinueFloor",panel,"FLOOR 1",30,new Vector2(.08f,.31f),new Vector2(.92f,.43f),TextAlignmentOptions.Center,Cream,true);
-            _continueDetail=CreateLabel("ContinueDetail",panel,"SLOT 1 — EMPTY",17,new Vector2(.08f,.23f),new Vector2(.92f,.32f),TextAlignmentOptions.Center,Muted,false);
+            _continueFloor=CreateLabel("ContinueFloor",panel,"NO ACTIVE RUN",30,new Vector2(.08f,.31f),new Vector2(.92f,.43f),TextAlignmentOptions.Center,Cream,true);
+            _continueDetail=CreateLabel("ContinueDetail",panel,"SLOT 1 — NO ACTIVE RUN",17,new Vector2(.08f,.23f),new Vector2(.92f,.32f),TextAlignmentOptions.Center,Muted,false);
 
             for(int slot=1;slot<=4;slot++)
             {
@@ -189,8 +190,9 @@ namespace ClickDungeon.Presentation.Menu
                 _slotButtonBackgrounds[slot-1]=b.targetGraphic as Image;
             }
 
-            Button action=CreateButton("ContinueAction",panel,"PLAY",PrimaryPlay,new Vector2(.16f,.015f),new Vector2(.84f,.105f),PlayGreen,GoldSoft,23);
-            _continueActionLabel=action.GetComponentInChildren<TextMeshProUGUI>();
+            _continueAction=CreateButton("ContinueAction",panel,"NO ACTIVE RUN",Continue,new Vector2(.16f,.015f),new Vector2(.84f,.105f),PlayGreen,GoldSoft,23);
+            _continueActionLabel=_continueAction.GetComponentInChildren<TextMeshProUGUI>();
+            _continueAction.interactable=false;
         }
 
         private void BuildHeroShowcase()
@@ -215,7 +217,7 @@ namespace ClickDungeon.Presentation.Menu
         {
             var bar=CreatePanel("BottomNavigation",_root,new Vector2(.035f,.018f),new Vector2(.965f,.145f),new Color(.012f,.027f,.045f,.98f),Gold);
             string[] labels={"PLAY","HERO SELECT","INVENTORY","TALENTS","SHOP","SETTINGS","QUIT"};
-            UnityEngine.Events.UnityAction[] actions={PrimaryPlay,ShowHeroSelect,ShowInventory,ShowTalents,ShowShop,ShowSettings,QuitGame};
+            UnityEngine.Events.UnityAction[] actions={ShowHeroSelect,ShowHeroSelect,ShowInventory,ShowTalents,ShowShop,ShowSettings,QuitGame};
             for(int i=0;i<labels.Length;i++)
             {
                 float left=.012f+i*.141f;
@@ -227,7 +229,7 @@ namespace ClickDungeon.Presentation.Menu
 
         private void BuildStatusBar()
         {
-            _status=CreateLabel("Status",_root,"Choose PLAY to continue or begin a run.",17,new Vector2(.30f,.145f),new Vector2(.70f,.18f),TextAlignmentOptions.Center,Muted,false);
+            _status=CreateLabel("Status",_root,"Choose PLAY for a new run, or CONTINUE when a resumable run exists.",17,new Vector2(.30f,.145f),new Vector2(.70f,.18f),TextAlignmentOptions.Center,Muted,false);
         }
 
         private void BuildUtilityDrawer()
@@ -395,8 +397,9 @@ namespace ClickDungeon.Presentation.Menu
 
         private void RefreshSelectedSlotPresentation()
         {
+            SlotSavePayload payload=LoadSelectedPayload();
+            SlotMetaState meta=payload?.Meta;
             HeroCardDescriptor card=SelectedHeroCard();
-            SlotMetaState meta=LoadSelectedMeta();
             if(card!=null)
             {
                 if(_selectedHeroName!=null)_selectedHeroName.text=card.DisplayName;
@@ -407,11 +410,24 @@ namespace ClickDungeon.Presentation.Menu
                 if(_heroShowcase!=null){_heroShowcase.sprite=showcase;_heroShowcase.enabled=showcase!=null;}
             }
 
-            bool exists=_saves.SlotExists(_selectedSlot);
-            if(_continueFloor!=null)_continueFloor.text=exists?$"FLOOR {Math.Max(1,meta?.BestFloor??1)}":"NEW ADVENTURE";
-            if(_continueDetail!=null)_continueDetail.text=exists?$"SLOT {_selectedSlot} • {(card?.DisplayName??"HERO")}":$"SLOT {_selectedSlot} — EMPTY";
-            if(_continueActionLabel!=null)_continueActionLabel.text=exists?"CONTINUE":"PLAY";
+            RunState activeRun=payload?.ActiveRun;
+            bool canContinue=MainMenuRunRouting.CanContinue(activeRun);
+            if(_continueFloor!=null)_continueFloor.text=canContinue?$"FLOOR {Math.Max(1,activeRun.Floor)}":"NO ACTIVE RUN";
+            if(_continueDetail!=null)_continueDetail.text=canContinue?$"SLOT {_selectedSlot} • {(card?.DisplayName??"HERO")} • {ContinueBiomeLabel(activeRun)}":$"SLOT {_selectedSlot} — NO ACTIVE RUN";
+            if(_continueActionLabel!=null)_continueActionLabel.text=canContinue?"CONTINUE":"NO ACTIVE RUN";
+            if(_continueAction!=null)_continueAction.interactable=canContinue;
             for(int i=0;i<_slotButtonBackgrounds.Length;i++)if(_slotButtonBackgrounds[i]!=null)_slotButtonBackgrounds[i].color=i==_selectedSlot-1?new Color(.18f,.27f,.40f,1f):PanelBlue;
+        }
+
+        private string ContinueBiomeLabel(RunState run)
+        {
+            if(run==null||string.IsNullOrWhiteSpace(run.BiomeId))return "DUNGEON";
+            try
+            {
+                string display=_content.Biome(run.BiomeId).DisplayName;
+                return string.IsNullOrWhiteSpace(display)?HumanizeToken(run.BiomeId):display.ToUpperInvariant();
+            }
+            catch{return HumanizeToken(run.BiomeId);}
         }
 
         private HeroCardDescriptor SelectedHeroCard()
@@ -436,7 +452,12 @@ namespace ClickDungeon.Presentation.Menu
 
         private SlotMetaState LoadSelectedMeta()
         {
-            try{return _saves.LoadSlot(_selectedSlot)?.payload?.Meta;}
+            return LoadSelectedPayload()?.Meta;
+        }
+
+        private SlotSavePayload LoadSelectedPayload()
+        {
+            try{return _saves.LoadSlot(_selectedSlot)?.payload;}
             catch(Exception ex){Debug.LogWarning($"Slot {_selectedSlot} preview failed: {ex.Message}");return null;}
         }
 
@@ -506,7 +527,8 @@ namespace ClickDungeon.Presentation.Menu
                 string heroId=HeroIdentityCatalog.ResolveHeroId(cls,meta.HeroId);
                 string heroName=HeroIdentityCatalog.DisplayNameForHero(heroId);
                 string complete=meta.CampaignCompleted?" ✓":"";
-                return $"Slot {slot} — {heroName} ({cls}){complete} — Mastery {meta.ClassMastery} — Floor {meta.BestFloor} — Abyss {meta.BestAbyssDepth}";
+                string resumable=MainMenuRunRouting.CanContinue(doc.payload.ActiveRun)?"ACTIVE RUN":"NO ACTIVE RUN";
+                return $"Slot {slot} — {heroName} ({cls}){complete} — {resumable} — Mastery {meta.ClassMastery} — Floor {meta.BestFloor} — Abyss {meta.BestAbyssDepth}";
             }
             catch(Exception ex){Debug.LogWarning($"Slot {slot} preview failed: {ex.Message}");return $"Slot {slot} — Recovery Required";}
         }
@@ -520,8 +542,7 @@ namespace ClickDungeon.Presentation.Menu
 
         private void PrimaryPlay()
         {
-            if(_saves.SlotExists(_selectedSlot))Continue();
-            else ShowHeroSelect();
+            ShowHeroSelect();
         }
 
         private void ShowHeroSelect(){RefreshHeroSelectionPage();if(_heroSelectOverlay!=null)_heroSelectOverlay.SetActive(true);}
@@ -543,7 +564,8 @@ namespace ClickDungeon.Presentation.Menu
 
         private void Continue()
         {
-            if(!_saves.SlotExists(_selectedSlot)){ShowStatus("That slot is empty.");return;}
+            SlotSavePayload payload=LoadSelectedPayload();
+            if(!MainMenuRunRouting.CanContinue(payload?.ActiveRun)){ShowStatus("No active run is available to continue on this slot.");RefreshSelectedSlotPresentation();return;}
             PlayerPrefs.SetInt("cd2.slot",_selectedSlot);PlayerPrefs.SetInt("cd2.continue",1);PlayerPrefs.SetInt("cd2.abyss",0);PlayerPrefs.Save();SceneManager.LoadScene("Game");
         }
 
