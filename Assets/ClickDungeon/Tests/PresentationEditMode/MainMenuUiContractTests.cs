@@ -39,10 +39,10 @@ namespace ClickDungeon.Tests.PresentationEditMode
         {
             BuildMenu(new LockedStore());
 
-            AssertOverlayToggle("NavInventory","InventoryOverlay","InventoryOverlayClose");
-            AssertOverlayToggle("NavTalents","TalentsOverlay","TalentsOverlayClose");
-            AssertOverlayToggle("NavSettings","SettingsOverlay","SettingsOverlayClose");
-            AssertOverlayToggle("NavShop","ShopOverlay","ShopOverlayClose");
+            AssertOverlayToggle("NavINVENTORY","InventoryOverlay","InventoryOverlayClose");
+            AssertOverlayToggle("NavTALENTS","TalentsOverlay","TalentsOverlayClose");
+            AssertOverlayToggle("NavSETTINGS","SettingsOverlay","SettingsOverlayClose");
+            AssertOverlayToggle("NavSHOP","ShopOverlay","ShopOverlayClose");
         }
 
         [Test]
@@ -72,13 +72,13 @@ namespace ClickDungeon.Tests.PresentationEditMode
 
             BuildMenu(new LockedStore(),saves:saves);
 
-            RequireButton("NavInventory").onClick.Invoke();
+            RequireButton("NavINVENTORY").onClick.Invoke();
             string inventory=RequireText("InventoryOverlaySummary").text;
             StringAssert.Contains("IRON SWORD",inventory.ToUpperInvariant());
             StringAssert.Contains("LEATHER",inventory.ToUpperInvariant());
             StringAssert.Contains("SMALL POTION",inventory.ToUpperInvariant());
 
-            RequireButton("NavTalents").onClick.Invoke();
+            RequireButton("NavTALENTS").onClick.Invoke();
             string talents=RequireText("TalentsOverlaySummary").text;
             StringAssert.Contains("MASTERY 7",talents.ToUpperInvariant());
             StringAssert.Contains("SHIELD BASH",talents.ToUpperInvariant());
@@ -101,7 +101,7 @@ namespace ClickDungeon.Tests.PresentationEditMode
             accounts.Save(account);
 
             BuildMenu(new LockedStore(),accounts:accounts,account:account);
-            RequireButton("NavSettings").onClick.Invoke();
+            RequireButton("NavSETTINGS").onClick.Invoke();
 
             RequireSlider("SettingsMasterVolume").value=.42f;
             RequireSlider("SettingsMusicVolume").value=.35f;
@@ -125,7 +125,7 @@ namespace ClickDungeon.Tests.PresentationEditMode
             var store=new LockedStore();
             BuildMenu(store);
 
-            RequireButton("NavShop").onClick.Invoke();
+            RequireButton("NavSHOP").onClick.Invoke();
             RequireButton("ShopPurchaseButton").onClick.Invoke();
 
             Assert.That(store.PurchaseCalled,Is.True);
