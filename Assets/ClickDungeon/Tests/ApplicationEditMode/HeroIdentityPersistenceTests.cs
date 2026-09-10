@@ -101,6 +101,33 @@ namespace ClickDungeon.Tests.ApplicationEditMode
             Assert.AreEqual("dawnward",loaded.payload.Meta.HeroId);
         }
 
+        [Test]
+        public void CurrentSchemaValidChecksumIsVerifiedBeforeInMemoryHeroNormalization()
+        {
+            var content=GameContent.CreateDevelopmentFallback();
+            var run=new FloorGenerator(content).CreateNewRun(501u,HeroClassId.Paladin);
+            var payload=new SlotSavePayload
+            {
+                Meta=new SlotMetaState{HeroClassId="Paladin",HeroId="clickington"},
+                ActiveRun=run
+            };
+            var doc=new SaveDocument
+            {
+                revision_number=3,
+                updated_at="2026-09-09T12:00:00.0000000+00:00",
+                payload=payload
+            };
+            doc.checksum=ChecksumUtility.Sha256(JsonConvert.SerializeObject(payload,Formatting.None));
+            File.WriteAllText(Path.Combine(_dir,"slot_1.json"),JsonConvert.SerializeObject(doc,Formatting.Indented));
+
+            var loaded=new LocalSaveRepository(_dir).LoadSlot(1);
+
+            Assert.AreEqual(HeroClassId.Paladin,loaded.payload.ActiveRun.HeroClass);
+            Assert.AreEqual("Paladin",loaded.payload.Meta.HeroClassId);
+            Assert.AreEqual("dawnward",loaded.payload.Meta.HeroId,
+                "A valid stored checksum must be accepted before identity normalization changes the in-memory payload.");
+        }
+
         [TestCase(0,"ironheart")]
         [TestCase(1,"windsong")]
         [TestCase(2,"shadowcut")]
