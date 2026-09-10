@@ -42,6 +42,7 @@ jobs:
               <Compile Include="../../Assets/ClickDungeon/Presentation/Menu/HeroCardPresentation.cs" />
               <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/PresentationAssetIdMapperTests.cs" />
               <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/HeroPresentationContractTests.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/MainMenuRunRoutingTests.cs" />
               <PackageReference Include="NUnit" Version="3.14.0" />
               <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
               <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
