@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using ClickDungeon.Application.Persistence;
 using ClickDungeon.Application.State;
@@ -126,6 +127,38 @@ namespace ClickDungeon.Tests.ApplicationEditMode
             Assert.AreEqual("Paladin",loaded.payload.Meta.HeroClassId);
             Assert.AreEqual("dawnward",loaded.payload.Meta.HeroId,
                 "A valid stored checksum must be accepted before identity normalization changes the in-memory payload.");
+        }
+
+        [Test]
+        public void CurrentSchemaSaveWithoutNewRunStateFieldsRemainsChecksumValid()
+        {
+            var content=GameContent.CreateDevelopmentFallback();
+            var run=new FloorGenerator(content).CreateNewRun(502u,HeroClassId.Knight);
+            var repo=new LocalSaveRepository(_dir);
+            repo.SaveSlot(1,new SlotSavePayload
+            {
+                Meta=new SlotMetaState{HeroClassId="Knight",HeroId="ironheart"},
+                ActiveRun=run
+            },4);
+
+            string path=Path.Combine(_dir,"slot_1.json");
+            var root=JObject.Parse(File.ReadAllText(path));
+            var storedRun=(JObject)root["payload"]["ActiveRun"];
+            string[] fields=
+            {
+                "TemporaryAttackBonus","TemporaryAttackActionsRemaining","TemporaryAttackResponsesRemaining",
+                "TemporaryDefenseBonus","TemporaryDefenseResponsesRemaining",
+                "PaladinHalfHpPassiveTriggered","ClericShrinePassiveTriggered"
+            };
+            foreach(string field in fields)storedRun.Remove(field);
+            root["checksum"]=ChecksumUtility.Sha256(root["payload"].ToString(Formatting.None));
+            File.WriteAllText(path,root.ToString(Formatting.Indented));
+
+            var loaded=repo.LoadSlot(1);
+
+            Assert.NotNull(loaded,"A valid current-schema save from before the remaster must not fail merely because new default RunState fields were added later.");
+            Assert.AreEqual(HeroClassId.Knight,loaded.payload.ActiveRun.HeroClass);
+            Assert.AreEqual("ironheart",loaded.payload.Meta.HeroId);
         }
 
         [TestCase(0,"ironheart")]
