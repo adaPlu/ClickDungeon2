@@ -84,7 +84,8 @@ namespace ClickDungeon.Application.Persistence
             if(doc.schema_version!=GameVersionInfo.SaveSchemaVersion) throw new InvalidDataException($"Unsupported schema {doc.schema_version}.");
             if(doc.simulation_version>GameVersionInfo.SimulationVersion) throw new InvalidDataException($"Save requires newer simulation version {doc.simulation_version}.");
             if(doc.content_revision>GameVersionInfo.ContentRevision) throw new InvalidDataException($"Save requires newer content revision {doc.content_revision}.");
-            string expected=ChecksumUtility.Sha256(JsonConvert.SerializeObject(doc.payload,Settings));
+            string payloadJson=string.IsNullOrEmpty(doc.original_payload_json)?JsonConvert.SerializeObject(doc.payload,Settings):doc.original_payload_json;
+            string expected=ChecksumUtility.Sha256(payloadJson);
             if(!string.Equals(expected,doc.checksum,StringComparison.OrdinalIgnoreCase)) throw new InvalidDataException("Checksum mismatch.");
         }
     }
