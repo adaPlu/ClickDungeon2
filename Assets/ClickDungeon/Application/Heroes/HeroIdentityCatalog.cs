@@ -49,7 +49,7 @@ namespace ClickDungeon.Application.Heroes
 
         private static readonly HashSet<string> VisualVariants = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            "portrait","roster","select","gameplay","idle","attack","hit","victory","defeat"
+            "master","portrait","roster","gameplay","idle","attack","hit","victory","defeat"
         };
 
         public static IReadOnlyList<HeroIdentityDefinition> All => Definitions;
