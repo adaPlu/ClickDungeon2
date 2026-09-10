@@ -61,7 +61,7 @@ namespace ClickDungeon.Tests.PresentationEditMode
         }
 
         [Test]
-        public void HeroPortraitPrefersApprovedIdentityThenFallsBackToLegacyClassCore()
+        public void HeroPortraitUsesApprovedIdentityAndDoesNotBorrowLegacyClassCore()
         {
             var db = ScriptableObject.CreateInstance<PresentationAssetDatabase>();
             var coreTexture = new Texture2D(2, 2);
@@ -85,7 +85,8 @@ namespace ClickDungeon.Tests.PresentationEditMode
                     new[] { new PresentationAssetDatabase.SpriteEntry { Id = "hero.ranger", Sprite = core } },
                     null);
 
-                Assert.That(HeroPresentationAssets.Portrait(db, HeroClassId.Ranger), Is.SameAs(core));
+                Assert.That(HeroPresentationAssets.Portrait(db, HeroClassId.Ranger), Is.Null,
+                    "Identity-scoped presentation must not silently borrow legacy class-core art when the approved hero portrait is missing.");
             }
             finally
             {
