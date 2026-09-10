@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using ClickDungeon.Presentation.Assets;
 using NUnit.Framework;
 
@@ -63,6 +64,76 @@ namespace ClickDungeon.Tests.PresentationEditMode
         public void CanonicalTileRuntimeFilenamesMapToCanonicalIds(string file, string expected)
         {
             Assert.That(PresentationAssetIdMapper.SpriteId(file), Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void CanonicalTileSetValidationRejectsMissingCanonicalIdentity()
+        {
+            var files = CanonicalRuntimeFileNames();
+            files.Remove("tile_torch");
+
+            string report = ValidateCanonicalTileSet(files);
+
+            Assert.That(report, Does.Contain("Missing canonical tile identities"));
+            Assert.That(report, Does.Contain("tile.torch"));
+        }
+
+        [Test]
+        public void CanonicalTileSetValidationRejectsDuplicateAliasForSameIdentity()
+        {
+            var files = CanonicalRuntimeFileNames();
+            files.Add("tile_floor_stone_placeholder");
+
+            string report = ValidateCanonicalTileSet(files);
+
+            Assert.That(report, Does.Contain("Duplicate canonical tile identities"));
+            Assert.That(report, Does.Contain("tile.floor.stone"));
+        }
+
+        private static string ValidateCanonicalTileSet(IReadOnlyList<string> files)
+        {
+            var validatorType = typeof(PresentationAssetIdMapper).Assembly.GetType(
+                "ClickDungeon.Presentation.Assets.CanonicalDungeonTileSetValidator");
+            Assert.That(
+                validatorType,
+                Is.Not.Null,
+                "Canonical dungeon tile-set validator is not implemented yet; this is the expected RED gate.");
+
+            var validateMethod = validatorType.GetMethod("Validate");
+            Assert.That(validateMethod, Is.Not.Null, "Canonical tile-set validator must expose a public static Validate method.");
+
+            return (string)validateMethod.Invoke(null, new object[] { files });
+        }
+
+        private static List<string> CanonicalRuntimeFileNames()
+        {
+            return new List<string>
+            {
+                "tile_floor_stone",
+                "tile_floor_cracked",
+                "tile_floor_moss",
+                "tile_water",
+                "tile_lava",
+                "tile_shadow",
+                "tile_trap_pit",
+                "tile_trap_bomb",
+                "tile_trap_spike",
+                "tile_pressure_plate",
+                "tile_teleport",
+                "tile_fountain_heal",
+                "tile_stair_up",
+                "tile_stair_up_locked",
+                "tile_stair_down",
+                "tile_stair_down_locked",
+                "tile_wall",
+                "tile_wall_corner",
+                "tile_key",
+                "tile_chest_closed",
+                "tile_chest_open",
+                "tile_door_locked",
+                "tile_door_open",
+                "tile_torch"
+            };
         }
     }
 }
