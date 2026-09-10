@@ -1,0 +1,79 @@
+name: Hero Remaster Unity Validation
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  editmode:
+    runs-on: ubuntu-latest
+    env:
+      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+      UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+      UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+      UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - name: Require usable Unity activation inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          credentials=false
+          personal=false
+          professional=false
+          [ -n "${UNITY_EMAIL:-}" ] && [ -n "${UNITY_PASSWORD:-}" ] && credentials=true
+          if [ -n "${UNITY_LICENSE:-}" ]; then
+            trimmed="${UNITY_LICENSE#"${UNITY_LICENSE%%[![:space:]]*}"}"
+            if [ "${#UNITY_LICENSE}" -ge 256 ] && [[ "$trimmed" == \<* ]]; then personal=true; fi
+          fi
+          [ -n "${UNITY_SERIAL:-}" ] && professional=true
+          echo "Unity account credentials present: $credentials"
+          echo "Personal .ulf shape ready: $personal"
+          echo "Professional serial ready: $professional"
+          if [ "$credentials" != true ] || { [ "$personal" != true ] && [ "$professional" != true ]; }; then
+            echo "::error::Unity activation inputs are not ready; refusing to skip the required EditMode verification."
+            exit 1
+          fi
+      - name: Strict metadata preflight
+        run: python3 scripts/validate-unity-metadata.py --strict
+      - name: Run Unity 6000.5.9f1 EditMode tests
+        uses: game-ci/unity-test-runner@0ff419b913a3630032cbe0de48a0099b5a9f0ed9
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          unityVersion: 6000.5.9f1
+          testMode: EditMode
+          artifactsPath: hero-remaster-editmode-results
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Capture post-Unity mutation evidence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .ci/hero-remaster-unity
+          git status --porcelain=v1 --untracked-files=all -- Assets ProjectSettings Packages > .ci/hero-remaster-unity/status.txt || true
+          git diff --no-ext-diff -- Assets ProjectSettings Packages > .ci/hero-remaster-unity/import.diff || true
+          python3 scripts/validate-unity-metadata.py --strict > .ci/hero-remaster-unity/metadata-audit.txt 2>&1 || true
+          if [ -s .ci/hero-remaster-unity/status.txt ]; then
+            echo "::error::Unity EditMode verification mutated tracked/untracked project state."
+            cat .ci/hero-remaster-unity/status.txt
+            exit 1
+          fi
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: hero-remaster-unity-evidence
+          path: |
+            hero-remaster-editmode-results
+            .ci/hero-remaster-unity
+          if-no-files-found: ignore
