@@ -110,9 +110,53 @@ namespace ClickDungeon.Simulation
                 case TileContentKind.Equipment:AddOwnedItem(tile.ContentId,string.Empty);ResolveTile(tile);events.Add(new GameEvent("item.collected",index,tile.ContentId));break;
                 case TileContentKind.Merchant:events.Add(new GameEvent("merchant.opened",index,tile.ContentId));return CommandResult.Accept(events);
                 case TileContentKind.Shrine:events.Add(new GameEvent("shrine.choice_required",index,tile.ContentId));return CommandResult.Accept(events);
+                case TileContentKind.SpecialEvent:return InteractSpecialEvent(index,tile,events);
                 default:return CommandResult.Reject("tile.requires_specific_command");
             }
             GainRecharge(1,events);return CommandResult.Accept(events);
+        }
+
+        private CommandResult InteractSpecialEvent(int index,TileState tile,List<GameEvent> events)
+        {
+            switch(tile.ContentId)
+            {
+                case "special.fountain.heal":
+                {
+                    int before=State.Hp;
+                    int heal=Math.Max(0,tile.Amount);
+                    State.Hp=Math.Min(State.MaxHp,State.Hp+heal);
+                    ResolveTile(tile);
+                    events.Add(new GameEvent("fountain.healed",index,tile.ContentId,State.Hp-before));
+                    GainRecharge(1,events);
+                    return CommandResult.Accept(events);
+                }
+                case "special.pressure_plate":
+                {
+                    if(!TryTile(tile.LinkedTileIndex,out var linked))return CommandResult.Reject("pressure_plate.target_invalid");
+                    if(linked.Resolution==TileResolution.Disabled)linked.Resolution=TileResolution.Available;
+                    ResolveTile(tile);
+                    events.Add(new GameEvent("pressure_plate.activated",index,tile.ContentId,tile.LinkedTileIndex));
+                    GainRecharge(1,events);
+                    return CommandResult.Accept(events);
+                }
+                case "special.teleport":
+                {
+                    int destinationIndex=tile.TeleportDestinationIndex;
+                    if(destinationIndex<0||destinationIndex>=State.Tiles.Count||destinationIndex==index)return CommandResult.Reject("teleport.destination_invalid");
+                    var destination=State.Tiles[destinationIndex];
+                    if(destination.Occupancy==OccupancyKind.Monster||destination.Resolution==TileResolution.Disabled)return CommandResult.Reject("teleport.destination_blocked");
+                    int old=Index(State.PlayerPosition);
+                    var oldTile=State.Tiles[old];
+                    oldTile.Occupancy=oldTile.Content==TileContentKind.SpecialEvent&&oldTile.ContentId=="special.teleport"?OccupancyKind.Object:OccupancyKind.None;
+                    destination.Occupancy=OccupancyKind.Player;
+                    destination.Visibility=TileVisibility.Revealed;
+                    State.PlayerPosition=Position(destinationIndex);
+                    events.Add(new GameEvent("teleport.used",destinationIndex,tile.ContentId,destinationIndex));
+                    GainRecharge(1,events);
+                    return CommandResult.Accept(events);
+                }
+                default:return CommandResult.Reject("special_event.unsupported");
+            }
         }
 
         private CommandResult InteractChest(int index,TileState tile,List<GameEvent> events)
