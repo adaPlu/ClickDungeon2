@@ -2,7 +2,7 @@ name: Hero Remaster Unity Validation
 
 on:
   push:
-    branches: [feature/hero-class-remaster-execution, feature/task3-functional-title-overlays]
+    branches: [feature/hero-class-remaster-execution]
   workflow_dispatch:
 
 permissions:
