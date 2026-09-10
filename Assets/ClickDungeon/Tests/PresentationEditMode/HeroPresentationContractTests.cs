@@ -1,6 +1,10 @@
 using System;
+using System.Collections;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using ClickDungeon.Presentation.Assets;
+using ClickDungeon.Presentation.Menu;
 using NUnit.Framework;
 
 namespace ClickDungeon.Tests.PresentationEditMode
@@ -8,6 +12,7 @@ namespace ClickDungeon.Tests.PresentationEditMode
     public sealed class HeroPresentationContractTests
     {
         private static readonly string[] HeroIds={"ironheart","clickington","dawnward","rageclaw","gearspark","windsong","lightbringer","emberwisp","shadowcut"};
+        private static readonly string[] SelectionOrder={"ironheart","clickington","windsong","shadowcut","emberwisp","lightbringer","rageclaw","gearspark","dawnward"};
         private static readonly string[] Variants={"master","portrait","roster","gameplay","idle","attack","hit","victory","defeat"};
 
         [TestCase("ironheart")]
@@ -46,6 +51,41 @@ namespace ClickDungeon.Tests.PresentationEditMode
             string source=SourceFile("Presentation","Assets","HeroPresentationAssets.cs");
             Assert.That(source,Does.Not.Contain("LegacyClassBaseId"));
             Assert.That(source,Does.Not.Contain("fallbackClass"),"Identity-specific runtime art must never silently borrow another hero's class art.");
+        }
+
+        [Test]
+        public void HeroSelectionUsesApprovedNineHeroOrder()
+        {
+            PropertyInfo property=typeof(HeroCardPresentation).GetProperty("SelectionOrder",BindingFlags.Public|BindingFlags.Static);
+            Assert.That(property,Is.Not.Null,"HeroCardPresentation must expose the approved selection order.");
+            var enumerable=property?.GetValue(null) as IEnumerable;
+            Assert.That(enumerable,Is.Not.Null);
+            string[] actual=enumerable.Cast<object>().Select(value=>value?.ToString()??string.Empty).ToArray();
+            Assert.That(actual,Is.EqualTo(SelectionOrder));
+        }
+
+        [Test]
+        public void HeroSelectionDescriptorExposesCanonicalGameplayStats()
+        {
+            string[] required={"BaseHp","BaseAttack","BaseDefense","GameplayIdentity","BoardPassive","AbilityIds"};
+            foreach(string propertyName in required)
+                Assert.That(typeof(HeroCardDescriptor).GetProperty(propertyName,BindingFlags.Public|BindingFlags.Instance),Is.Not.Null,$"Missing canonical selector field {propertyName}.");
+        }
+
+        [Test]
+        public void MainMenuUsesSingleHeroPageWithExplicitSelectAndNextActions()
+        {
+            string source=SourceFile("Presentation","Menu","MainMenuUI.cs");
+            Assert.That(source,Does.Contain("HeroSelectSelect"));
+            Assert.That(source,Does.Contain("HeroSelectNext"));
+            Assert.That(source,Does.Contain("CORE STATS"));
+            Assert.That(source,Does.Contain("CLASS KIT"));
+            Assert.That(source,Does.Contain("GAMEPLAY IDENTITY"));
+            Assert.That(source,Does.Not.Contain("PreviousClass"));
+            Assert.That(source,Does.Not.Contain("NextClass"));
+            Assert.That(source,Does.Not.Contain("PreviousHero"));
+            Assert.That(source,Does.Not.Contain("NextHero"));
+            Assert.That(source,Does.Not.Contain("button.onClick.AddListener(()=>StartNew(card.HeroId))"),"Hero page itself must not start a run; SELECT is the explicit commit action.");
         }
 
         private static string SourceFile(params string[] relative)
