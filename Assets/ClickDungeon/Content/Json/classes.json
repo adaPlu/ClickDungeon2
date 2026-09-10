@@ -1,9 +1,13 @@
 {
-  "revision": 3,
+  "revision": 4,
   "classes": [
     {"id":"class.knight","display_name":"Ironheart","base_hp":18,"base_attack":2,"base_defense":2,"identity":"control_danger","signature_ability":"ability.knight.shield_wall","board_passive":"threatened cells are enterable while shielded"},
     {"id":"class.ranger","display_name":"Windsong","base_hp":14,"base_attack":3,"base_defense":1,"identity":"control_distance","signature_ability":"ability.ranger.piercing_shot","board_passive":"one additional useful clue is exposed at floor start"},
     {"id":"class.thief","display_name":"Shadowcut","base_hp":13,"base_attack":3,"base_defense":1,"identity":"control_information","signature_ability":"ability.thief.trap_scan","board_passive":"clued traps become identified"},
-    {"id":"class.wizard","display_name":"Emberwisp","base_hp":12,"base_attack":4,"base_defense":0,"identity":"control_board","signature_ability":"ability.wizard.fireball","board_passive":"area abilities can reshape multiple threats"}
+    {"id":"class.wizard","display_name":"Emberwisp","base_hp":12,"base_attack":4,"base_defense":0,"identity":"control_board","signature_ability":"ability.wizard.fireball","board_passive":"area abilities can reshape multiple threats"},
+    {"id":"class.paladin","display_name":"Dawnward","base_hp":17,"base_attack":2,"base_defense":2,"identity":"frontline_protection_sustain","signature_ability":"ability.paladin.radiant_strike","board_passive":"once per floor after damage leaves hp at or below half max hp, gain 3 shield"},
+    {"id":"class.berserker","display_name":"Rageclaw","base_hp":16,"base_attack":4,"base_defense":0,"identity":"high_risk_melee_momentum","signature_ability":"ability.berserker.cleaving_blow","board_passive":"while hp is at or below half max hp, effective attack is +1"},
+    {"id":"class.engineer","display_name":"Gearspark","base_hp":14,"base_attack":2,"base_defense":1,"identity":"gadget_utility_control","signature_ability":"ability.engineer.shock_wrench","board_passive":"at floor start identify the nearest hidden or clued non-boss threat, never a trap"},
+    {"id":"class.cleric","display_name":"Lightbringer","base_hp":15,"base_attack":2,"base_defense":1,"identity":"healing_protection_recovery","signature_ability":"ability.cleric.smite","board_passive":"once per floor after the first completed shrine interaction, restore 3 hp"}
   ]
 }
