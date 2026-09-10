@@ -22,6 +22,7 @@ namespace ClickDungeon.Application.Persistence
             if(slot<1||slot>4) throw new ArgumentOutOfRangeException(nameof(slot));
             if(payload==null) throw new ArgumentNullException(nameof(payload));
             Directory.CreateDirectory(_directory);
+            SaveMigrator.NormalizeHeroIdentity(payload);
             payload.Meta.LastPlayedAt=DateTimeOffset.UtcNow.ToString("O");
             var doc=new SaveDocument{revision_number=revision,updated_at=payload.Meta.LastPlayedAt,payload=payload};
             string payloadJson=JsonConvert.SerializeObject(doc.payload,Settings);
@@ -37,7 +38,13 @@ namespace ClickDungeon.Application.Persistence
             foreach(string path in new[]{primary,backup})
             {
                 if(!File.Exists(path)) continue;
-                try { var doc=SaveMigrator.DeserializeAndMigrate(File.ReadAllText(path,Encoding.UTF8)); Validate(doc); return doc; }
+                try
+                {
+                    var doc=SaveMigrator.DeserializeAndMigrate(File.ReadAllText(path,Encoding.UTF8));
+                    Validate(doc);
+                    SaveMigrator.NormalizeHeroIdentity(doc.payload);
+                    return doc;
+                }
                 catch(Exception ex) { last=ex; }
             }
             if(last!=null) throw new InvalidDataException("No valid save copy available.",last);
