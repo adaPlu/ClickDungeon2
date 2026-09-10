@@ -33,6 +33,7 @@ namespace ClickDungeon.Application.Persistence
                 var current = root.ToObject<SaveDocument>(Serializer) ?? throw new JsonSerializationException("Save document invalid.");
                 if (current.simulation_version > GameVersionInfo.SimulationVersion) throw new InvalidOperationException($"Save requires newer simulation version {current.simulation_version}.");
                 if (current.content_revision > GameVersionInfo.ContentRevision) throw new InvalidOperationException($"Save requires newer content revision {current.content_revision}.");
+                current.original_payload_json=root["payload"]?.ToString(Formatting.None)??string.Empty;
                 return current;
             }
             if (schema > GameVersionInfo.SaveSchemaVersion) throw new InvalidOperationException($"Save requires newer schema {schema}.");
