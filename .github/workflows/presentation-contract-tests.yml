@@ -40,6 +40,7 @@ jobs:
               <Compile Include="../../Assets/ClickDungeon/Presentation/Assets/PresentationAssetIdMapper.cs" />
               <Compile Include="../../Assets/ClickDungeon/Presentation/Assets/DungeonRoomPresentationLayout.cs" />
               <Compile Include="../../Assets/ClickDungeon/Presentation/Menu/HeroCardPresentation.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Presentation/Menu/MainMenuRunRouting.cs" />
               <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/PresentationAssetIdMapperTests.cs" />
               <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/HeroPresentationContractTests.cs" />
               <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/MainMenuRunRoutingTests.cs" />
