@@ -71,6 +71,23 @@ namespace ClickDungeon.Tests.ApplicationEditMode
             AssertHeroIdentity(content,HeroClassId.Ranger,"Windsong","Ranger","control_distance");
         }
 
+        [Test]
+        public void CanonicalCatalogExposesExactlyEightHeroClassesAndResolvesEveryAbility()
+        {
+            string contentDir=FindContentDirectory();
+            GameContent content=new JsonContentCatalogLoader().LoadFromDirectory(contentDir);
+            var classes=((HeroClassId[])Enum.GetValues(typeof(HeroClassId)));
+
+            Assert.That(classes.Length,Is.EqualTo(8));
+            foreach(HeroClassId cls in classes)
+            {
+                var hero=content.Hero(cls);
+                Assert.That(hero.AbilityIds.Length,Is.EqualTo(5),$"{cls} canonical ability count");
+                foreach(string abilityId in hero.AbilityIds)
+                    Assert.DoesNotThrow(()=>content.Ability(abilityId),$"{cls} missing ability {abilityId}");
+            }
+        }
+
         private static void AssertHeroIdentity(GameContent content,HeroClassId classId,string heroName,string className,string identity)
         {
             var hero=content.Hero(classId);
