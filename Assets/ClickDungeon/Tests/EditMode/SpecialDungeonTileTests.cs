@@ -68,7 +68,7 @@ public sealed class SpecialDungeonTileTests
         Assert.IsTrue(result.Accepted);
         Assert.AreEqual(hpBefore-expectedDamage,state.Hp);
         Assert.AreEqual(TileResolution.Resolved,state.Tiles[13].Resolution);
-        Assert.IsTrue(result.Events.Any(e=>e.Type=="trap.triggered"&&e.Text==trapId&&e.Amount==expectedDamage));
+        Assert.IsTrue(result.Events.Any(e=>e.Type=="trap.triggered"&&e.Id==trapId&&e.Amount==expectedDamage));
     }
 
     [Test]
