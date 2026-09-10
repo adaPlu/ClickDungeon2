@@ -65,23 +65,45 @@ jobs:
           rm -rf "$evidence"
           mkdir -p "$evidence"
           printf 'guard-started\n' > "$evidence/guard-started.txt"
+          printf 'RUNNER_TEMP=%q\nGITHUB_WORKSPACE=%q\nEVIDENCE_DIR=%q\n' "$RUNNER_TEMP" "$GITHUB_WORKSPACE" "$evidence" > "$evidence/environment-paths.txt"
 
           # Diagnostic evidence must never become repository state.
+          printf 'workspace-assertion-started\n' > "$evidence/workspace-assertion-started.txt"
           case "${evidence}/" in
             "${GITHUB_WORKSPACE}/"*)
+              printf 'workspace-assertion-failed\n' > "$evidence/workspace-assertion-failed.txt"
               echo "::error::Unity evidence directory is inside GITHUB_WORKSPACE."
               exit 1
               ;;
           esac
+          printf 'workspace-assertion-passed\n' > "$evidence/workspace-assertion-passed.txt"
 
           # Keep test-runner output outside the checkout so the final cleanliness assertion covers the whole repository.
           if [ -d hero-remaster-editmode-results ]; then
-            rm -rf "$evidence/hero-remaster-editmode-results"
-            mv hero-remaster-editmode-results "$evidence/hero-remaster-editmode-results"
+            printf 'test-results-directory-present\n' > "$evidence/test-results-directory-present.txt"
+            ls -ldn hero-remaster-editmode-results > "$evidence/test-results-directory-stat.txt" 2>&1 || true
+            printf 'test-results-move-started\n' > "$evidence/test-results-move-started.txt"
+            if ! mv hero-remaster-editmode-results "$evidence/hero-remaster-editmode-results" 2> "$evidence/test-results-move.stderr.txt"; then
+              printf 'test-results-move-failed\n' > "$evidence/test-results-move-failed.txt"
+              echo "::error::Failed to move Unity test-runner artifacts out of the checkout."
+              cat "$evidence/test-results-move.stderr.txt"
+              exit 1
+            fi
+            printf 'test-results-move-passed\n' > "$evidence/test-results-move-passed.txt"
+          else
+            printf 'test-results-directory-absent\n' > "$evidence/test-results-directory-absent.txt"
           fi
 
           echo "=== PRE-RESTORE STATUS ==="
-          git status --porcelain=v1 --untracked-files=all | tee "$evidence/status-before.txt"
+          printf 'pre-restore-status-started\n' > "$evidence/pre-restore-status-started.txt"
+          if ! git status --porcelain=v1 --untracked-files=all > "$evidence/status-before.txt" 2> "$evidence/status-before.stderr.txt"; then
+            printf 'pre-restore-status-failed\n' > "$evidence/pre-restore-status-failed.txt"
+            echo "::error::Failed to capture pre-restore repository status."
+            cat "$evidence/status-before.stderr.txt"
+            exit 1
+          fi
+          printf 'pre-restore-status-passed\n' > "$evidence/pre-restore-status-passed.txt"
+          cat "$evidence/status-before.txt"
           git diff --binary HEAD -- > "$evidence/working-tree-diff-before.patch" || true
           git diff --cached --binary HEAD -- > "$evidence/index-diff-before.patch" || true
 
