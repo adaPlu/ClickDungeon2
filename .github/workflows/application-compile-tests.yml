@@ -88,3 +88,76 @@ jobs:
           python scripts/static-audit.py
           python scripts/test-validators.py
           grep -F 'm_EditorVersion: 6000.5.9f1' ProjectSettings/ProjectVersion.txt
+      - name: Task 6 strict Unity metadata and hero GUID snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/validate-unity-metadata.py --strict
+          mkdir -p .ci/hero-reconciliation
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          import re
+
+          root=Path('Assets/ClickDungeon/Art/Runtime')
+          heroes=('ironheart','clickington','dawnward','rageclaw','gearspark','windsong','lightbringer','emberwisp','shadowcut')
+          variants=('master','portrait','roster','gameplay','idle','attack','hit','victory','defeat')
+          guid_re=re.compile(r'^guid:\s*([0-9a-fA-F]{32})\s*$',re.MULTILINE)
+          rows=[]
+          errors=[]
+          for hero in heroes:
+              for variant in variants:
+                  png=root/f'hero_{hero}_{variant}.png'
+                  meta=Path(str(png)+'.meta')
+                  if not png.is_file():
+                      errors.append(f'missing {png}')
+                      continue
+                  if not meta.is_file():
+                      errors.append(f'missing {meta}')
+                      continue
+                  match=guid_re.search(meta.read_text(encoding='utf-8',errors='replace'))
+                  if not match:
+                      errors.append(f'invalid/missing GUID in {meta}')
+                      continue
+                  rows.append((png.as_posix(),match.group(1).lower()))
+          if errors:
+              raise SystemExit('\n'.join(errors))
+          if len(rows)!=81:
+              raise SystemExit(f'expected 81 hero GUID pairs, found {len(rows)}')
+          guids=[guid for _,guid in rows]
+          if len(set(guids))!=81:
+              raise SystemExit('hero runtime metadata contains duplicate GUIDs')
+          text='\n'.join(f'{path}\t{guid}' for path,guid in rows)+'\n'
+          out=Path('.ci/hero-reconciliation/hero-guid-snapshot.txt')
+          out.write_text(text,encoding='utf-8')
+          digest=hashlib.sha256(text.encode('utf-8')).hexdigest()
+          Path('.ci/hero-reconciliation/hero-guid-snapshot.sha256').write_text(digest+'\n',encoding='utf-8')
+          print(f'HERO GUID SNAPSHOT PASSED: {len(rows)} files, {len(set(guids))} unique GUIDs')
+          print(f'HERO GUID SNAPSHOT SHA256: {digest}')
+          print(text,end='')
+          PY
+      - name: Upload Task 6 hero reconciliation evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: hero-reconciliation-evidence
+          path: |
+            .ci/hero-reconciliation
+            Assets/ClickDungeon/Art/Runtime/hero_*_master.png
+            Assets/ClickDungeon/Art/Runtime/hero_*_portrait.png
+            Assets/ClickDungeon/Art/Runtime/hero_*_roster.png
+            Assets/ClickDungeon/Art/Runtime/hero_*_gameplay.png
+            Assets/ClickDungeon/Art/Runtime/hero_*_idle.png
+            Assets/ClickDungeon/Art/Runtime/hero_*_attack.png
+            Assets/ClickDungeon/Art/Runtime/hero_*_hit.png
+            Assets/ClickDungeon/Art/Runtime/hero_*_victory.png
+            Assets/ClickDungeon/Art/Runtime/hero_*_defeat.png
+            Assets/ClickDungeon/Art/Runtime/hero_*_master.png.meta
+            Assets/ClickDungeon/Art/Runtime/hero_*_portrait.png.meta
+            Assets/ClickDungeon/Art/Runtime/hero_*_roster.png.meta
+            Assets/ClickDungeon/Art/Runtime/hero_*_gameplay.png.meta
+            Assets/ClickDungeon/Art/Runtime/hero_*_idle.png.meta
+            Assets/ClickDungeon/Art/Runtime/hero_*_attack.png.meta
+            Assets/ClickDungeon/Art/Runtime/hero_*_hit.png.meta
+            Assets/ClickDungeon/Art/Runtime/hero_*_victory.png.meta
+            Assets/ClickDungeon/Art/Runtime/hero_*_defeat.png.meta
+          if-no-files-found: error
