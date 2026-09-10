@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main, develop]
   push:
-    branches: [develop]
+    branches: [develop, feature/gameplay-tiles-monster-batch-execution]
   workflow_dispatch:
 
 jobs:
