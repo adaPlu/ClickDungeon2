@@ -163,6 +163,26 @@ namespace ClickDungeon.Tests.PresentationEditMode
         }
 
         [Test]
+        public void MainMenuSourceMatchesApprovedLandscapeTitleScreenContract()
+        {
+            string menu=MainMenuSource();
+            Assert.That(menu,Does.Contain("TitleText=\"ClickDungeon\""),"The approved title is ClickDungeon with no numeric suffix.");
+            Assert.That(menu,Does.Contain("scaler.referenceResolution=new Vector2(1920,1080)"),"The approved title screen is a landscape 16:9 composition.");
+            Assert.That(menu,Does.Contain("BuildSelectedHeroPanel"));
+            Assert.That(menu,Does.Contain("BuildContinuePanel"));
+            Assert.That(menu,Does.Contain("BuildDailyRewardPanel"));
+            Assert.That(menu,Does.Contain("BuildBottomNavigation"));
+            Assert.That(menu,Does.Contain("\"PLAY\""));
+            Assert.That(menu,Does.Contain("\"HERO SELECT\""));
+            Assert.That(menu,Does.Contain("\"INVENTORY\""));
+            Assert.That(menu,Does.Contain("\"TALENTS\""));
+            Assert.That(menu,Does.Contain("\"SHOP\""));
+            Assert.That(menu,Does.Contain("\"SETTINGS\""));
+            Assert.That(menu,Does.Contain("\"QUIT\""));
+            Assert.That(menu,Does.Not.Contain("AddText(\"CLICKDUNGEON\""),"The old scrolling title implementation must be replaced, not layered underneath the new composition.");
+        }
+
+        [Test]
         public void VisualRemasterBridgePreservesClickingtonIdentityForSharedKnightClass()
         {
             string bridge=VisualRemasterBridgeSource();
