@@ -1,6 +1,6 @@
 {
   "name": "ClickDungeon.Tests.PresentationEditMode",
-  "references": ["ClickDungeon.Simulation", "ClickDungeon.Application", "ClickDungeon.Presentation"],
+  "references": ["ClickDungeon.Simulation", "ClickDungeon.Application", "ClickDungeon.Presentation", "Unity.TextMeshPro", "Unity.ugui"],
   "optionalUnityReferences": ["TestAssemblies"],
   "includePlatforms": ["Editor"],
   "autoReferenced": false

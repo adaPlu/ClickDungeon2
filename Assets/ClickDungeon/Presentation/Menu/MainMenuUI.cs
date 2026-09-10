@@ -54,6 +54,7 @@ namespace ClickDungeon.Presentation.Menu
         private RectTransform _heroSelectPageHost;
         private int _heroSelectIndex;
         private GameObject _utilityDrawer;
+        private MenuOverlayFactory _menuOverlays;
 
         private void Start()
         {
@@ -118,6 +119,7 @@ namespace ClickDungeon.Presentation.Menu
             BuildStatusBar();
             BuildUtilityDrawer();
             BuildHeroSelectOverlay();
+            _menuOverlays=new MenuOverlayFactory(_root,_account,_accounts,_services.Store);
             RefreshSelectedSlotPresentation();
         }
 
@@ -548,10 +550,10 @@ namespace ClickDungeon.Presentation.Menu
         private void ShowHeroSelect(){RefreshHeroSelectionPage();if(_heroSelectOverlay!=null)_heroSelectOverlay.SetActive(true);}
         private void HideHeroSelect(){if(_heroSelectOverlay!=null)_heroSelectOverlay.SetActive(false);}
         private void ToggleUtilityDrawer(){if(_utilityDrawer!=null)_utilityDrawer.SetActive(!_utilityDrawer.activeSelf);}
-        private void ShowInventory(){ShowStatus("Inventory is managed inside an active dungeon run.");}
-        private void ShowTalents(){ShowStatus("Talents are managed inside an active dungeon run.");}
-        private void ShowShop(){ShowStatus(_services.Store.FullGameUnlocked?"Full game unlocked. Run-based shop features remain available during play.":"Full-game upgrade is available from the menu button in the upper-right.");}
-        private void ShowSettings(){ShowStatus($"Settings — music {Mathf.RoundToInt(_account.MusicVolume*100)}%, SFX {Mathf.RoundToInt(_account.SfxVolume*100)}%, haptics {(_account.HapticsEnabled?"on":"off")}. In-run settings remain unchanged.");}
+        private void ShowInventory(){_menuOverlays?.ShowInventory(LoadSelectedPayload());}
+        private void ShowTalents(){_menuOverlays?.ShowTalents(LoadSelectedPayload());}
+        private void ShowShop(){_menuOverlays?.ShowShop();}
+        private void ShowSettings(){_menuOverlays?.ShowSettings();}
         private void ShowDailyRewardUnavailable(){ShowStatus("Daily Reward is presentation-only for now; no reward service exists yet, so nothing was granted.");}
         private void QuitGame(){ShowStatus("Quit requested.");Application.Quit();}
         private void ShowStatus(string message){if(_status!=null)_status.text=message??string.Empty;}
