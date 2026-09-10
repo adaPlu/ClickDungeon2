@@ -43,6 +43,10 @@ jobs:
           fi
       - name: Strict metadata preflight
         run: python3 scripts/validate-unity-metadata.py --strict
+      - name: Capture runner ownership identity
+        id: runner-ownership
+        shell: bash
+        run: echo "uid_gid=$(id -u):$(id -g)" >> "$GITHUB_OUTPUT"
       - name: Run Unity 6000.5.9f1 EditMode tests
         uses: game-ci/unity-test-runner@32e57712352b500e17974b245a6dce9e11a73213
         env:
@@ -54,6 +58,7 @@ jobs:
           unityVersion: 6000.5.9f1
           testMode: EditMode
           artifactsPath: hero-remaster-editmode-results
+          chownFilesTo: ${{ steps.runner-ownership.outputs.uid_gid }}
           githubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: Reconcile Unity workspace mutations
         if: always()
