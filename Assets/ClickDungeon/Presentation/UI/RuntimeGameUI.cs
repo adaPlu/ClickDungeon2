@@ -29,6 +29,7 @@ namespace ClickDungeon.Presentation.UI
         private readonly List<TMP_Text> _tileLabels=new List<TMP_Text>();
         private readonly List<Image> _tileIcons=new List<Image>();
         private readonly List<Image> _tileFloors=new List<Image>();
+        private readonly List<Image> _tileStructures=new List<Image>();
         private readonly List<Image> _tileStateOverlays=new List<Image>();
         private readonly List<RectTransform> _roomEdges=new List<RectTransform>();
         private readonly List<RectTransform> _roomCorners=new List<RectTransform>();
@@ -126,12 +127,16 @@ namespace ClickDungeon.Presentation.UI
             {
                 int captured=i;var button=CreateButton($"Tile_{i}",_board,"?",28);var buttonImage=button.GetComponent<Image>();buttonImage.color=Color.clear;
                 var label=button.GetComponentInChildren<TMP_Text>();
-                var floorRt=CreateRect("Floor",button.transform);Stretch(floorRt);var floor=floorRt.gameObject.AddComponent<Image>();floor.raycastTarget=false;floor.preserveAspect=false;floor.sprite=_assets?.SpriteFor(DungeonRoomPresentationLayout.FloorIdForCell(i));floor.enabled=floor.sprite!=null;floorRt.SetSiblingIndex(0);
-                var shadowRt=CreateRect("RoomShadow",button.transform);Stretch(shadowRt);var shadow=shadowRt.gameObject.AddComponent<Image>();shadow.raycastTarget=false;shadow.preserveAspect=false;shadow.sprite=_assets?.SpriteFor(DungeonRoomPresentationLayout.ShadowId);shadow.enabled=shadow.sprite!=null;shadow.color=new Color(1f,1f,1f,.30f);shadowRt.SetSiblingIndex(1);
-                var overlayRt=CreateRect("StateOverlay",button.transform);Stretch(overlayRt);var overlay=overlayRt.gameObject.AddComponent<Image>();overlay.raycastTarget=false;overlay.color=new Color(0f,0f,0f,.15f);overlayRt.SetSiblingIndex(2);
+
+                var baseRt=CreateRect("BaseTerrain",button.transform);Stretch(baseRt);var baseImage=baseRt.gameObject.AddComponent<Image>();baseImage.raycastTarget=false;baseImage.preserveAspect=false;baseImage.sprite=_assets?.SpriteFor(DungeonRoomPresentationLayout.FloorIdForCell(i));baseImage.enabled=baseImage.sprite!=null;baseRt.SetSiblingIndex(0);
+                var structureRt=CreateRect("Structure",button.transform);Stretch(structureRt);var structure=structureRt.gameObject.AddComponent<Image>();structure.raycastTarget=false;structure.preserveAspect=true;structure.enabled=false;structureRt.SetSiblingIndex(1);
+                var contentRt=CreateRect("Content",button.transform);Stretch(contentRt);var content=contentRt.gameObject.AddComponent<Image>();content.preserveAspect=true;content.raycastTarget=false;content.color=new Color(1f,1f,1f,.96f);content.enabled=false;contentRt.SetSiblingIndex(2);
+
                 AddRoomDecorations(button.transform,i);
-                var iconRt=CreateRect("Icon",button.transform);Stretch(iconRt);var icon=iconRt.gameObject.AddComponent<Image>();icon.preserveAspect=true;icon.raycastTarget=false;icon.color=new Color(1f,1f,1f,.92f);iconRt.SetAsLastSibling();label.rectTransform.SetAsLastSibling();
-                button.onClick.AddListener(()=>OnTilePressed(captured));_tileButtons.Add(button);_tileLabels.Add(label);_tileIcons.Add(icon);_tileFloors.Add(floor);_tileStateOverlays.Add(overlay);
+                var overlayRt=CreateRect("StateOverlay",button.transform);Stretch(overlayRt);var overlay=overlayRt.gameObject.AddComponent<Image>();overlay.raycastTarget=false;overlay.color=new Color(0f,0f,0f,.15f);overlayRt.SetAsLastSibling();
+                label.rectTransform.SetAsLastSibling();
+
+                button.onClick.AddListener(()=>OnTilePressed(captured));_tileButtons.Add(button);_tileLabels.Add(label);_tileIcons.Add(content);_tileFloors.Add(baseImage);_tileStructures.Add(structure);_tileStateOverlays.Add(overlay);
             }
         }
 
@@ -160,7 +165,7 @@ namespace ClickDungeon.Presentation.UI
             if(DungeonRoomPresentationLayout.HasTorchAtCell(index))
             {
                 var torchRt=CreateRect("RoomTorch",parent);torchRt.anchorMin=torchRt.anchorMax=new Vector2(.5f,.78f);torchRt.pivot=new Vector2(.5f,.5f);torchRt.anchoredPosition=Vector2.zero;
-                var torch=torchRt.gameObject.AddComponent<Image>();torch.sprite=_assets?.SpriteFor(DungeonRoomPresentationLayout.TorchId);torch.enabled=torch.sprite!=null;torch.preserveAspect=true;torch.raycastTarget=false;_roomTorches.Add(torchRt);
+                var torch=torchRt.gameObject.AddComponent<Image>();torch.sprite=_assets?.SpriteFor(DungeonRoomPresentationLayout.TileTorchId);torch.enabled=torch.sprite!=null;torch.preserveAspect=true;torch.raycastTarget=false;_roomTorches.Add(torchRt);
             }
         }
 
@@ -169,7 +174,7 @@ namespace ClickDungeon.Presentation.UI
             var rt=CreateRect("RoomWall_"+edge,parent);Vector2 anchor;
             switch(edge){case DungeonRoomEdge.Top:anchor=new Vector2(.5f,1f);break;case DungeonRoomEdge.Right:anchor=new Vector2(1f,.5f);break;case DungeonRoomEdge.Bottom:anchor=new Vector2(.5f,0f);break;default:anchor=new Vector2(0f,.5f);break;}
             rt.anchorMin=rt.anchorMax=anchor;rt.pivot=new Vector2(.5f,.5f);rt.anchoredPosition=Vector2.zero;rt.localEulerAngles=new Vector3(0f,0f,DungeonRoomPresentationLayout.WallRotationDegrees(edge));
-            var image=rt.gameObject.AddComponent<Image>();image.sprite=_assets?.SpriteFor(DungeonRoomPresentationLayout.WallId);image.enabled=image.sprite!=null;image.preserveAspect=false;image.raycastTarget=false;_roomEdges.Add(rt);
+            var image=rt.gameObject.AddComponent<Image>();image.sprite=_assets?.SpriteFor(DungeonRoomPresentationLayout.TileWallId);image.enabled=image.sprite!=null;image.preserveAspect=false;image.raycastTarget=false;_roomEdges.Add(rt);
         }
 
         private void AddRoomCorner(Transform parent,DungeonRoomCorner corner)
@@ -177,7 +182,7 @@ namespace ClickDungeon.Presentation.UI
             var rt=CreateRect("RoomCorner_"+corner,parent);Vector2 anchor;
             switch(corner){case DungeonRoomCorner.TopLeft:anchor=new Vector2(0f,1f);break;case DungeonRoomCorner.TopRight:anchor=new Vector2(1f,1f);break;case DungeonRoomCorner.BottomRight:anchor=new Vector2(1f,0f);break;default:anchor=new Vector2(0f,0f);break;}
             rt.anchorMin=rt.anchorMax=anchor;rt.pivot=anchor;rt.anchoredPosition=Vector2.zero;rt.localEulerAngles=new Vector3(0f,0f,DungeonRoomPresentationLayout.CornerRotationDegrees(corner));
-            var image=rt.gameObject.AddComponent<Image>();image.sprite=_assets?.SpriteFor(DungeonRoomPresentationLayout.CornerId);image.enabled=image.sprite!=null;image.preserveAspect=false;image.raycastTarget=false;_roomCorners.Add(rt);
+            var image=rt.gameObject.AddComponent<Image>();image.sprite=_assets?.SpriteFor(DungeonRoomPresentationLayout.TileWallCornerId);image.enabled=image.sprite!=null;image.preserveAspect=false;image.raycastTarget=false;_roomCorners.Add(rt);
         }
 
         private void ApplyAdaptiveLayout(bool force)
@@ -217,8 +222,11 @@ namespace ClickDungeon.Presentation.UI
             var tile=_session.State.Tiles[index];var label=_tileLabels[index];var button=_tileButtons[index];bool threatened=ThreatResolver.IsThreatened(_session.State,index);string text;
             if(tile.Visibility==TileVisibility.Hidden)text="?";else if(tile.Visibility==TileVisibility.Clued)text=ClueText(tile.Clue);else if(tile.Visibility==TileVisibility.Identified)text=IdentifiedText(tile);else text=RevealedText(tile);
             if(threatened&&tile.Occupancy!=OccupancyKind.Monster)text="⚠\n"+text;if(tile.Terrain!=TerrainKind.Normal)text=TerrainMark(tile.Terrain)+"\n"+text;if(index==Index(_session.State.PlayerPosition))text="◆\n"+text;label.text=text;
-            var floor=_tileFloors[index];floor.sprite=_assets?.SpriteFor(DungeonRoomPresentationLayout.FloorIdForCell(index));floor.enabled=floor.sprite!=null;
-            var icon=_tileIcons[index];string assetId=TilePresentationAssetResolver.PrimaryAssetId(tile);icon.sprite=_assets?.SpriteFor(assetId);icon.enabled=icon.sprite!=null;_tileStateOverlays[index].color=TileOverlayColor(tile,threatened,index==Index(_session.State.PlayerPosition));button.interactable=!_session.State.GameOver&&!_session.State.CampaignCompleted;
+
+            var baseImage=_tileFloors[index];string baseId=TilePresentationAssetResolver.BaseAssetId(tile,index);if(string.IsNullOrEmpty(baseId))baseId=DungeonRoomPresentationLayout.FloorIdForCell(index);baseImage.sprite=_assets?.SpriteFor(baseId);baseImage.enabled=baseImage.sprite!=null;
+            var structure=_tileStructures[index];string structureId=TilePresentationAssetResolver.StructuralAssetId(tile);structure.sprite=_assets?.SpriteFor(structureId);structure.enabled=structure.sprite!=null;
+            var content=_tileIcons[index];string contentId=string.IsNullOrEmpty(structureId)?TilePresentationAssetResolver.PrimaryAssetId(tile):string.Empty;content.sprite=_assets?.SpriteFor(contentId);content.enabled=content.sprite!=null;
+            _tileStateOverlays[index].color=TileOverlayColor(tile,threatened,index==Index(_session.State.PlayerPosition));button.interactable=!_session.State.GameOver&&!_session.State.CampaignCompleted;
         }
 
         private void RefreshIntent()
