@@ -74,13 +74,30 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/validate-unity-metadata.py --strict
+          report="$RUNNER_TEMP/pr5-unity-mutation-report.txt"
+          {
+            echo '=== git status --porcelain=v1 --untracked-files=all -- Assets ProjectSettings Packages ==='
+            git status --porcelain=v1 --untracked-files=all -- Assets ProjectSettings Packages || true
+            echo
+            echo '=== git diff --name-status -- Assets ProjectSettings Packages ==='
+            git diff --name-status -- Assets ProjectSettings Packages || true
+            echo
+            echo '=== git diff --no-ext-diff -- Assets ProjectSettings Packages ==='
+            git diff --no-ext-diff -- Assets ProjectSettings Packages || true
+          } > "$report"
           delta="$(git status --porcelain=v1 --untracked-files=all -- Assets ProjectSettings Packages)"
           if [ -n "$delta" ]; then
             echo '::error::Unity EditMode/import mutated tracked project inputs.'
-            printf '%s\n' "$delta"
-            git diff --no-ext-diff -- Assets ProjectSettings Packages || true
+            cat "$report"
             exit 1
           fi
+      - name: Upload Unity mutation report
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: pr5-unity-mutation-report
+          path: ${{ runner.temp }}/pr5-unity-mutation-report.txt
+          if-no-files-found: error
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
