@@ -1,0 +1,333 @@
+name: GraphRepair Gameplay Remaster Reconcile
+
+on:
+  push:
+    branches:
+      - graphrepair/gameplay-remaster-reconciliation
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  reconcile-and-verify:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          ref: graphrepair/gameplay-remaster-reconciliation
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9
+        with:
+          dotnet-version: '8.0.x'
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+
+      - name: Verify immutable reconciliation base
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin feature/visual-remaster-production feature/gameplay-tiles-monster-batch-execution
+          test "$(git rev-parse origin/feature/visual-remaster-production)" = "9421d6ecae5d5dee11c5ebea4c9a0d545329c419"
+          test "$(git rev-parse origin/feature/gameplay-tiles-monster-batch-execution)" = "0c99dd83c7510651cb4666bd7b32fdcd9cea40e3"
+          git merge-base --is-ancestor origin/feature/visual-remaster-production HEAD
+
+      - name: Merge gameplay line and reconcile six overlap files
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git merge --no-commit --no-ff origin/feature/gameplay-tiles-monster-batch-execution || true
+          python - <<'PY'
+          from pathlib import Path
+          import subprocess
+
+          GAMEPLAY='origin/feature/gameplay-tiles-monster-batch-execution'
+
+          def show(ref,path):
+              return subprocess.check_output(['git','show',f'{ref}:{path}'],text=True)
+
+          def write(path,text):
+              Path(path).write_text(text,encoding='utf-8')
+
+          def require_replace(text,old,new,label):
+              if old not in text:
+                  raise SystemExit(f'missing reconciliation anchor: {label}')
+              return text.replace(old,new,1)
+
+          def balanced_class(text,decl):
+              start=text.index(decl)
+              brace=text.index('{',start)
+              depth=0
+              for i in range(brace,len(text)):
+                  if text[i]=='{': depth+=1
+                  elif text[i]=='}':
+                      depth-=1
+                      if depth==0:
+                          return text[start:i+1]
+              raise SystemExit(f'unbalanced class {decl}')
+
+          # 1) Presentation workflow: visual/remaster jobs + gameplay layered-tile contract coverage.
+          path='.github/workflows/presentation-contract-tests.yml'
+          ours=show('HEAD',path)
+          merged=ours
+          anchor='              <Compile Include="../../Assets/ClickDungeon/Presentation/Assets/DungeonRoomPresentationLayout.cs" />\n'
+          if 'GameplayScreenPresentationLayout.cs' not in merged:
+              merged=require_replace(merged,anchor,anchor+'              <Compile Include="../../Assets/ClickDungeon/Presentation/Assets/GameplayScreenPresentationLayout.cs" />\n','presentation layout include')
+          anchor='              <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/PresentationAssetIdMapperTests.cs" />\n'
+          extras=(
+              '              <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/CanonicalDungeonTileRegistryTests.cs" />\n'
+              '              <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/GameplayScreenPresentationLayoutTests.cs" />\n'
+              '              <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/LayeredDungeonTilePresentationTests.cs" />\n'
+          )
+          if 'CanonicalDungeonTileRegistryTests.cs' not in merged:
+              merged=require_replace(merged,anchor,anchor+extras,'presentation gameplay tests')
+          write(path,merged)
+
+          # Simulation workflow: the suites are already equivalent; preserve normal develop-only push trigger.
+          path='.github/workflows/simulation-tests-dotnet.yml'
+          write(path,show('HEAD',path))
+
+          # 2) Hero catalog: preserve 9 identities / 8 classes and add catalog-owned story identity.
+          path='Assets/ClickDungeon/Application/Heroes/HeroIdentityCatalog.cs'
+          merged=show('HEAD',path)
+          merged=require_replace(merged,
+              'public HeroIdentityDefinition(string heroId,string displayName,HeroClassId classId,string campaignId="")',
+              'public HeroIdentityDefinition(string heroId,string displayName,HeroClassId classId,string campaignId="",string story="")',
+              'hero constructor')
+          merged=require_replace(merged,
+              '            CampaignId=campaignId??string.Empty;\n',
+              '            CampaignId=campaignId??string.Empty;\n            Story=story??string.Empty;\n',
+              'story assignment')
+          merged=require_replace(merged,
+              '        public string CampaignId { get; }\n',
+              '        public string CampaignId { get; }\n        public string Story { get; }\n',
+              'story property')
+          merged=require_replace(merged,
+              'new HeroIdentityDefinition("clickington","Sir Clickington",HeroClassId.Knight,"clickington_campaign")',
+              'new HeroIdentityDefinition("clickington","Sir Clickington",HeroClassId.Knight,"clickington_campaign","Sir Clickington sets out on an adventure through the dungeon.")',
+              'clickington story')
+          story_method='''        public static string StoryForHero(string heroId)\n        {\n            var definition=Find(heroId);\n            return definition?.Story??string.Empty;\n        }\n\n'''
+          marker='        public static string SelectionLabelForHero(string heroId)\n'
+          if 'StoryForHero' not in merged:
+              merged=require_replace(merged,marker,story_method+marker,'story method')
+          write(path,merged)
+
+          # 3) Mapper: take gameplay layered tile policy/validator, but retain remaster's richer hero resolver.
+          path='Assets/ClickDungeon/Presentation/Assets/PresentationAssetIdMapper.cs'
+          ours=show('HEAD',path)
+          theirs=show(GAMEPLAY,path)
+          ours_hero=balanced_class(ours,'public static class HeroPresentationAssetResolver')
+          theirs_hero=balanced_class(theirs,'public static class HeroPresentationAssetResolver')
+          merged=theirs.replace(theirs_hero,ours_hero,1)
+          write(path,merged)
+
+          # 4) GameSession: remaster class/passive behavior + gameplay special-event interactions.
+          path='Assets/ClickDungeon/Simulation/GameSession.cs'
+          ours=show('HEAD',path)
+          theirs=show(GAMEPLAY,path)
+          merged=ours
+          shrine='                case TileContentKind.Shrine:events.Add(new GameEvent("shrine.choice_required",index,tile.ContentId));return CommandResult.Accept(events);\n'
+          if 'case TileContentKind.SpecialEvent:return InteractSpecialEvent' not in merged:
+              merged=require_replace(merged,shrine,shrine+'                case TileContentKind.SpecialEvent:return InteractSpecialEvent(index,tile,events);\n','special event switch')
+          method_start=theirs.index('        private CommandResult InteractSpecialEvent')
+          method_end=theirs.index('        private CommandResult InteractChest',method_start)
+          special_method=theirs[method_start:method_end]
+          chest_marker='        private CommandResult InteractChest'
+          if 'private CommandResult InteractSpecialEvent' not in merged:
+              merged=require_replace(merged,chest_marker,special_method+chest_marker,'special event method')
+          old='if(tile.Content!=required||tile.Visibility!=TileVisibility.Revealed)return CommandResult.Reject("exit.not_available");'
+          new='if(tile.Content!=required||tile.Visibility!=TileVisibility.Revealed||tile.Resolution!=TileResolution.Available)return CommandResult.Reject("exit.not_available");'
+          if new not in merged:
+              merged=require_replace(merged,old,new,'disabled exit guard')
+          write(path,merged)
+
+          # 5) FloorGenerator: remaster class resets/Engineer knowledge + gameplay special feature generation.
+          path='Assets/ClickDungeon/Simulation/Generation/FloorGenerator.cs'
+          ours=show('HEAD',path)
+          theirs=show(GAMEPLAY,path)
+          merged=ours
+          player='            state.PlayerPosition = new GridPosition(2, 2);\n'
+          if '            ApplySpecialFeature(state,rng);\n' not in merged:
+              merged=require_replace(merged,player,player+'            ApplySpecialFeature(state,rng);\n','special feature call')
+          block_start=theirs.index('        private static void ApplySpecialFeature')
+          block_end=theirs.index('        private void InitializeMonsters',block_start)
+          special_block=theirs[block_start:block_end]
+          init_marker='        private void InitializeMonsters'
+          if 'private static void ApplySpecialFeature' not in merged:
+              merged=require_replace(merged,init_marker,special_block+init_marker,'special feature methods')
+          write(path,merged)
+
+          # 6) Hero tests: preserve expanded roster tests and add the observed StoryForHero regression test.
+          path='Assets/ClickDungeon/Tests/ApplicationEditMode/HeroIdentityTests.cs'
+          ours=show('HEAD',path)
+          theirs=show(GAMEPLAY,path)
+          merged=ours
+          test_start=theirs.index('        [Test]\n        public void ClickingtonHasAUniqueStorySeparateFromIronheart')
+          test_end=theirs.index('        [Test]\n        public void HeroVisualAssetKeysAreDeterministicAndRejectUnknownInputs',test_start)
+          story_test=theirs[test_start:test_end]
+          marker='        [Test]\n        public void HeroVisualAssetKeysAreDeterministicAndRejectUnknownInputs'
+          if 'ClickingtonHasAUniqueStorySeparateFromIronheart' not in merged:
+              merged=require_replace(merged,marker,story_test+marker,'story regression test')
+          write(path,merged)
+          PY
+          git add -A
+          if test -n "$(git diff --name-only --diff-filter=U)"; then
+            echo 'Unresolved merge paths remain:' >&2
+            git diff --name-only --diff-filter=U >&2
+            exit 1
+          fi
+          git diff --cached --check
+          ! git grep -nE '^(<<<<<<<|=======|>>>>>>>)' -- . ':!*.md'
+
+      - name: Remove temporary reconciliation workflow from final tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm .github/workflows/graphrepair-gameplay-remaster-reconcile.yml
+          git add -A
+          git diff --cached --check
+
+      - name: Verify simulation suite on reconciled tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .ci/sim-tests
+          cat > .ci/sim-tests/SimulationTests.csproj <<'EOF'
+          <Project Sdk="Microsoft.NET.Sdk">
+            <PropertyGroup>
+              <TargetFramework>net8.0</TargetFramework>
+              <ImplicitUsings>disable</ImplicitUsings>
+              <Nullable>disable</Nullable>
+              <LangVersion>latest</LangVersion>
+              <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+              <IsTestProject>true</IsTestProject>
+            </PropertyGroup>
+            <ItemGroup>
+              <Compile Include="../../Assets/ClickDungeon/Simulation/**/*.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Tests/EditMode/**/*.cs" Exclude="../../Assets/ClickDungeon/Tests/EditMode/CanonicalBalanceBaselineTests.cs" />
+              <PackageReference Include="NUnit" Version="3.14.0" />
+              <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+              <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+            </ItemGroup>
+          </Project>
+          EOF
+          dotnet test .ci/sim-tests/SimulationTests.csproj --configuration Release --nologo --logger "console;verbosity=normal"
+
+      - name: Verify application suite and static validators on reconciled tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .ci/application
+          cat > .ci/application/UnityEngineStubs.cs <<'EOF'
+          using System;
+          namespace UnityEngine
+          {
+              public class ScriptableObject { }
+              [AttributeUsage(AttributeTargets.Class)] public sealed class CreateAssetMenuAttribute : Attribute { public string menuName; public string fileName; }
+              [AttributeUsage(AttributeTargets.Field)] public sealed class SerializeField : Attribute { }
+              [AttributeUsage(AttributeTargets.Field)] public sealed class TextAreaAttribute : Attribute { public TextAreaAttribute(int minLines,int maxLines) { } }
+              public enum RuntimePlatform { WindowsPlayer, OSXPlayer, LinuxPlayer, WebGLPlayer, Android, IPhonePlayer }
+              public static class Application
+              {
+                  public static bool isEditor => false;
+                  public static RuntimePlatform platform => RuntimePlatform.WindowsPlayer;
+                  public static bool isMobilePlatform => false;
+                  public static string persistentDataPath => System.IO.Path.GetTempPath();
+              }
+              public static class PlayerPrefs
+              {
+                  public static int GetInt(string key,int defaultValue=0)=>defaultValue;
+                  public static void SetInt(string key,int value) { }
+                  public static void Save() { }
+              }
+              public static class Debug
+              {
+                  public static void Log(object message) { }
+                  public static void LogWarning(object message) { }
+                  public static void LogError(object message) { }
+              }
+          }
+          EOF
+          cat > .ci/application/ApplicationCompileTests.csproj <<'EOF'
+          <Project Sdk="Microsoft.NET.Sdk">
+            <PropertyGroup>
+              <TargetFramework>net8.0</TargetFramework>
+              <ImplicitUsings>disable</ImplicitUsings>
+              <Nullable>disable</Nullable>
+              <LangVersion>latest</LangVersion>
+              <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+              <IsTestProject>true</IsTestProject>
+            </PropertyGroup>
+            <ItemGroup>
+              <Compile Include="../../Assets/ClickDungeon/Simulation/**/*.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Application/**/*.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Tests/ApplicationEditMode/**/*.cs" Exclude="../../Assets/ClickDungeon/Tests/ApplicationEditMode/**/*.asmdef" />
+              <Compile Include="UnityEngineStubs.cs" />
+              <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+              <PackageReference Include="NUnit" Version="3.14.0" />
+              <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+              <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+            </ItemGroup>
+          </Project>
+          EOF
+          dotnet test .ci/application/ApplicationCompileTests.csproj --configuration Release --nologo --logger "console;verbosity=normal"
+          python -m compileall -q scripts
+          python scripts/validate-content.py
+          python scripts/validate-replay.py
+          python scripts/validate-assets.py
+          python scripts/validate-gameplay-art-bindings.py
+          python scripts/static-audit.py
+          python scripts/test-validators.py
+          python scripts/validate-unity-metadata.py --strict
+          grep -F 'm_EditorVersion: 6000.5.9f1' ProjectSettings/ProjectVersion.txt
+
+      - name: Verify presentation contract suite on reconciled tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .ci/presentation-contract-tests
+          cat > .ci/presentation-contract-tests/PresentationContractTests.csproj <<'EOF'
+          <Project Sdk="Microsoft.NET.Sdk">
+            <PropertyGroup>
+              <TargetFramework>net8.0</TargetFramework>
+              <ImplicitUsings>disable</ImplicitUsings>
+              <Nullable>disable</Nullable>
+              <LangVersion>latest</LangVersion>
+              <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+              <IsTestProject>true</IsTestProject>
+            </PropertyGroup>
+            <ItemGroup>
+              <Compile Include="../../Assets/ClickDungeon/Simulation/**/*.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Application/Heroes/HeroIdentityCatalog.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Presentation/Assets/PresentationAssetId.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Presentation/Assets/PresentationAssetIdMapper.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Presentation/Assets/DungeonRoomPresentationLayout.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Presentation/Assets/GameplayScreenPresentationLayout.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Presentation/Menu/HeroCardPresentation.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Presentation/Menu/MainMenuRunRouting.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/PresentationAssetIdMapperTests.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/CanonicalDungeonTileRegistryTests.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/GameplayScreenPresentationLayoutTests.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/LayeredDungeonTilePresentationTests.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/HeroPresentationContractTests.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/MainMenuRunRoutingTests.cs" />
+              <PackageReference Include="NUnit" Version="3.14.0" />
+              <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+              <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+            </ItemGroup>
+          </Project>
+          EOF
+          dotnet test .ci/presentation-contract-tests/PresentationContractTests.csproj --configuration Release --nologo --logger "console;verbosity=normal"
+
+      - name: Commit and push only after all gates are green
+        shell: bash
+        run: |
+          set -euo pipefail
+          git status --short
+          git diff --cached --check
+          git commit -m "merge: reconcile gameplay tile batch into visual remaster"
+          git push origin HEAD:graphrepair/gameplay-remaster-reconciliation
