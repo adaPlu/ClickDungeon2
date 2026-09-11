@@ -39,9 +39,13 @@ jobs:
               <Compile Include="../../Assets/ClickDungeon/Presentation/Assets/PresentationAssetId.cs" />
               <Compile Include="../../Assets/ClickDungeon/Presentation/Assets/PresentationAssetIdMapper.cs" />
               <Compile Include="../../Assets/ClickDungeon/Presentation/Assets/DungeonRoomPresentationLayout.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Presentation/Assets/GameplayScreenPresentationLayout.cs" />
               <Compile Include="../../Assets/ClickDungeon/Presentation/Menu/HeroCardPresentation.cs" />
               <Compile Include="../../Assets/ClickDungeon/Presentation/Menu/MainMenuRunRouting.cs" />
               <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/PresentationAssetIdMapperTests.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/CanonicalDungeonTileRegistryTests.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/GameplayScreenPresentationLayoutTests.cs" />
+              <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/LayeredDungeonTilePresentationTests.cs" />
               <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/HeroPresentationContractTests.cs" />
               <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/MainMenuRunRoutingTests.cs" />
               <PackageReference Include="NUnit" Version="3.14.0" />

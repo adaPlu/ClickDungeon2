@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace ClickDungeon.Presentation.Assets
 {
@@ -25,6 +26,67 @@ namespace ClickDungeon.Presentation.Assets
     public static class DungeonRoomPresentationLayout
     {
         public const int BoardSize=5;
+
+        // Canonical production tile presentation vocabulary. These IDs map one-to-one to
+        // the approved tile_*.png runtime filenames. Legacy dungeon.* constants below stay
+        // available while the live board is migrated task-by-task.
+        public const string TileFloorStoneId="tile.floor.stone";
+        public const string TileFloorCrackedId="tile.floor.cracked";
+        public const string TileFloorMossId="tile.floor.moss";
+        public const string TileWaterId="tile.water";
+        public const string TileLavaId="tile.lava";
+        public const string TileShadowId="tile.shadow";
+        public const string TileTrapPitId="tile.trap.pit";
+        public const string TileTrapBombId="tile.trap.bomb";
+        public const string TileTrapSpikeId="tile.trap.spike";
+        public const string TilePressurePlateId="tile.pressure_plate";
+        public const string TileTeleportId="tile.teleport";
+        public const string TileHealingFountainId="tile.fountain.heal";
+        public const string TileStairUpId="tile.stair.up";
+        public const string TileLockedStairUpId="tile.stair.up.locked";
+        public const string TileStairDownId="tile.stair.down";
+        public const string TileLockedStairDownId="tile.stair.down.locked";
+        public const string TileWallId="tile.wall";
+        public const string TileWallCornerId="tile.wall.corner";
+        public const string TileKeyId="tile.key";
+        public const string TileChestClosedId="tile.chest.closed";
+        public const string TileChestOpenId="tile.chest.open";
+        public const string TileDoorLockedId="tile.door.locked";
+        public const string TileDoorOpenId="tile.door.open";
+        public const string TileTorchId="tile.torch";
+
+        private static readonly string[] CanonicalTiles=
+        {
+            TileFloorStoneId,
+            TileFloorCrackedId,
+            TileFloorMossId,
+            TileWaterId,
+            TileLavaId,
+            TileShadowId,
+            TileTrapPitId,
+            TileTrapBombId,
+            TileTrapSpikeId,
+            TilePressurePlateId,
+            TileTeleportId,
+            TileHealingFountainId,
+            TileStairUpId,
+            TileLockedStairUpId,
+            TileStairDownId,
+            TileLockedStairDownId,
+            TileWallId,
+            TileWallCornerId,
+            TileKeyId,
+            TileChestClosedId,
+            TileChestOpenId,
+            TileDoorLockedId,
+            TileDoorOpenId,
+            TileTorchId
+        };
+
+        public static IReadOnlyList<string> CanonicalTileIds=>Array.AsReadOnly(CanonicalTiles);
+
+        // Legacy presentation aliases retained until RuntimeGameUI finishes migration to
+        // the canonical tile.* vocabulary in the later rendering task.
         public const string StoneFloorId="dungeon.floor.stone";
         public const string CrackedFloorId="dungeon.floor.cracked";
         public const string WallId="dungeon.wall.top";

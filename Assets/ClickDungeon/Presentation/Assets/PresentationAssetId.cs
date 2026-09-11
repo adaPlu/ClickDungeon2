@@ -32,6 +32,37 @@ namespace ClickDungeon.Presentation.Assets
             if (n.StartsWith("biome_", StringComparison.Ordinal) && n.EndsWith("_master", StringComparison.Ordinal))
                 return "biome." + n.Substring(6, n.Length - 13);
 
+            // Canonical 24-tile production filenames.
+            switch (n)
+            {
+                case "tile_floor_stone": return "tile.floor.stone";
+                case "tile_floor_cracked": return "tile.floor.cracked";
+                case "tile_floor_moss": return "tile.floor.moss";
+                case "tile_water": return "tile.water";
+                case "tile_lava": return "tile.lava";
+                case "tile_shadow": return "tile.shadow";
+                case "tile_trap_pit": return "tile.trap.pit";
+                case "tile_trap_bomb": return "tile.trap.bomb";
+                case "tile_trap_spike": return "tile.trap.spike";
+                case "tile_pressure_plate": return "tile.pressure_plate";
+                case "tile_teleport": return "tile.teleport";
+                case "tile_fountain_heal": return "tile.fountain.heal";
+                case "tile_stair_up": return "tile.stair.up";
+                case "tile_stair_up_locked": return "tile.stair.up.locked";
+                case "tile_stair_down": return "tile.stair.down";
+                case "tile_stair_down_locked": return "tile.stair.down.locked";
+                case "tile_wall": return "tile.wall";
+                case "tile_wall_corner": return "tile.wall.corner";
+                case "tile_key": return "tile.key";
+                case "tile_chest_closed": return "tile.chest.closed";
+                case "tile_chest_open": return "tile.chest.open";
+                case "tile_door_locked": return "tile.door.locked";
+                case "tile_door_open": return "tile.door.open";
+                case "tile_torch": return "tile.torch";
+            }
+
+            // Legacy runtime filenames remain valid compatibility aliases while callers
+            // migrate to the canonical tile.* vocabulary.
             if (n.StartsWith("dungeon_floor_", StringComparison.Ordinal)) return "dungeon.floor." + n.Substring(14);
             if (n.StartsWith("dungeon_wall_", StringComparison.Ordinal)) return "dungeon.wall." + n.Substring(13);
             if (n.StartsWith("dungeon_corner_", StringComparison.Ordinal)) return "dungeon.corner." + n.Substring(15);

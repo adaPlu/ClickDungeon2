@@ -110,6 +110,24 @@ namespace ClickDungeon.Tests.ApplicationEditMode
         }
 
         [Test]
+        public void ClickingtonHasAUniqueStorySeparateFromIronheart()
+        {
+            Type catalog = typeof(SlotMetaState).Assembly.GetType(CatalogTypeName);
+            Assert.NotNull(catalog);
+            MethodInfo storyForHero = catalog.GetMethod("StoryForHero", BindingFlags.Public | BindingFlags.Static);
+            Assert.NotNull(storyForHero,
+                "Selectable hero identities need catalog-owned story text so Clickington is not just an Ironheart cosmetic.");
+
+            string clickingtonStory = (string)storyForHero.Invoke(null, new object[] { "clickington" });
+            string ironheartStory = (string)storyForHero.Invoke(null, new object[] { "ironheart" });
+            Assert.IsNotEmpty(clickingtonStory, "Sir Clickington must expose his own story.");
+            Assert.AreNotEqual(ironheartStory, clickingtonStory,
+                "Sharing Knight mechanics must not make Sir Clickington share Ironheart's narrative identity.");
+            StringAssert.Contains("adventure", clickingtonStory.ToLowerInvariant(),
+                "Clickington's story should preserve the adventurous mascot identity from the supplied art direction.");
+        }
+
+        [Test]
         public void HeroVisualAssetKeysAreDeterministicAndRejectUnknownInputs()
         {
             Type catalog = typeof(SlotMetaState).Assembly.GetType(CatalogTypeName);

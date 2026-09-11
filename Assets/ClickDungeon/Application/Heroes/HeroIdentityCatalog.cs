@@ -6,18 +6,20 @@ namespace ClickDungeon.Application.Heroes
 {
     public sealed class HeroIdentityDefinition
     {
-        public HeroIdentityDefinition(string heroId,string displayName,HeroClassId classId,string campaignId="")
+        public HeroIdentityDefinition(string heroId,string displayName,HeroClassId classId,string campaignId="",string story="")
         {
             HeroId=heroId??throw new ArgumentNullException(nameof(heroId));
             DisplayName=displayName??throw new ArgumentNullException(nameof(displayName));
             ClassId=classId;
             CampaignId=campaignId??string.Empty;
+            Story=story??string.Empty;
         }
 
         public string HeroId { get; }
         public string DisplayName { get; }
         public HeroClassId ClassId { get; }
         public string CampaignId { get; }
+        public string Story { get; }
     }
 
     public static class HeroIdentityCatalog
@@ -25,7 +27,7 @@ namespace ClickDungeon.Application.Heroes
         private static readonly HeroIdentityDefinition[] Definitions =
         {
             new HeroIdentityDefinition("ironheart","Ironheart",HeroClassId.Knight),
-            new HeroIdentityDefinition("clickington","Sir Clickington",HeroClassId.Knight,"clickington_campaign"),
+            new HeroIdentityDefinition("clickington","Sir Clickington",HeroClassId.Knight,"clickington_campaign","Sir Clickington sets out on an adventure through the dungeon."),
             new HeroIdentityDefinition("dawnward","Dawnward",HeroClassId.Paladin),
             new HeroIdentityDefinition("rageclaw","Rageclaw",HeroClassId.Berserker),
             new HeroIdentityDefinition("gearspark","Gearspark",HeroClassId.Engineer),
@@ -86,6 +88,12 @@ namespace ClickDungeon.Application.Heroes
         {
             var definition=Find(heroId);
             return definition?.CampaignId??string.Empty;
+        }
+
+        public static string StoryForHero(string heroId)
+        {
+            var definition=Find(heroId);
+            return definition?.Story??string.Empty;
         }
 
         public static string SelectionLabelForHero(string heroId)

@@ -15,6 +15,10 @@ namespace ClickDungeon.Simulation.Model
         public string VariantId = string.Empty;
         public int Amount;
         public int InteractionProgress;
+        // Deterministic links are generated once with the floor and serialized with state.
+        // -1 means no linked target/destination.
+        public int LinkedTileIndex = -1;
+        public int TeleportDestinationIndex = -1;
         public int MonsterHp;
         public int MonsterMaxHp;
         public int MonsterAttack;
