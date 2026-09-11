@@ -16,9 +16,9 @@ using ClickDungeon.Presentation.Assets;
 namespace ClickDungeon.Presentation.UI
 {
     /// <summary>
-    /// Runtime-first UI used by the vertical slice. It deliberately submits commands to the
-    /// simulation rather than calculating gameplay. The same board adapts to portrait mobile and
-    /// landscape desktop without stretching a phone layout across a PC window.
+    /// Runtime-first gameplay UI. Presentation reads simulation state and submits commands; it does
+    /// not calculate gameplay outcomes. The hierarchy follows the approved gameplay reference:
+    /// top HUD, dominant framed 5x5 board, primary action bar, persistent footer navigation.
     /// </summary>
     public sealed class RuntimeGameUI : MonoBehaviour
     {
@@ -29,18 +29,23 @@ namespace ClickDungeon.Presentation.UI
         private readonly List<TMP_Text> _tileLabels=new List<TMP_Text>();
         private readonly List<Image> _tileIcons=new List<Image>();
         private readonly List<Image> _tileFloors=new List<Image>();
+        private readonly List<Image> _tileStructures=new List<Image>();
         private readonly List<Image> _tileStateOverlays=new List<Image>();
         private readonly List<RectTransform> _roomEdges=new List<RectTransform>();
         private readonly List<RectTransform> _roomCorners=new List<RectTransform>();
         private readonly List<RectTransform> _roomTorches=new List<RectTransform>();
         private TMP_Text _hud;
-        private Image _heroPortrait;
+        private TMP_Text _floorPlacard;
         private TMP_Text _status;
         private TMP_Text _intent;
+        private Image _heroPortrait;
+        private Image _hpFill;
         private RectTransform _root;
-        private RectTransform _infoPanel;
+        private RectTransform _topHud;
+        private RectTransform _boardFrame;
         private RectTransform _board;
-        private RectTransform _controlPanel;
+        private RectTransform _primaryActionBar;
+        private RectTransform _footerNavigation;
         private RectTransform _abilityBar;
         private RectTransform _choicePanel;
         private Image _biomeBackdrop;
@@ -58,8 +63,11 @@ namespace ClickDungeon.Presentation.UI
 
         public void Initialize(GameSession session,GameContent content,string heroId=null)
         {
-            _session=session??throw new ArgumentNullException(nameof(session));_content=content??throw new ArgumentNullException(nameof(content));_heroId=HeroIdentityCatalog.ResolveHeroId(_session.State.HeroClass,heroId);
-            _assets=Resources.Load<PresentationAssetDatabase>("ClickDungeonPresentationAssets");EnsureEventSystem();BuildUi();ApplyAdaptiveLayout(true);Refresh();
+            _session=session??throw new ArgumentNullException(nameof(session));
+            _content=content??throw new ArgumentNullException(nameof(content));
+            _heroId=HeroIdentityCatalog.ResolveHeroId(_session.State.HeroClass,heroId);
+            _assets=Resources.Load<PresentationAssetDatabase>("ClickDungeonPresentationAssets");
+            EnsureEventSystem();BuildUi();ApplyAdaptiveLayout(true);Refresh();
         }
 
         private void Update()
@@ -71,36 +79,82 @@ namespace ClickDungeon.Presentation.UI
 
         private void BuildUi()
         {
-            var canvasGo=new GameObject("ClickDungeonCanvas",typeof(Canvas),typeof(CanvasScaler),typeof(GraphicRaycaster));canvasGo.transform.SetParent(transform,false);
+            var canvasGo=new GameObject("ClickDungeonCanvas",typeof(Canvas),typeof(CanvasScaler),typeof(GraphicRaycaster));
+            canvasGo.transform.SetParent(transform,false);
             var canvas=canvasGo.GetComponent<Canvas>();canvas.renderMode=RenderMode.ScreenSpaceOverlay;
-            var scaler=canvasGo.GetComponent<CanvasScaler>();scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;scaler.referenceResolution=new Vector2(1080,1920);scaler.matchWidthOrHeight=.5f;
+            var scaler=canvasGo.GetComponent<CanvasScaler>();scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;scaler.referenceResolution=new Vector2(1920,1080);scaler.matchWidthOrHeight=.5f;
+
             _root=CreateRect("SafeRoot",canvasGo.transform);Stretch(_root);
-            var backdrop=CreateRect("BiomeBackdrop",_root);Stretch(backdrop);_biomeBackdrop=backdrop.gameObject.AddComponent<Image>();_biomeBackdrop.raycastTarget=false;_biomeBackdrop.color=new Color(1f,1f,1f,.14f);_biomeBackdrop.preserveAspect=true;
+            var backdrop=CreateRect("BiomeBackdrop",_root);Stretch(backdrop);_biomeBackdrop=backdrop.gameObject.AddComponent<Image>();_biomeBackdrop.raycastTarget=false;_biomeBackdrop.color=new Color(.24f,.24f,.28f,.36f);_biomeBackdrop.preserveAspect=true;
 
-            _infoPanel=CreateRect("InfoPanel",_root);var infoLayout=_infoPanel.gameObject.AddComponent<VerticalLayoutGroup>();infoLayout.padding=new RectOffset(12,12,12,12);infoLayout.spacing=8;infoLayout.childControlHeight=true;infoLayout.childForceExpandHeight=false;
-            var portraitRt=CreateRect("HeroPortrait",_infoPanel);_heroPortrait=portraitRt.gameObject.AddComponent<Image>();_heroPortrait.preserveAspect=true;_heroPortrait.raycastTarget=false;AddLayout(portraitRt.gameObject,86);
-            _hud=CreateText("HUD",_infoPanel,"ClickDungeon",34,TextAlignmentOptions.Center);AddLayout(_hud.gameObject,92);
-            _status=CreateText("Status",_infoPanel,"Read the dungeon.",22,TextAlignmentOptions.Center);AddLayout(_status.gameObject,76);
-            _intent=CreateText("Intent",_infoPanel,"No immediate threat.",18,TextAlignmentOptions.Center);AddLayout(_intent.gameObject,120);
+            BuildTopHud();
+            BuildBoardFrame();
+            BuildPrimaryActionBar();
+            BuildFooterNavigation();
 
-            _board=CreateRect("Board",_root);_boardGrid=_board.gameObject.AddComponent<GridLayoutGroup>();_boardGrid.constraint=GridLayoutGroup.Constraint.FixedColumnCount;_boardGrid.constraintCount=DungeonRoomPresentationLayout.BoardSize;_boardGrid.spacing=new Vector2(8,8);_boardGrid.childAlignment=TextAnchor.MiddleCenter;
+            _choicePanel=CreateRect("ChoiceOverlay",_root);SetAnchors(_choicePanel,new Vector2(.12f,.24f),new Vector2(.88f,.40f),10);
+            var choices=_choicePanel.gameObject.AddComponent<HorizontalLayoutGroup>();choices.padding=new RectOffset(10,10,10,10);choices.spacing=8;choices.childControlWidth=true;choices.childForceExpandWidth=true;choices.childControlHeight=true;choices.childForceExpandHeight=true;
+            AddPanelImage(_choicePanel,new Color(.07f,.08f,.11f,.98f));_choicePanel.gameObject.SetActive(false);
+        }
+
+        private void BuildTopHud()
+        {
+            _topHud=CreateRect("TopHud",_root);AddPanelImage(_topHud,new Color(.06f,.07f,.10f,.96f));
+
+            var portraitRt=CreateRect("HeroPortrait",_topHud);SetAnchors(portraitRt,new Vector2(.012f,.10f),new Vector2(.075f,.90f),2);
+            _heroPortrait=portraitRt.gameObject.AddComponent<Image>();_heroPortrait.preserveAspect=true;_heroPortrait.raycastTarget=false;
+
+            var brand=CreateText("Brand",_topHud,"ClickDungeon2",30,TextAlignmentOptions.Center);SetAnchors(brand.rectTransform,new Vector2(.078f,.10f),new Vector2(.19f,.90f),2);
+
+            var hpPanel=CreateRect("Health",_topHud);SetAnchors(hpPanel,new Vector2(.20f,.22f),new Vector2(.48f,.78f),2);AddPanelImage(hpPanel,new Color(.10f,.10f,.13f,.96f));
+            var hpFillRt=CreateRect("Fill",hpPanel);Stretch(hpFillRt);_hpFill=hpFillRt.gameObject.AddComponent<Image>();_hpFill.color=new Color(.72f,.12f,.13f,.96f);_hpFill.raycastTarget=false;
+            _hud=CreateText("HUD",hpPanel,"HP",23,TextAlignmentOptions.Center);Stretch(_hud.rectTransform);_hud.rectTransform.SetAsLastSibling();
+
+            _intent=CreateText("Intent",_topHud,"No adjacent enemy intent.",16,TextAlignmentOptions.Center);SetAnchors(_intent.rectTransform,new Vector2(.49f,.10f),new Vector2(.69f,.90f),2);
+            var resource=CreateText("Resources",_topHud,"Gold 0  Keys 0/0",19,TextAlignmentOptions.Center);resource.name="Resources";SetAnchors(resource.rectTransform,new Vector2(.70f,.10f),new Vector2(.88f,.90f),2);
+            var menu=CreateButton("Menu",_topHud,"☰",25);SetAnchors(menu.GetComponent<RectTransform>(),new Vector2(.90f,.17f),new Vector2(.985f,.83f),3);menu.onClick.AddListener(()=>ReturnToMenuRequested?.Invoke());
+        }
+
+        private void BuildBoardFrame()
+        {
+            _boardFrame=CreateRect("BoardFrame",_root);AddPanelImage(_boardFrame,new Color(.045f,.05f,.07f,.94f));
+            _floorPlacard=CreateText("FloorPlacard",_boardFrame,"FLOOR 1",20,TextAlignmentOptions.Left);SetAnchors(_floorPlacard.rectTransform,new Vector2(.02f,.90f),new Vector2(.38f,.985f),2);
+            _status=CreateText("Status",_boardFrame,"Read the dungeon.",17,TextAlignmentOptions.Center);SetAnchors(_status.rectTransform,new Vector2(.16f,.01f),new Vector2(.84f,.075f),2);
+
+            _board=CreateRect("Board",_boardFrame);SetAnchors(_board,new Vector2(.07f,.08f),new Vector2(.93f,.90f),4);
+            _boardGrid=_board.gameObject.AddComponent<GridLayoutGroup>();_boardGrid.constraint=GridLayoutGroup.Constraint.FixedColumnCount;_boardGrid.constraintCount=DungeonRoomPresentationLayout.BoardSize;_boardGrid.spacing=new Vector2(8,8);_boardGrid.childAlignment=TextAnchor.MiddleCenter;
             for(int i=0;i<RunState.BoardSize*RunState.BoardSize;i++)
             {
                 int captured=i;var button=CreateButton($"Tile_{i}",_board,"?",28);var buttonImage=button.GetComponent<Image>();buttonImage.color=Color.clear;
                 var label=button.GetComponentInChildren<TMP_Text>();
-                var floorRt=CreateRect("Floor",button.transform);Stretch(floorRt);var floor=floorRt.gameObject.AddComponent<Image>();floor.raycastTarget=false;floor.preserveAspect=false;floor.sprite=_assets?.SpriteFor(DungeonRoomPresentationLayout.FloorIdForCell(i));floor.enabled=floor.sprite!=null;floorRt.SetSiblingIndex(0);
-                var shadowRt=CreateRect("RoomShadow",button.transform);Stretch(shadowRt);var shadow=shadowRt.gameObject.AddComponent<Image>();shadow.raycastTarget=false;shadow.preserveAspect=false;shadow.sprite=_assets?.SpriteFor(DungeonRoomPresentationLayout.ShadowId);shadow.enabled=shadow.sprite!=null;shadow.color=new Color(1f,1f,1f,.30f);shadowRt.SetSiblingIndex(1);
-                var overlayRt=CreateRect("StateOverlay",button.transform);Stretch(overlayRt);var overlay=overlayRt.gameObject.AddComponent<Image>();overlay.raycastTarget=false;overlay.color=new Color(0f,0f,0f,.15f);overlayRt.SetSiblingIndex(2);
-                AddRoomDecorations(button.transform,i);
-                var iconRt=CreateRect("Icon",button.transform);Stretch(iconRt);var icon=iconRt.gameObject.AddComponent<Image>();icon.preserveAspect=true;icon.raycastTarget=false;icon.color=new Color(1f,1f,1f,.92f);iconRt.SetAsLastSibling();label.rectTransform.SetAsLastSibling();
-                button.onClick.AddListener(()=>OnTilePressed(captured));_tileButtons.Add(button);_tileLabels.Add(label);_tileIcons.Add(icon);_tileFloors.Add(floor);_tileStateOverlays.Add(overlay);
-            }
 
-            _controlPanel=CreateRect("ControlPanel",_root);var controlLayout=_controlPanel.gameObject.AddComponent<VerticalLayoutGroup>();controlLayout.padding=new RectOffset(12,12,12,12);controlLayout.spacing=10;controlLayout.childControlHeight=true;controlLayout.childForceExpandHeight=false;
-            _abilityBar=CreateRect("AbilityBar",_controlPanel);var abilities=_abilityBar.gameObject.AddComponent<HorizontalLayoutGroup>();abilities.spacing=6;abilities.childControlWidth=true;abilities.childForceExpandWidth=true;AddLayout(_abilityBar.gameObject,110);
-            _choicePanel=CreateRect("ChoicePanel",_controlPanel);var choices=_choicePanel.gameObject.AddComponent<HorizontalLayoutGroup>();choices.spacing=6;choices.childControlWidth=true;choices.childForceExpandWidth=true;AddLayout(_choicePanel.gameObject,100);_choicePanel.gameObject.SetActive(false);
-            var footer=CreateText("Footer",_controlPanel,"Read clues. Control threats. Big Keys open vaults or Forbidden Descents.",18,TextAlignmentOptions.Center);AddLayout(footer.gameObject,70);
-            var menu=CreateButton("Menu",_controlPanel,"Return to Menu",18);AddLayout(menu.gameObject,62);menu.onClick.AddListener(()=>ReturnToMenuRequested?.Invoke());
+                var baseRt=CreateRect("BaseTerrain",button.transform);Stretch(baseRt);var baseImage=baseRt.gameObject.AddComponent<Image>();baseImage.raycastTarget=false;baseImage.preserveAspect=false;baseImage.sprite=_assets?.SpriteFor(DungeonRoomPresentationLayout.FloorIdForCell(i));baseImage.enabled=baseImage.sprite!=null;baseRt.SetSiblingIndex(0);
+                var structureRt=CreateRect("Structure",button.transform);Stretch(structureRt);var structure=structureRt.gameObject.AddComponent<Image>();structure.raycastTarget=false;structure.preserveAspect=true;structure.enabled=false;structureRt.SetSiblingIndex(1);
+                var contentRt=CreateRect("Content",button.transform);Stretch(contentRt);var content=contentRt.gameObject.AddComponent<Image>();content.preserveAspect=true;content.raycastTarget=false;content.color=new Color(1f,1f,1f,.96f);content.enabled=false;contentRt.SetSiblingIndex(2);
+
+                AddRoomDecorations(button.transform,i);
+                var overlayRt=CreateRect("StateOverlay",button.transform);Stretch(overlayRt);var overlay=overlayRt.gameObject.AddComponent<Image>();overlay.raycastTarget=false;overlay.color=new Color(0f,0f,0f,.15f);overlayRt.SetAsLastSibling();
+                label.rectTransform.SetAsLastSibling();
+
+                button.onClick.AddListener(()=>OnTilePressed(captured));_tileButtons.Add(button);_tileLabels.Add(label);_tileIcons.Add(content);_tileFloors.Add(baseImage);_tileStructures.Add(structure);_tileStateOverlays.Add(overlay);
+            }
+        }
+
+        private void BuildPrimaryActionBar()
+        {
+            _primaryActionBar=CreateRect("PrimaryActionBar",_root);AddPanelImage(_primaryActionBar,new Color(.07f,.075f,.10f,.97f));
+            _abilityBar=CreateRect("AbilityBar",_primaryActionBar);SetAnchors(_abilityBar,new Vector2(.02f,.10f),new Vector2(.98f,.90f),4);
+            var abilities=_abilityBar.gameObject.AddComponent<HorizontalLayoutGroup>();abilities.spacing=8;abilities.childControlWidth=true;abilities.childForceExpandWidth=true;abilities.childControlHeight=true;abilities.childForceExpandHeight=true;
+        }
+
+        private void BuildFooterNavigation()
+        {
+            _footerNavigation=CreateRect("FooterNavigation",_root);AddPanelImage(_footerNavigation,new Color(.045f,.05f,.075f,.98f));
+            var nav=_footerNavigation.gameObject.AddComponent<HorizontalLayoutGroup>();nav.padding=new RectOffset(12,12,8,8);nav.spacing=10;nav.childControlWidth=true;nav.childForceExpandWidth=true;nav.childControlHeight=true;nav.childForceExpandHeight=true;
+            var inventory=CreateButton("Inventory",_footerNavigation,"INVENTORY",17);inventory.onClick.AddListener(ShowInventory);
+            var talents=CreateButton("Talents",_footerNavigation,"TALENTS",17);talents.onClick.AddListener(()=>SetStatus("Talents are managed from the run progression screen."));
+            var shop=CreateButton("Shop",_footerNavigation,"SHOP",17);shop.onClick.AddListener(()=>SetStatus("Find a revealed merchant tile to open the dungeon shop."));
+            var menu=CreateButton("Menu",_footerNavigation,"MENU",17);menu.onClick.AddListener(()=>ReturnToMenuRequested?.Invoke());
         }
 
         private void AddRoomDecorations(Transform parent,int index)
@@ -111,7 +165,7 @@ namespace ClickDungeon.Presentation.UI
             if(DungeonRoomPresentationLayout.HasTorchAtCell(index))
             {
                 var torchRt=CreateRect("RoomTorch",parent);torchRt.anchorMin=torchRt.anchorMax=new Vector2(.5f,.78f);torchRt.pivot=new Vector2(.5f,.5f);torchRt.anchoredPosition=Vector2.zero;
-                var torch=torchRt.gameObject.AddComponent<Image>();torch.sprite=_assets?.SpriteFor(DungeonRoomPresentationLayout.TorchId);torch.enabled=torch.sprite!=null;torch.preserveAspect=true;torch.raycastTarget=false;_roomTorches.Add(torchRt);
+                var torch=torchRt.gameObject.AddComponent<Image>();torch.sprite=_assets?.SpriteFor(DungeonRoomPresentationLayout.TileTorchId);torch.enabled=torch.sprite!=null;torch.preserveAspect=true;torch.raycastTarget=false;_roomTorches.Add(torchRt);
             }
         }
 
@@ -120,7 +174,7 @@ namespace ClickDungeon.Presentation.UI
             var rt=CreateRect("RoomWall_"+edge,parent);Vector2 anchor;
             switch(edge){case DungeonRoomEdge.Top:anchor=new Vector2(.5f,1f);break;case DungeonRoomEdge.Right:anchor=new Vector2(1f,.5f);break;case DungeonRoomEdge.Bottom:anchor=new Vector2(.5f,0f);break;default:anchor=new Vector2(0f,.5f);break;}
             rt.anchorMin=rt.anchorMax=anchor;rt.pivot=new Vector2(.5f,.5f);rt.anchoredPosition=Vector2.zero;rt.localEulerAngles=new Vector3(0f,0f,DungeonRoomPresentationLayout.WallRotationDegrees(edge));
-            var image=rt.gameObject.AddComponent<Image>();image.sprite=_assets?.SpriteFor(DungeonRoomPresentationLayout.WallId);image.enabled=image.sprite!=null;image.preserveAspect=false;image.raycastTarget=false;_roomEdges.Add(rt);
+            var image=rt.gameObject.AddComponent<Image>();image.sprite=_assets?.SpriteFor(DungeonRoomPresentationLayout.TileWallId);image.enabled=image.sprite!=null;image.preserveAspect=false;image.raycastTarget=false;_roomEdges.Add(rt);
         }
 
         private void AddRoomCorner(Transform parent,DungeonRoomCorner corner)
@@ -128,25 +182,16 @@ namespace ClickDungeon.Presentation.UI
             var rt=CreateRect("RoomCorner_"+corner,parent);Vector2 anchor;
             switch(corner){case DungeonRoomCorner.TopLeft:anchor=new Vector2(0f,1f);break;case DungeonRoomCorner.TopRight:anchor=new Vector2(1f,1f);break;case DungeonRoomCorner.BottomRight:anchor=new Vector2(1f,0f);break;default:anchor=new Vector2(0f,0f);break;}
             rt.anchorMin=rt.anchorMax=anchor;rt.pivot=anchor;rt.anchoredPosition=Vector2.zero;rt.localEulerAngles=new Vector3(0f,0f,DungeonRoomPresentationLayout.CornerRotationDegrees(corner));
-            var image=rt.gameObject.AddComponent<Image>();image.sprite=_assets?.SpriteFor(DungeonRoomPresentationLayout.CornerId);image.enabled=image.sprite!=null;image.preserveAspect=false;image.raycastTarget=false;_roomCorners.Add(rt);
+            var image=rt.gameObject.AddComponent<Image>();image.sprite=_assets?.SpriteFor(DungeonRoomPresentationLayout.TileWallCornerId);image.enabled=image.sprite!=null;image.preserveAspect=false;image.raycastTarget=false;_roomCorners.Add(rt);
         }
 
         private void ApplyAdaptiveLayout(bool force)
         {
             if(_root==null)return;bool landscape=Screen.width>Screen.height;Rect safe=Screen.safeArea;if(!force&&landscape==_lastLandscape&&safe==_lastSafeArea)return;_lastLandscape=landscape;_lastSafeArea=safe;
-            var canvas=_root.GetComponentInParent<Canvas>();RectTransform canvasRect=canvas.GetComponent<RectTransform>();Vector2 min=safe.position;Vector2 max=safe.position+safe.size;min.x/=Screen.width;min.y/=Screen.height;max.x/=Screen.width;max.y/=Screen.height;_root.anchorMin=min;_root.anchorMax=max;_root.offsetMin=Vector2.zero;_root.offsetMax=Vector2.zero;
-            if(landscape)
-            {
-                SetAnchors(_infoPanel,new Vector2(0f,0f),new Vector2(.22f,1f),16);
-                SetAnchors(_board,new Vector2(.22f,.04f),new Vector2(.76f,.96f),10);
-                SetAnchors(_controlPanel,new Vector2(.76f,0f),new Vector2(1f,1f),16);
-            }
-            else
-            {
-                SetAnchors(_infoPanel,new Vector2(0f,.86f),new Vector2(1f,1f),14);
-                SetAnchors(_board,new Vector2(.04f,.30f),new Vector2(.96f,.86f),8);
-                SetAnchors(_controlPanel,new Vector2(0f,0f),new Vector2(1f,.30f),14);
-            }
+            Vector2 min=safe.position;Vector2 max=safe.position+safe.size;min.x/=Screen.width;min.y/=Screen.height;max.x/=Screen.width;max.y/=Screen.height;_root.anchorMin=min;_root.anchorMax=max;_root.offsetMin=Vector2.zero;_root.offsetMax=Vector2.zero;
+            var layout=landscape?GameplayScreenPresentationLayout.Landscape:GameplayScreenPresentationLayout.Portrait;
+            ApplyRegion(_topHud,layout.Hud,landscape?6:4);ApplyRegion(_boardFrame,layout.Board,landscape?8:5);ApplyRegion(_primaryActionBar,layout.ActionBar,landscape?6:4);ApplyRegion(_footerNavigation,layout.Footer,landscape?4:3);
+            if(landscape)SetAnchors(_choicePanel,new Vector2(.16f,.24f),new Vector2(.84f,.40f),10);else SetAnchors(_choicePanel,new Vector2(.05f,.22f),new Vector2(.95f,.38f),8);
             UpdateBoardCellSize();
         }
 
@@ -161,9 +206,12 @@ namespace ClickDungeon.Presentation.UI
         private void Refresh()
         {
             if(_session==null)return;var s=_session.State;
-            string depthLabel=s.Mode==RunMode.Abyss?$"Abyss Depth {s.AbyssDepth}":$"Floor {s.Floor}";string heroName=HeroIdentityCatalog.DisplayNameForHero(_heroId);if(string.IsNullOrEmpty(heroName))heroName=_content.Hero(s.HeroClass).DisplayName;if(string.IsNullOrEmpty(heroName))heroName=s.HeroClass.ToString();string biomeName=_content.Biome(s.BiomeId).DisplayName;if(string.IsNullOrEmpty(biomeName))biomeName=ShortId(s.BiomeId);
+            string depthLabel=s.Mode==RunMode.Abyss?$"Abyss Depth {s.AbyssDepth}":$"FLOOR {s.Floor}";string heroName=HeroIdentityCatalog.DisplayNameForHero(_heroId);if(string.IsNullOrEmpty(heroName))heroName=_content.Hero(s.HeroClass).DisplayName;if(string.IsNullOrEmpty(heroName))heroName=s.HeroClass.ToString();string biomeName=_content.Biome(s.BiomeId).DisplayName;if(string.IsNullOrEmpty(biomeName))biomeName=ShortId(s.BiomeId);
             if(_heroPortrait!=null){string portraitId=HeroPresentationAssetResolver.PortraitAssetId(_heroId);_heroPortrait.sprite=_assets?.SpriteFor(portraitId);_heroPortrait.enabled=_heroPortrait.sprite!=null;}
-            _hud.text=$"{heroName}  HP {s.Hp}/{s.MaxHp}  ATK {s.Attack}  DEF {s.Defense}\n{depthLabel}  {biomeName}  Gold {s.Gold}  Keys {s.SmallKeys}/{s.BigKeys}";
+            _hud.text=$"{heroName}   HP {s.Hp}/{s.MaxHp}   ATK {s.Attack}   DEF {s.Defense}";
+            if(_hpFill!=null)_hpFill.fillAmount=s.MaxHp<=0?0f:Mathf.Clamp01((float)s.Hp/s.MaxHp);
+            if(_floorPlacard!=null)_floorPlacard.text=$"{depthLabel}\n{biomeName}";
+            var resources=_topHud!=null?_topHud.Find("Resources")?.GetComponent<TMP_Text>():null;if(resources!=null)resources.text=$"Gold {s.Gold}   Keys {s.SmallKeys}/{s.BigKeys}";
             if(_biomeBackdrop!=null)_biomeBackdrop.sprite=_assets?.SpriteFor(s.BiomeId);
             for(int i=0;i<RunState.BoardSize*RunState.BoardSize;i++)RefreshTile(i);RefreshIntent();RebuildAbilities();
             if(s.GameOver)_status.text="The dungeon claimed this run.";else if(s.CampaignCompleted)_status.text="Campaign complete. The Abyss is now available from the main menu.";
@@ -174,8 +222,11 @@ namespace ClickDungeon.Presentation.UI
             var tile=_session.State.Tiles[index];var label=_tileLabels[index];var button=_tileButtons[index];bool threatened=ThreatResolver.IsThreatened(_session.State,index);string text;
             if(tile.Visibility==TileVisibility.Hidden)text="?";else if(tile.Visibility==TileVisibility.Clued)text=ClueText(tile.Clue);else if(tile.Visibility==TileVisibility.Identified)text=IdentifiedText(tile);else text=RevealedText(tile);
             if(threatened&&tile.Occupancy!=OccupancyKind.Monster)text="⚠\n"+text;if(tile.Terrain!=TerrainKind.Normal)text=TerrainMark(tile.Terrain)+"\n"+text;if(index==Index(_session.State.PlayerPosition))text="◆\n"+text;label.text=text;
-            var floor=_tileFloors[index];floor.sprite=_assets?.SpriteFor(DungeonRoomPresentationLayout.FloorIdForCell(index));floor.enabled=floor.sprite!=null;
-            var icon=_tileIcons[index];string assetId=TilePresentationAssetResolver.PrimaryAssetId(tile);icon.sprite=_assets?.SpriteFor(assetId);icon.enabled=icon.sprite!=null;_tileStateOverlays[index].color=TileOverlayColor(tile,threatened,index==Index(_session.State.PlayerPosition));button.interactable=!_session.State.GameOver&&!_session.State.CampaignCompleted;
+
+            var baseImage=_tileFloors[index];string baseId=TilePresentationAssetResolver.BaseAssetId(tile,index);if(string.IsNullOrEmpty(baseId))baseId=DungeonRoomPresentationLayout.FloorIdForCell(index);baseImage.sprite=_assets?.SpriteFor(baseId);baseImage.enabled=baseImage.sprite!=null;
+            var structure=_tileStructures[index];string structureId=TilePresentationAssetResolver.StructuralAssetId(tile);structure.sprite=_assets?.SpriteFor(structureId);structure.enabled=structure.sprite!=null;
+            var content=_tileIcons[index];string contentId=string.IsNullOrEmpty(structureId)?TilePresentationAssetResolver.PrimaryAssetId(tile):string.Empty;content.sprite=_assets?.SpriteFor(contentId);content.enabled=content.sprite!=null;
+            _tileStateOverlays[index].color=TileOverlayColor(tile,threatened,index==Index(_session.State.PlayerPosition));button.interactable=!_session.State.GameOver&&!_session.State.CampaignCompleted;
         }
 
         private void RefreshIntent()
@@ -187,8 +238,8 @@ namespace ClickDungeon.Presentation.UI
                 if(!_session.State.PlayerPosition.IsOrthogonallyAdjacent(new GridPosition(i/RunState.BoardSize,i%RunState.BoardSize)))continue;
                 string monsterName=_content.Monster(t.ContentId).DisplayName;nearby.Add($"{(string.IsNullOrEmpty(monsterName)?ShortId(t.ContentId):monsterName)}: {t.IntentKind} {t.IntentPower}");
             }
-            string statuses=_session.State.Statuses.Count==0?string.Empty:"\nStatus: "+string.Join(", ",_session.State.Statuses.Select(x=>ShortId(x.StatusId)+" "+x.RemainingActions));
-            _intent.text=(nearby.Count==0?"No adjacent enemy intent.":string.Join("\n",nearby))+statuses;
+            string statuses=_session.State.Statuses.Count==0?string.Empty:" | "+string.Join(", ",_session.State.Statuses.Select(x=>ShortId(x.StatusId)+" "+x.RemainingActions));
+            _intent.text=(nearby.Count==0?"No adjacent threat":string.Join(" | ",nearby))+statuses;
         }
 
         private static Color TileOverlayColor(TileState tile,bool threatened,bool player)
@@ -197,6 +248,7 @@ namespace ClickDungeon.Presentation.UI
             if(tile.Visibility==TileVisibility.Clued)return tile.Clue==ClueFamily.Danger?new Color(.42f,.08f,.08f,.28f):tile.Clue==ClueFamily.Opportunity?new Color(.45f,.35f,.05f,.24f):new Color(.08f,.18f,.46f,.25f);
             if(tile.Visibility==TileVisibility.Identified)return new Color(.08f,.22f,.32f,.22f);if(tile.Visibility==TileVisibility.Hidden)return new Color(.02f,.03f,.05f,.48f);return new Color(.02f,.02f,.03f,.10f);
         }
+
         private void OnTilePressed(int index)
         {
             if(!string.IsNullOrEmpty(_pendingItemId)){string id=_pendingItemId;_pendingItemId=null;Apply(new UseItemCommand(id,index));return;}
@@ -209,14 +261,14 @@ namespace ClickDungeon.Presentation.UI
         {
             foreach(Transform child in _abilityBar)Destroy(child.gameObject);
             foreach(var state in _session.State.AbilityStates){var def=_content.Ability(state.AbilityId);string shortName=string.IsNullOrEmpty(def.DisplayName)?ShortAbility(state.AbilityId):def.DisplayName;var button=CreateButton(shortName,_abilityBar,$"{shortName}\n{state.Charges}/{def.MaxCharges}",16);string id=state.AbilityId;button.interactable=state.Charges>0;button.onClick.AddListener(()=>BeginAbility(id));}
-            var defend=CreateButton("Defend",_abilityBar,"Defend",16);defend.onClick.AddListener(()=>Apply(new DefendCommand()));var potion=CreateButton("Potion",_abilityBar,"Potion",16);potion.interactable=_session.State.InventoryItemIds.Contains("item.healing_potion");potion.onClick.AddListener(()=>Apply(new UseItemCommand("item.healing_potion")));var trapKit=CreateButton("Trap Kit",_abilityBar,"Trap Kit",16);trapKit.interactable=_session.State.InventoryItemIds.Contains("item.trap_disarm_kit");trapKit.onClick.AddListener(()=>BeginItem("item.trap_disarm_kit"));var gear=CreateButton("Gear",_abilityBar,"Gear",16);gear.onClick.AddListener(ShowInventory);
+            var defend=CreateButton("Defend",_abilityBar,"SHIELD",16);defend.onClick.AddListener(()=>Apply(new DefendCommand()));
+            var potion=CreateButton("Potion",_abilityBar,"POTION",16);potion.interactable=_session.State.InventoryItemIds.Contains("item.healing_potion");potion.onClick.AddListener(()=>Apply(new UseItemCommand("item.healing_potion")));
+            var trapKit=CreateButton("Trap Kit",_abilityBar,"TRAP KIT",16);trapKit.interactable=_session.State.InventoryItemIds.Contains("item.trap_disarm_kit");trapKit.onClick.AddListener(()=>BeginItem("item.trap_disarm_kit"));
         }
 
         private void BeginItem(string id)
         {
-            _pendingItemId=id;
-            _pendingAbilityId=null;
-            _status.text=id=="item.trap_disarm_kit"?"Select an adjacent identified or revealed trap to disarm.":"Select a target.";
+            _pendingItemId=id;_pendingAbilityId=null;_status.text=id=="item.trap_disarm_kit"?"Select an adjacent identified or revealed trap to disarm.":"Select a target.";
         }
 
         private void BeginAbility(string id)
@@ -237,14 +289,20 @@ namespace ClickDungeon.Presentation.UI
             }
             if(_session.State.ItemInstances.Count==0)AddChoice("No equipment yet",()=>_choicePanel.gameObject.SetActive(false));
         }
+
         private void ShowShrineChoices(int tileIndex){ClearChoicePanel();_choicePanel.gameObject.SetActive(true);AddChoice("Blood +HP",()=>ApplyAndClose(new ChooseShrineCommand(tileIndex,ShrineChoice.MaxHp)));AddChoice("Steel +ATK",()=>ApplyAndClose(new ChooseShrineCommand(tileIndex,ShrineChoice.Attack)));AddChoice("Stone +DEF",()=>ApplyAndClose(new ChooseShrineCommand(tileIndex,ShrineChoice.Defense)));}
+
         private void ShowMerchant(int tileIndex)
         {
             ClearChoicePanel();_choicePanel.gameObject.SetActive(true);
             var tile=_session.State.Tiles[tileIndex];string shopId=tile.ContentId=="merchant.standard"?"shop.standard":tile.ContentId.Replace("merchant.","shop.");var shop=_content.Shop(shopId);
             foreach(var stockId in shop.StockItemIds){var def=_content.Item(stockId);string id=stockId;string display=string.IsNullOrEmpty(def.DisplayName)?ShortId(stockId):def.DisplayName;AddChoice($"{display} {def.Price}g",()=>ApplyAndClose(new BuyItemCommand(tileIndex,id)));}
         }
-        private void AddChoice(string text,UnityEngine.Events.UnityAction action){var b=CreateButton(text,_choicePanel,text,16);b.onClick.AddListener(action);}private void ApplyAndClose(GameCommand command){Apply(command);_choicePanel.gameObject.SetActive(false);}private void ClearChoicePanel(){foreach(Transform child in _choicePanel)Destroy(child.gameObject);}
+
+        private void AddChoice(string text,UnityEngine.Events.UnityAction action){var b=CreateButton(text,_choicePanel,text,16);b.onClick.AddListener(action);}
+        private void ApplyAndClose(GameCommand command){Apply(command);_choicePanel.gameObject.SetActive(false);}
+        private void ClearChoicePanel(){foreach(Transform child in _choicePanel)Destroy(child.gameObject);}
+        private void SetStatus(string text){if(_status!=null)_status.text=text;}
 
         private void Apply(GameCommand command)
         {
@@ -281,15 +339,25 @@ namespace ClickDungeon.Presentation.UI
 
         private static string Describe(GameEvent evt)
         {
-            switch(evt.Type){case "entitlement.full_game_required":return "The free introduction ends at Floor 5. Unlock the full game to descend farther.";case "tile.revealed":return $"Revealed {ShortId(evt.Id)}.";case "monster.encountered":return $"{ShortId(evt.Id)} blocks the path.";case "boss.encountered":return $"Boss: {ShortId(evt.Id)}.";case "monster.defeated":return $"Defeated {ShortId(evt.Id)}.";case "boss.defeated":return "Boss defeated. The descent is open.";case "trap.triggered":return $"Trap! Lost {evt.Amount} HP.";case "trap.disarmed":return "Trap safely disarmed.";case "gold.collected":return $"Collected {evt.Amount} gold.";case "key.big.collected":return "Big Key acquired: vault or Forbidden Descent?";case "vault.opened":return "Sealed Vault opened.";case "floor.entered.forbidden":return "Forbidden route entered. Danger and rewards increased.";case "campaign.completed":return "You survived the campaign.";default:return evt.Type.Replace('.',' ');}
+            switch(evt.Type){case "entitlement.full_game_required":return "The free introduction ends at Floor 5. Unlock the full game to descend farther.";case "tile.revealed":return $"Revealed {ShortId(evt.Id)}.";case "monster.encountered":return $"{ShortId(evt.Id)} blocks the path.";case "boss.encountered":return $"Boss: {ShortId(evt.Id)}.";case "monster.defeated":return $"Defeated {ShortId(evt.Id)}.";case "boss.defeated":return "Boss defeated. The descent is open.";case "trap.triggered":return $"Trap! Lost {evt.Amount} HP.";case "trap.disarmed":return "Trap safely disarmed.";case "gold.collected":return $"Collected {evt.Amount} gold.";case "key.big.collected":return "Big Key acquired: vault or Forbidden Descent?";case "vault.opened":return "Sealed Vault opened.";case "floor.entered.forbidden":return "Forbidden route entered. Danger and rewards increased.";case "campaign.completed":return "You survived the campaign.";case "fountain.healed":return $"Healing fountain restored {evt.Amount} HP.";case "pressure_plate.activated":return "Pressure plate unlocked a route.";case "teleport.used":return "Teleported across the dungeon.";default:return evt.Type.Replace('.',' ');}
         }
 
         private static string ClueText(ClueFamily clue){switch(clue){case ClueFamily.Danger:return "!\nDanger";case ClueFamily.Opportunity:return "✦\nOpportunity";case ClueFamily.PassageArcane:return "◇\nPassage";default:return "?";}}
         private static string IdentifiedText(TileState tile)=>tile.Content==TileContentKind.Trap?"TRAP\nidentified":$"ID\n{ShortId(tile.ContentId)}";
         private static string RevealedText(TileState tile){if(tile.Resolution==TileResolution.Resolved&&tile.Content!=TileContentKind.Empty)return "✓\n"+ShortId(tile.ContentId);switch(tile.Content){case TileContentKind.Empty:return "·";case TileContentKind.Gold:return "$";case TileContentKind.Monster:return $"{MonsterLetter(tile.ContentId)}\n{tile.MonsterHp}/{tile.MonsterMaxHp}";case TileContentKind.Boss:return $"BOSS\n{tile.MonsterHp}/{tile.MonsterMaxHp}";case TileContentKind.Trap:return "TRAP";case TileContentKind.Chest:return "CHEST";case TileContentKind.Shrine:return "SHRINE";case TileContentKind.SmallKey:return "small\nKEY";case TileContentKind.BigKey:return "BIG\nKEY";case TileContentKind.SafeExit:return "SAFE\nEXIT";case TileContentKind.ForbiddenExit:return "FORBIDDEN\nEXIT";case TileContentKind.SealedVault:return "VAULT";case TileContentKind.Merchant:return "SHOP";default:return ShortId(tile.ContentId);}}
         private static string TerrainMark(TerrainKind terrain){switch(terrain){case TerrainKind.Grave:return "☠";case TerrainKind.Flooded:return "≈";case TerrainKind.Thorn:return "♯";case TerrainKind.Mire:return "~";case TerrainKind.Ice:return "◇";case TerrainKind.Charged:return "ϟ";case TerrainKind.Lava:return "▲";case TerrainKind.Arcane:return "✧";case TerrainKind.Ash:return "░";default:return string.Empty;}}
-        private static string MonsterLetter(string id){string s=ShortId(id);return string.IsNullOrEmpty(s)?"M":s.Substring(0,1).ToUpperInvariant();}private static string ShortAbility(string id){var value=ShortId(id).Replace('_',' ');return System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(value);}private static string ShortId(string id){if(string.IsNullOrEmpty(id))return string.Empty;int i=id.LastIndexOf('.');return i>=0?id.Substring(i+1).Replace('_',' '):id;}private static int Index(GridPosition p)=>p.Row*RunState.BoardSize+p.Col;
+        private static string MonsterLetter(string id){string s=ShortId(id);return string.IsNullOrEmpty(s)?"M":s.Substring(0,1).ToUpperInvariant();}
+        private static string ShortAbility(string id){var value=ShortId(id).Replace('_',' ');return System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(value);}
+        private static string ShortId(string id){if(string.IsNullOrEmpty(id))return string.Empty;int i=id.LastIndexOf('.');return i>=0?id.Substring(i+1).Replace('_',' '):id;}
+        private static int Index(GridPosition p)=>p.Row*RunState.BoardSize+p.Col;
 
-        private static RectTransform CreateRect(string name,Transform parent){var go=new GameObject(name,typeof(RectTransform));go.transform.SetParent(parent,false);return go.GetComponent<RectTransform>();}private static TMP_Text CreateText(string name,Transform parent,string text,float size,TextAlignmentOptions alignment){var rt=CreateRect(name,parent);var label=rt.gameObject.AddComponent<TextMeshProUGUI>();label.text=text;label.fontSize=size;label.alignment=alignment;label.enableWordWrapping=true;label.color=Color.white;return label;}private static Button CreateButton(string name,Transform parent,string text,float size){var rt=CreateRect(name,parent);var image=rt.gameObject.AddComponent<Image>();image.color=new Color(.15f,.16f,.2f,.95f);var button=rt.gameObject.AddComponent<Button>();button.targetGraphic=image;var label=CreateText("Label",rt,text,size,TextAlignmentOptions.Center);Stretch(label.rectTransform);return button;}private static void Stretch(RectTransform rt){rt.anchorMin=Vector2.zero;rt.anchorMax=Vector2.one;rt.offsetMin=Vector2.zero;rt.offsetMax=Vector2.zero;}private static void SetAnchors(RectTransform rt,Vector2 min,Vector2 max,float margin){rt.anchorMin=min;rt.anchorMax=max;rt.offsetMin=new Vector2(margin,margin);rt.offsetMax=new Vector2(-margin,-margin);}private static void AddLayout(GameObject go,float preferredHeight){var e=go.AddComponent<LayoutElement>();e.preferredHeight=preferredHeight;e.flexibleWidth=1;}private static void EnsureEventSystem(){if(FindObjectOfType<EventSystem>()==null)new GameObject("EventSystem",typeof(EventSystem),typeof(StandaloneInputModule));}
+        private static RectTransform CreateRect(string name,Transform parent){var go=new GameObject(name,typeof(RectTransform));go.transform.SetParent(parent,false);return go.GetComponent<RectTransform>();}
+        private static TMP_Text CreateText(string name,Transform parent,string text,float size,TextAlignmentOptions alignment){var rt=CreateRect(name,parent);var label=rt.gameObject.AddComponent<TextMeshProUGUI>();label.text=text;label.fontSize=size;label.alignment=alignment;label.enableWordWrapping=true;label.color=Color.white;return label;}
+        private static Button CreateButton(string name,Transform parent,string text,float size){var rt=CreateRect(name,parent);var image=rt.gameObject.AddComponent<Image>();image.color=new Color(.15f,.16f,.2f,.95f);var button=rt.gameObject.AddComponent<Button>();button.targetGraphic=image;var label=CreateText("Label",rt,text,size,TextAlignmentOptions.Center);Stretch(label.rectTransform);return button;}
+        private static void AddPanelImage(RectTransform rt,Color color){var image=rt.gameObject.AddComponent<Image>();image.color=color;image.raycastTarget=false;}
+        private static void Stretch(RectTransform rt){rt.anchorMin=Vector2.zero;rt.anchorMax=Vector2.one;rt.offsetMin=Vector2.zero;rt.offsetMax=Vector2.zero;}
+        private static void SetAnchors(RectTransform rt,Vector2 min,Vector2 max,float margin){rt.anchorMin=min;rt.anchorMax=max;rt.offsetMin=new Vector2(margin,margin);rt.offsetMax=new Vector2(-margin,-margin);}
+        private static void ApplyRegion(RectTransform rt,NormalizedRegion region,float margin){SetAnchors(rt,new Vector2(region.MinX,region.MinY),new Vector2(region.MaxX,region.MaxY),margin);}
+        private static void EnsureEventSystem(){if(FindObjectOfType<EventSystem>()==null)new GameObject("EventSystem",typeof(EventSystem),typeof(StandaloneInputModule));}
     }
 }
