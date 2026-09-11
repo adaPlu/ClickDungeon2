@@ -34,7 +34,7 @@ jobs:
           test "$(git rev-parse origin/feature/gameplay-tiles-monster-batch-execution)" = "0c99dd83c7510651cb4666bd7b32fdcd9cea40e3"
           git merge-base --is-ancestor origin/feature/visual-remaster-production HEAD
 
-      - name: Merge gameplay line and reconcile six overlap files
+      - name: Merge gameplay line and reconcile overlap files
         shell: bash
         run: |
           set -euo pipefail
@@ -53,7 +53,7 @@ jobs:
           def write(path,text):
               Path(path).write_text(text,encoding='utf-8')
 
-          def require_replace(text,old,new,label):
+          def replace1(text,old,new,label):
               if old not in text:
                   raise SystemExit(f'missing reconciliation anchor: {label}')
               return text.replace(old,new,1)
@@ -66,120 +66,84 @@ jobs:
                   if text[i]=='{': depth+=1
                   elif text[i]=='}':
                       depth-=1
-                      if depth==0:
-                          return text[start:i+1]
+                      if depth==0:return text[start:i+1]
               raise SystemExit(f'unbalanced class {decl}')
 
-          # 1) Presentation workflow: visual/remaster jobs + gameplay layered-tile contract coverage.
           path='.github/workflows/presentation-contract-tests.yml'
-          ours=show('HEAD',path)
-          merged=ours
+          merged=show('HEAD',path)
           anchor='              <Compile Include="../../Assets/ClickDungeon/Presentation/Assets/DungeonRoomPresentationLayout.cs" />\n'
           if 'GameplayScreenPresentationLayout.cs' not in merged:
-              merged=require_replace(merged,anchor,anchor+'              <Compile Include="../../Assets/ClickDungeon/Presentation/Assets/GameplayScreenPresentationLayout.cs" />\n','presentation layout include')
+              merged=replace1(merged,anchor,anchor+'              <Compile Include="../../Assets/ClickDungeon/Presentation/Assets/GameplayScreenPresentationLayout.cs" />\n','presentation layout')
           anchor='              <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/PresentationAssetIdMapperTests.cs" />\n'
-          extras=(
-              '              <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/CanonicalDungeonTileRegistryTests.cs" />\n'
-              '              <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/GameplayScreenPresentationLayoutTests.cs" />\n'
-              '              <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/LayeredDungeonTilePresentationTests.cs" />\n'
-          )
+          extras=('              <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/CanonicalDungeonTileRegistryTests.cs" />\n'
+                  '              <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/GameplayScreenPresentationLayoutTests.cs" />\n'
+                  '              <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/LayeredDungeonTilePresentationTests.cs" />\n')
           if 'CanonicalDungeonTileRegistryTests.cs' not in merged:
-              merged=require_replace(merged,anchor,anchor+extras,'presentation gameplay tests')
+              merged=replace1(merged,anchor,anchor+extras,'presentation gameplay tests')
           write(path,merged)
 
-          # Simulation workflow: the suites are already equivalent; preserve normal develop-only push trigger.
           path='.github/workflows/simulation-tests-dotnet.yml'
           write(path,show('HEAD',path))
 
-          # 2) Hero catalog: preserve 9 identities / 8 classes and add catalog-owned story identity.
           path='Assets/ClickDungeon/Application/Heroes/HeroIdentityCatalog.cs'
           merged=show('HEAD',path)
-          merged=require_replace(merged,
-              'public HeroIdentityDefinition(string heroId,string displayName,HeroClassId classId,string campaignId="")',
-              'public HeroIdentityDefinition(string heroId,string displayName,HeroClassId classId,string campaignId="",string story="")',
-              'hero constructor')
-          merged=require_replace(merged,
-              '            CampaignId=campaignId??string.Empty;\n',
-              '            CampaignId=campaignId??string.Empty;\n            Story=story??string.Empty;\n',
-              'story assignment')
-          merged=require_replace(merged,
-              '        public string CampaignId { get; }\n',
-              '        public string CampaignId { get; }\n        public string Story { get; }\n',
-              'story property')
-          merged=require_replace(merged,
-              'new HeroIdentityDefinition("clickington","Sir Clickington",HeroClassId.Knight,"clickington_campaign")',
-              'new HeroIdentityDefinition("clickington","Sir Clickington",HeroClassId.Knight,"clickington_campaign","Sir Clickington sets out on an adventure through the dungeon.")',
-              'clickington story')
-          story_method='''        public static string StoryForHero(string heroId)\n        {\n            var definition=Find(heroId);\n            return definition?.Story??string.Empty;\n        }\n\n'''
+          merged=replace1(merged,'public HeroIdentityDefinition(string heroId,string displayName,HeroClassId classId,string campaignId="")','public HeroIdentityDefinition(string heroId,string displayName,HeroClassId classId,string campaignId="",string story="")','hero constructor')
+          merged=replace1(merged,'            CampaignId=campaignId??string.Empty;\n','            CampaignId=campaignId??string.Empty;\n            Story=story??string.Empty;\n','story assignment')
+          merged=replace1(merged,'        public string CampaignId { get; }\n','        public string CampaignId { get; }\n        public string Story { get; }\n','story property')
+          merged=replace1(merged,'new HeroIdentityDefinition("clickington","Sir Clickington",HeroClassId.Knight,"clickington_campaign")','new HeroIdentityDefinition("clickington","Sir Clickington",HeroClassId.Knight,"clickington_campaign","Sir Clickington sets out on an adventure through the dungeon.")','clickington story')
+          story='''        public static string StoryForHero(string heroId)\n        {\n            var definition=Find(heroId);\n            return definition?.Story??string.Empty;\n        }\n\n'''
           marker='        public static string SelectionLabelForHero(string heroId)\n'
-          if 'StoryForHero' not in merged:
-              merged=require_replace(merged,marker,story_method+marker,'story method')
+          if 'StoryForHero' not in merged:merged=replace1(merged,marker,story+marker,'story method')
           write(path,merged)
 
-          # 3) Mapper: take gameplay layered tile policy/validator, but retain remaster's richer hero resolver.
           path='Assets/ClickDungeon/Presentation/Assets/PresentationAssetIdMapper.cs'
-          ours=show('HEAD',path)
-          theirs=show(GAMEPLAY,path)
-          ours_hero=balanced_class(ours,'public static class HeroPresentationAssetResolver')
-          theirs_hero=balanced_class(theirs,'public static class HeroPresentationAssetResolver')
-          merged=theirs.replace(theirs_hero,ours_hero,1)
+          ours=show('HEAD',path);theirs=show(GAMEPLAY,path)
+          merged=theirs.replace(balanced_class(theirs,'public static class HeroPresentationAssetResolver'),balanced_class(ours,'public static class HeroPresentationAssetResolver'),1)
           write(path,merged)
 
-          # 4) GameSession: remaster class/passive behavior + gameplay special-event interactions.
           path='Assets/ClickDungeon/Simulation/GameSession.cs'
-          ours=show('HEAD',path)
-          theirs=show(GAMEPLAY,path)
-          merged=ours
+          ours=show('HEAD',path);theirs=show(GAMEPLAY,path);merged=ours
           shrine='                case TileContentKind.Shrine:events.Add(new GameEvent("shrine.choice_required",index,tile.ContentId));return CommandResult.Accept(events);\n'
           if 'case TileContentKind.SpecialEvent:return InteractSpecialEvent' not in merged:
-              merged=require_replace(merged,shrine,shrine+'                case TileContentKind.SpecialEvent:return InteractSpecialEvent(index,tile,events);\n','special event switch')
-          method_start=theirs.index('        private CommandResult InteractSpecialEvent')
-          method_end=theirs.index('        private CommandResult InteractChest',method_start)
-          special_method=theirs[method_start:method_end]
-          chest_marker='        private CommandResult InteractChest'
+              merged=replace1(merged,shrine,shrine+'                case TileContentKind.SpecialEvent:return InteractSpecialEvent(index,tile,events);\n','special event switch')
+          a=theirs.index('        private CommandResult InteractSpecialEvent');b=theirs.index('        private CommandResult InteractChest',a)
           if 'private CommandResult InteractSpecialEvent' not in merged:
-              merged=require_replace(merged,chest_marker,special_method+chest_marker,'special event method')
+              merged=replace1(merged,'        private CommandResult InteractChest',theirs[a:b]+'        private CommandResult InteractChest','special event method')
           old='if(tile.Content!=required||tile.Visibility!=TileVisibility.Revealed)return CommandResult.Reject("exit.not_available");'
           new='if(tile.Content!=required||tile.Visibility!=TileVisibility.Revealed||tile.Resolution!=TileResolution.Available)return CommandResult.Reject("exit.not_available");'
-          if new not in merged:
-              merged=require_replace(merged,old,new,'disabled exit guard')
+          if new not in merged:merged=replace1(merged,old,new,'disabled exit guard')
           write(path,merged)
 
-          # 5) FloorGenerator: remaster class resets/Engineer knowledge + gameplay special feature generation.
           path='Assets/ClickDungeon/Simulation/Generation/FloorGenerator.cs'
-          ours=show('HEAD',path)
-          theirs=show(GAMEPLAY,path)
-          merged=ours
+          ours=show('HEAD',path);theirs=show(GAMEPLAY,path);merged=ours
           player='            state.PlayerPosition = new GridPosition(2, 2);\n'
           if '            ApplySpecialFeature(state,rng);\n' not in merged:
-              merged=require_replace(merged,player,player+'            ApplySpecialFeature(state,rng);\n','special feature call')
-          block_start=theirs.index('        private static void ApplySpecialFeature')
-          block_end=theirs.index('        private void InitializeMonsters',block_start)
-          special_block=theirs[block_start:block_end]
-          init_marker='        private void InitializeMonsters'
+              merged=replace1(merged,player,player+'            ApplySpecialFeature(state,rng);\n','special feature call')
+          a=theirs.index('        private static void ApplySpecialFeature');b=theirs.index('        private void InitializeMonsters',a)
           if 'private static void ApplySpecialFeature' not in merged:
-              merged=require_replace(merged,init_marker,special_block+init_marker,'special feature methods')
+              merged=replace1(merged,'        private void InitializeMonsters',theirs[a:b]+'        private void InitializeMonsters','special feature methods')
           write(path,merged)
 
-          # 6) Hero tests: preserve expanded roster tests and add the observed StoryForHero regression test.
           path='Assets/ClickDungeon/Tests/ApplicationEditMode/HeroIdentityTests.cs'
-          ours=show('HEAD',path)
-          theirs=show(GAMEPLAY,path)
-          merged=ours
-          test_start=theirs.index('        [Test]\n        public void ClickingtonHasAUniqueStorySeparateFromIronheart')
-          test_end=theirs.index('        [Test]\n        public void HeroVisualAssetKeysAreDeterministicAndRejectUnknownInputs',test_start)
-          story_test=theirs[test_start:test_end]
+          ours=show('HEAD',path);theirs=show(GAMEPLAY,path);merged=ours
+          a=theirs.index('        [Test]\n        public void ClickingtonHasAUniqueStorySeparateFromIronheart')
+          b=theirs.index('        [Test]\n        public void HeroVisualAssetKeysAreDeterministicAndRejectUnknownInputs',a)
           marker='        [Test]\n        public void HeroVisualAssetKeysAreDeterministicAndRejectUnknownInputs'
           if 'ClickingtonHasAUniqueStorySeparateFromIronheart' not in merged:
-              merged=require_replace(merged,marker,story_test+marker,'story regression test')
+              merged=replace1(merged,marker,theirs[a:b]+marker,'story regression test')
+          write(path,merged)
+
+          # Preserve the existing static runtime-presentation contract while retaining the gameplay HUD remaster.
+          path='Assets/ClickDungeon/Presentation/UI/RuntimeGameUI.cs'
+          merged=Path(path).read_text(encoding='utf-8')
+          if 'ABYSS DEPTH' in merged:
+              merged=merged.replace('ABYSS DEPTH','Abyss Depth')
+          if 'Abyss Depth' not in merged:
+              raise SystemExit('RuntimeGameUI reconciliation did not preserve Abyss Depth contract')
           write(path,merged)
           PY
           git add -A
-          if test -n "$(git diff --name-only --diff-filter=U)"; then
-            echo 'Unresolved merge paths remain:' >&2
-            git diff --name-only --diff-filter=U >&2
-            exit 1
-          fi
+          if test -n "$(git diff --name-only --diff-filter=U)"; then git diff --name-only --diff-filter=U >&2; exit 1; fi
           git diff --cached --check
           ! git grep -nE '^(<<<<<<<|=======|>>>>>>>)' -- . ':!*.md'
 
@@ -197,23 +161,7 @@ jobs:
           set -euo pipefail
           mkdir -p .ci/sim-tests
           cat > .ci/sim-tests/SimulationTests.csproj <<'EOF'
-          <Project Sdk="Microsoft.NET.Sdk">
-            <PropertyGroup>
-              <TargetFramework>net8.0</TargetFramework>
-              <ImplicitUsings>disable</ImplicitUsings>
-              <Nullable>disable</Nullable>
-              <LangVersion>latest</LangVersion>
-              <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-              <IsTestProject>true</IsTestProject>
-            </PropertyGroup>
-            <ItemGroup>
-              <Compile Include="../../Assets/ClickDungeon/Simulation/**/*.cs" />
-              <Compile Include="../../Assets/ClickDungeon/Tests/EditMode/**/*.cs" Exclude="../../Assets/ClickDungeon/Tests/EditMode/CanonicalBalanceBaselineTests.cs" />
-              <PackageReference Include="NUnit" Version="3.14.0" />
-              <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
-              <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
-            </ItemGroup>
-          </Project>
+          <Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net8.0</TargetFramework><ImplicitUsings>disable</ImplicitUsings><Nullable>disable</Nullable><LangVersion>latest</LangVersion><EnableDefaultCompileItems>false</EnableDefaultCompileItems><IsTestProject>true</IsTestProject></PropertyGroup><ItemGroup><Compile Include="../../Assets/ClickDungeon/Simulation/**/*.cs" /><Compile Include="../../Assets/ClickDungeon/Tests/EditMode/**/*.cs" Exclude="../../Assets/ClickDungeon/Tests/EditMode/CanonicalBalanceBaselineTests.cs" /><PackageReference Include="NUnit" Version="3.14.0" /><PackageReference Include="NUnit3TestAdapter" Version="4.6.0" /><PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" /></ItemGroup></Project>
           EOF
           dotnet test .ci/sim-tests/SimulationTests.csproj --configuration Release --nologo --logger "console;verbosity=normal"
 
@@ -224,55 +172,10 @@ jobs:
           mkdir -p .ci/application
           cat > .ci/application/UnityEngineStubs.cs <<'EOF'
           using System;
-          namespace UnityEngine
-          {
-              public class ScriptableObject { }
-              [AttributeUsage(AttributeTargets.Class)] public sealed class CreateAssetMenuAttribute : Attribute { public string menuName; public string fileName; }
-              [AttributeUsage(AttributeTargets.Field)] public sealed class SerializeField : Attribute { }
-              [AttributeUsage(AttributeTargets.Field)] public sealed class TextAreaAttribute : Attribute { public TextAreaAttribute(int minLines,int maxLines) { } }
-              public enum RuntimePlatform { WindowsPlayer, OSXPlayer, LinuxPlayer, WebGLPlayer, Android, IPhonePlayer }
-              public static class Application
-              {
-                  public static bool isEditor => false;
-                  public static RuntimePlatform platform => RuntimePlatform.WindowsPlayer;
-                  public static bool isMobilePlatform => false;
-                  public static string persistentDataPath => System.IO.Path.GetTempPath();
-              }
-              public static class PlayerPrefs
-              {
-                  public static int GetInt(string key,int defaultValue=0)=>defaultValue;
-                  public static void SetInt(string key,int value) { }
-                  public static void Save() { }
-              }
-              public static class Debug
-              {
-                  public static void Log(object message) { }
-                  public static void LogWarning(object message) { }
-                  public static void LogError(object message) { }
-              }
-          }
+          namespace UnityEngine { public class ScriptableObject { } [AttributeUsage(AttributeTargets.Class)] public sealed class CreateAssetMenuAttribute : Attribute { public string menuName; public string fileName; } [AttributeUsage(AttributeTargets.Field)] public sealed class SerializeField : Attribute { } [AttributeUsage(AttributeTargets.Field)] public sealed class TextAreaAttribute : Attribute { public TextAreaAttribute(int minLines,int maxLines) { } } public enum RuntimePlatform { WindowsPlayer, OSXPlayer, LinuxPlayer, WebGLPlayer, Android, IPhonePlayer } public static class Application { public static bool isEditor => false; public static RuntimePlatform platform => RuntimePlatform.WindowsPlayer; public static bool isMobilePlatform => false; public static string persistentDataPath => System.IO.Path.GetTempPath(); } public static class PlayerPrefs { public static int GetInt(string key,int defaultValue=0)=>defaultValue; public static void SetInt(string key,int value) { } public static void Save() { } } public static class Debug { public static void Log(object message) { } public static void LogWarning(object message) { } public static void LogError(object message) { } } }
           EOF
           cat > .ci/application/ApplicationCompileTests.csproj <<'EOF'
-          <Project Sdk="Microsoft.NET.Sdk">
-            <PropertyGroup>
-              <TargetFramework>net8.0</TargetFramework>
-              <ImplicitUsings>disable</ImplicitUsings>
-              <Nullable>disable</Nullable>
-              <LangVersion>latest</LangVersion>
-              <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-              <IsTestProject>true</IsTestProject>
-            </PropertyGroup>
-            <ItemGroup>
-              <Compile Include="../../Assets/ClickDungeon/Simulation/**/*.cs" />
-              <Compile Include="../../Assets/ClickDungeon/Application/**/*.cs" />
-              <Compile Include="../../Assets/ClickDungeon/Tests/ApplicationEditMode/**/*.cs" Exclude="../../Assets/ClickDungeon/Tests/ApplicationEditMode/**/*.asmdef" />
-              <Compile Include="UnityEngineStubs.cs" />
-              <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-              <PackageReference Include="NUnit" Version="3.14.0" />
-              <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
-              <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
-            </ItemGroup>
-          </Project>
+          <Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net8.0</TargetFramework><ImplicitUsings>disable</ImplicitUsings><Nullable>disable</Nullable><LangVersion>latest</LangVersion><EnableDefaultCompileItems>false</EnableDefaultCompileItems><IsTestProject>true</IsTestProject></PropertyGroup><ItemGroup><Compile Include="../../Assets/ClickDungeon/Simulation/**/*.cs" /><Compile Include="../../Assets/ClickDungeon/Application/**/*.cs" /><Compile Include="../../Assets/ClickDungeon/Tests/ApplicationEditMode/**/*.cs" Exclude="../../Assets/ClickDungeon/Tests/ApplicationEditMode/**/*.asmdef" /><Compile Include="UnityEngineStubs.cs" /><PackageReference Include="Newtonsoft.Json" Version="13.0.3" /><PackageReference Include="NUnit" Version="3.14.0" /><PackageReference Include="NUnit3TestAdapter" Version="4.6.0" /><PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" /></ItemGroup></Project>
           EOF
           dotnet test .ci/application/ApplicationCompileTests.csproj --configuration Release --nologo --logger "console;verbosity=normal"
           python -m compileall -q scripts
@@ -291,35 +194,7 @@ jobs:
           set -euo pipefail
           mkdir -p .ci/presentation-contract-tests
           cat > .ci/presentation-contract-tests/PresentationContractTests.csproj <<'EOF'
-          <Project Sdk="Microsoft.NET.Sdk">
-            <PropertyGroup>
-              <TargetFramework>net8.0</TargetFramework>
-              <ImplicitUsings>disable</ImplicitUsings>
-              <Nullable>disable</Nullable>
-              <LangVersion>latest</LangVersion>
-              <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-              <IsTestProject>true</IsTestProject>
-            </PropertyGroup>
-            <ItemGroup>
-              <Compile Include="../../Assets/ClickDungeon/Simulation/**/*.cs" />
-              <Compile Include="../../Assets/ClickDungeon/Application/Heroes/HeroIdentityCatalog.cs" />
-              <Compile Include="../../Assets/ClickDungeon/Presentation/Assets/PresentationAssetId.cs" />
-              <Compile Include="../../Assets/ClickDungeon/Presentation/Assets/PresentationAssetIdMapper.cs" />
-              <Compile Include="../../Assets/ClickDungeon/Presentation/Assets/DungeonRoomPresentationLayout.cs" />
-              <Compile Include="../../Assets/ClickDungeon/Presentation/Assets/GameplayScreenPresentationLayout.cs" />
-              <Compile Include="../../Assets/ClickDungeon/Presentation/Menu/HeroCardPresentation.cs" />
-              <Compile Include="../../Assets/ClickDungeon/Presentation/Menu/MainMenuRunRouting.cs" />
-              <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/PresentationAssetIdMapperTests.cs" />
-              <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/CanonicalDungeonTileRegistryTests.cs" />
-              <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/GameplayScreenPresentationLayoutTests.cs" />
-              <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/LayeredDungeonTilePresentationTests.cs" />
-              <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/HeroPresentationContractTests.cs" />
-              <Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/MainMenuRunRoutingTests.cs" />
-              <PackageReference Include="NUnit" Version="3.14.0" />
-              <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
-              <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
-            </ItemGroup>
-          </Project>
+          <Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net8.0</TargetFramework><ImplicitUsings>disable</ImplicitUsings><Nullable>disable</Nullable><LangVersion>latest</LangVersion><EnableDefaultCompileItems>false</EnableDefaultCompileItems><IsTestProject>true</IsTestProject></PropertyGroup><ItemGroup><Compile Include="../../Assets/ClickDungeon/Simulation/**/*.cs" /><Compile Include="../../Assets/ClickDungeon/Application/Heroes/HeroIdentityCatalog.cs" /><Compile Include="../../Assets/ClickDungeon/Presentation/Assets/PresentationAssetId.cs" /><Compile Include="../../Assets/ClickDungeon/Presentation/Assets/PresentationAssetIdMapper.cs" /><Compile Include="../../Assets/ClickDungeon/Presentation/Assets/DungeonRoomPresentationLayout.cs" /><Compile Include="../../Assets/ClickDungeon/Presentation/Assets/GameplayScreenPresentationLayout.cs" /><Compile Include="../../Assets/ClickDungeon/Presentation/Menu/HeroCardPresentation.cs" /><Compile Include="../../Assets/ClickDungeon/Presentation/Menu/MainMenuRunRouting.cs" /><Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/PresentationAssetIdMapperTests.cs" /><Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/CanonicalDungeonTileRegistryTests.cs" /><Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/GameplayScreenPresentationLayoutTests.cs" /><Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/LayeredDungeonTilePresentationTests.cs" /><Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/HeroPresentationContractTests.cs" /><Compile Include="../../Assets/ClickDungeon/Tests/PresentationEditMode/MainMenuRunRoutingTests.cs" /><PackageReference Include="NUnit" Version="3.14.0" /><PackageReference Include="NUnit3TestAdapter" Version="4.6.0" /><PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" /></ItemGroup></Project>
           EOF
           dotnet test .ci/presentation-contract-tests/PresentationContractTests.csproj --configuration Release --nologo --logger "console;verbosity=normal"
 
