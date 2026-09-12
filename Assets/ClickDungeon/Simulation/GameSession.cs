@@ -20,6 +20,7 @@ namespace ClickDungeon.Simulation
         private readonly GameContent _content;
         private readonly AbilityResolver _abilities;
         private readonly LootResolver _loot;
+        private const int ChestOpenInteractionsRequired=3;
         public RunState State { get; }
 
         public GameSession(RunState state, FloorGenerator generator, GameContent content=null)
@@ -53,6 +54,7 @@ namespace ClickDungeon.Simulation
 
             if(result.Accepted)
             {
+                ConsumeTemporaryOffensiveAction(command,events);
                 State.CommandNumber++;
                 if(ConsumesMeaningfulAction(command) && !State.CampaignCompleted && !State.GameOver) StatusResolver.AdvanceMeaningfulAction(State,_content,events,statusesBeforeCommand,camouflageBeforeCommand>0);
                 if(!State.CampaignCompleted && !State.GameOver) StatusResolver.AdvanceFloorAction(State,_content,events,statusesBeforeCommand);
@@ -104,14 +106,72 @@ namespace ClickDungeon.Simulation
                 case TileContentKind.Gold:State.Gold+=Math.Max(1,tile.Amount);ResolveTile(tile);events.Add(new GameEvent("gold.collected",index,tile.ContentId,tile.Amount));break;
                 case TileContentKind.SmallKey:State.SmallKeys++;ResolveTile(tile);events.Add(new GameEvent("key.small.collected",index));break;
                 case TileContentKind.BigKey:if(State.BigKeys>=_content.Balance.BigKeyMaxCarry)return CommandResult.Reject("key.big.carry_limit");State.BigKeys++;ResolveTile(tile);events.Add(new GameEvent("key.big.collected",index));break;
-                case TileContentKind.Chest:if(State.SmallKeys<=0)return CommandResult.Reject("key.small.required");State.SmallKeys--;AwardLoot("loot.chest.standard",index,events);ResolveTile(tile);events.Add(new GameEvent("chest.opened",index,tile.ContentId));break;
+                case TileContentKind.Chest:return InteractChest(index,tile,events);
                 case TileContentKind.Consumable:AddOwnedItem(tile.ContentId,string.Empty);ResolveTile(tile);events.Add(new GameEvent("item.collected",index,tile.ContentId));break;
                 case TileContentKind.Equipment:AddOwnedItem(tile.ContentId,string.Empty);ResolveTile(tile);events.Add(new GameEvent("item.collected",index,tile.ContentId));break;
                 case TileContentKind.Merchant:events.Add(new GameEvent("merchant.opened",index,tile.ContentId));return CommandResult.Accept(events);
                 case TileContentKind.Shrine:events.Add(new GameEvent("shrine.choice_required",index,tile.ContentId));return CommandResult.Accept(events);
+                case TileContentKind.SpecialEvent:return InteractSpecialEvent(index,tile,events);
                 default:return CommandResult.Reject("tile.requires_specific_command");
             }
             GainRecharge(1,events);return CommandResult.Accept(events);
+        }
+
+        private CommandResult InteractSpecialEvent(int index,TileState tile,List<GameEvent> events)
+        {
+            switch(tile.ContentId)
+            {
+                case "special.fountain.heal":
+                {
+                    int before=State.Hp;
+                    int heal=Math.Max(0,tile.Amount);
+                    State.Hp=Math.Min(State.MaxHp,State.Hp+heal);
+                    ResolveTile(tile);
+                    events.Add(new GameEvent("fountain.healed",index,tile.ContentId,State.Hp-before));
+                    GainRecharge(1,events);
+                    return CommandResult.Accept(events);
+                }
+                case "special.pressure_plate":
+                {
+                    if(!TryTile(tile.LinkedTileIndex,out var linked))return CommandResult.Reject("pressure_plate.target_invalid");
+                    if(linked.Resolution==TileResolution.Disabled)linked.Resolution=TileResolution.Available;
+                    ResolveTile(tile);
+                    events.Add(new GameEvent("pressure_plate.activated",index,tile.ContentId,tile.LinkedTileIndex));
+                    GainRecharge(1,events);
+                    return CommandResult.Accept(events);
+                }
+                case "special.teleport":
+                {
+                    int destinationIndex=tile.TeleportDestinationIndex;
+                    if(destinationIndex<0||destinationIndex>=State.Tiles.Count||destinationIndex==index)return CommandResult.Reject("teleport.destination_invalid");
+                    var destination=State.Tiles[destinationIndex];
+                    if(destination.Occupancy==OccupancyKind.Monster||destination.Resolution==TileResolution.Disabled)return CommandResult.Reject("teleport.destination_blocked");
+                    int old=Index(State.PlayerPosition);
+                    var oldTile=State.Tiles[old];
+                    oldTile.Occupancy=oldTile.Content==TileContentKind.SpecialEvent&&oldTile.ContentId=="special.teleport"?OccupancyKind.Object:OccupancyKind.None;
+                    destination.Occupancy=OccupancyKind.Player;
+                    destination.Visibility=TileVisibility.Revealed;
+                    State.PlayerPosition=Position(destinationIndex);
+                    events.Add(new GameEvent("teleport.used",destinationIndex,tile.ContentId,destinationIndex));
+                    GainRecharge(1,events);
+                    return CommandResult.Accept(events);
+                }
+                default:return CommandResult.Reject("special_event.unsupported");
+            }
+        }
+
+        private CommandResult InteractChest(int index,TileState tile,List<GameEvent> events)
+        {
+            if(State.SmallKeys<=0)return CommandResult.Reject("key.small.required");
+            tile.InteractionProgress=Math.Min(ChestOpenInteractionsRequired,tile.InteractionProgress+1);
+            events.Add(new GameEvent("chest.opening.progress",index,tile.ContentId,tile.InteractionProgress));
+            if(tile.InteractionProgress<ChestOpenInteractionsRequired)return CommandResult.Accept(events);
+            State.SmallKeys--;
+            AwardLoot("loot.chest.standard",index,events);
+            ResolveTile(tile);
+            events.Add(new GameEvent("chest.opened",index,tile.ContentId));
+            GainRecharge(1,events);
+            return CommandResult.Accept(events);
         }
 
         private CommandResult Attack(int index,List<GameEvent> events)
@@ -158,7 +218,13 @@ namespace ClickDungeon.Simulation
             if(!IsAdjacent(command.TileIndex)&&command.TileIndex!=Index(State.PlayerPosition))return CommandResult.Reject("tile.not_adjacent");
             if(!TryTile(command.TileIndex,out var tile)||tile.Content!=TileContentKind.Shrine||tile.Visibility!=TileVisibility.Revealed||tile.Resolution!=TileResolution.Available)return CommandResult.Reject("shrine.not_available");
             switch(command.Choice){case ShrineChoice.MaxHp:State.MaxHp+=3;State.Hp+=3;break;case ShrineChoice.Attack:State.Attack+=1;break;case ShrineChoice.Defense:State.Defense+=1;break;}
-            ResolveTile(tile);events.Add(new GameEvent("shrine.chosen",command.TileIndex,command.Choice.ToString()));GainRecharge(1,events);return CommandResult.Accept(events);
+            ResolveTile(tile);
+            events.Add(new GameEvent("shrine.chosen",command.TileIndex,command.Choice.ToString()));
+            if(State.HeroClass==HeroClassId.Cleric&&!State.ClericShrinePassiveTriggered)
+            {
+                State.ClericShrinePassiveTriggered=true;int before=State.Hp;State.Hp=Math.Min(State.MaxHp,State.Hp+3);events.Add(new GameEvent("passive.cleric.shrine_heal",command.TileIndex,"class.cleric",State.Hp-before));
+            }
+            GainRecharge(1,events);return CommandResult.Accept(events);
         }
 
         private CommandResult BuyItem(BuyItemCommand command,List<GameEvent> events)
@@ -182,7 +248,7 @@ namespace ClickDungeon.Simulation
 
         private CommandResult Exit(int index,bool forbidden,List<GameEvent> events)
         {
-            if(!TryTile(index,out var tile))return CommandResult.Reject("tile.out_of_range");if(!IsAdjacent(index)&&index!=Index(State.PlayerPosition))return CommandResult.Reject("tile.not_adjacent");var required=forbidden?TileContentKind.ForbiddenExit:TileContentKind.SafeExit;if(tile.Content!=required||tile.Visibility!=TileVisibility.Revealed)return CommandResult.Reject("exit.not_available");if(State.BossRequired&&!State.BossDefeated)return CommandResult.Reject("boss.must_be_defeated");if(forbidden&&State.BigKeys<=0)return CommandResult.Reject("key.big.required");if(forbidden)State.BigKeys--;
+            if(!TryTile(index,out var tile))return CommandResult.Reject("tile.out_of_range");if(!IsAdjacent(index)&&index!=Index(State.PlayerPosition))return CommandResult.Reject("tile.not_adjacent");var required=forbidden?TileContentKind.ForbiddenExit:TileContentKind.SafeExit;if(tile.Content!=required||tile.Visibility!=TileVisibility.Revealed||tile.Resolution!=TileResolution.Available)return CommandResult.Reject("exit.not_available");if(State.BossRequired&&!State.BossDefeated)return CommandResult.Reject("boss.must_be_defeated");if(forbidden&&State.BigKeys<=0)return CommandResult.Reject("key.big.required");if(forbidden)State.BigKeys--;
             int nextFloor=State.Floor+1;
             int campaignLimit=State.CampaignFloorLimit>0?Math.Min(State.CampaignFloorLimit,_content.Balance.CampaignFloors):_content.Balance.CampaignFloors;
             if(State.Mode==RunMode.Campaign&&nextFloor>campaignLimit&&campaignLimit<_content.Balance.CampaignFloors)return CommandResult.Reject("entitlement.full_game_required");
@@ -248,6 +314,23 @@ namespace ClickDungeon.Simulation
         private IEnumerable<int> LivingMonstersAdjacentTo(int centerIndex)
         {
             var center=Position(centerIndex);for(int i=0;i<State.Tiles.Count;i++){if(i==centerIndex)continue;var pos=Position(i);if(center.IsOrthogonallyAdjacent(pos)&&TryLivingMonster(i,out _))yield return i;}
+        }
+
+        private void ConsumeTemporaryOffensiveAction(GameCommand command,List<GameEvent> events)
+        {
+            if(State.TemporaryAttackActionsRemaining<=0)return;
+            bool offensive=command is AttackCommand;
+            if(!offensive&&command is UseAbilityCommand)
+            {
+                for(int i=0;i<events.Count&&!offensive;i++)
+                {
+                    string type=events[i].Type;
+                    offensive=type=="ability.damage"||type=="ability.area_damage"||type=="ability.chain_damage"||type=="ability.meteor_damage";
+                }
+            }
+            if(!offensive)return;
+            State.TemporaryAttackActionsRemaining--;
+            if(State.TemporaryAttackActionsRemaining==0&&State.TemporaryAttackResponsesRemaining<=0)State.TemporaryAttackBonus=0;
         }
 
         private void ResolveTile(TileState tile){tile.Resolution=TileResolution.Resolved;State.TilesResolved++;if(tile.Occupancy!=OccupancyKind.Player)tile.Occupancy=OccupancyKind.None;}

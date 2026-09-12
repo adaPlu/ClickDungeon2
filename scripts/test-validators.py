@@ -44,6 +44,58 @@ def test_nested_runtime_asset_requires_manifest_coverage():
     finally:
         shutil.rmtree(temp,ignore_errors=True)
 
+def test_gameplay_art_bindings_reject_unknown_item_id():
+    temp=Path(tempfile.mkdtemp(prefix='cd2-art-bindings-'))
+    try:
+        source=temp/'Assets'/'ClickDungeon'/'Art'/'Source'
+        content=temp/'Assets'/'ClickDungeon'/'Content'/'Json'
+        source.mkdir(parents=True,exist_ok=True)
+        content.mkdir(parents=True,exist_ok=True)
+        (content/'items.json').write_text(json.dumps({'items':[{'id':'item.real'}]}),encoding='utf-8')
+        (content/'monsters.json').write_text(json.dumps({'monsters':[{'id':'monster.real'}]}),encoding='utf-8')
+        (content/'biomes.json').write_text(json.dumps({'biomes':[{'id':'biome.real'}]}),encoding='utf-8')
+        (source/'gameplay_art_bindings.json').write_text(json.dumps({
+            'schema':'clickdungeon.gameplay_art_bindings.v1',
+            'game':'ClickDungeon',
+            'items':[{'gameplay_id':'item.missing','status':'unresolved'}],
+            'monsters':[],
+            'heroes':[],
+            'environment':[]
+        }),encoding='utf-8')
+        result=subprocess.run([sys.executable,str(ROOT/'scripts'/'validate-gameplay-art-bindings.py'),str(temp)],capture_output=True,text=True)
+        output=result.stdout+result.stderr
+        if result.returncode==0 or 'unknown item gameplay_id item.missing' not in output:
+            print(output)
+            raise AssertionError('gameplay art binding validator did not reject an unknown item ID')
+    finally:
+        shutil.rmtree(temp,ignore_errors=True)
+
+def test_gameplay_art_bindings_require_every_hero_runtime_variant():
+    temp=Path(tempfile.mkdtemp(prefix='cd2-hero-bindings-'))
+    try:
+        source=temp/'Assets'/'ClickDungeon'/'Art'/'Source'
+        runtime=temp/'Assets'/'ClickDungeon'/'Art'/'Runtime'
+        content=temp/'Assets'/'ClickDungeon'/'Content'/'Json'
+        catalog=temp/'Assets'/'ClickDungeon'/'Application'/'Heroes'
+        source.mkdir(parents=True,exist_ok=True);runtime.mkdir(parents=True,exist_ok=True);content.mkdir(parents=True,exist_ok=True);catalog.mkdir(parents=True,exist_ok=True)
+        (content/'items.json').write_text(json.dumps({'items':[]}),encoding='utf-8')
+        (content/'monsters.json').write_text(json.dumps({'monsters':[]}),encoding='utf-8')
+        (content/'biomes.json').write_text(json.dumps({'biomes':[]}),encoding='utf-8')
+        (catalog/'HeroIdentityCatalog.cs').write_text('new HeroIdentityDefinition("ironheart","Ironheart",HeroClassId.Knight)',encoding='utf-8')
+        variants=['master','portrait','roster','gameplay','idle','attack','hit','victory','defeat']
+        (source/'gameplay_art_bindings.json').write_text(json.dumps({
+            'schema':'clickdungeon.gameplay_art_bindings.v1','game':'ClickDungeon',
+            'items':[],'monsters':[],'environment':[],
+            'heroes':[{'hero_id':'ironheart','class_id':'Knight','status':'production_ready','canonical_keys':[f'hero.ironheart.{v}' for v in variants]}]
+        }),encoding='utf-8')
+        result=subprocess.run([sys.executable,str(ROOT/'scripts'/'validate-gameplay-art-bindings.py'),str(temp)],capture_output=True,text=True)
+        output=result.stdout+result.stderr
+        if result.returncode==0 or 'ironheart: required hero runtime file missing: hero_ironheart_master.png' not in output:
+            print(output)
+            raise AssertionError('gameplay art binding validator did not reject a missing required hero runtime variant')
+    finally:
+        shutil.rmtree(temp,ignore_errors=True)
+
 def test_release_artifacts_require_all_platform_outputs():
     temp=Path(tempfile.mkdtemp(prefix='cd2-release-artifacts-'))
     try:
@@ -71,6 +123,20 @@ def test_android_artifact_requires_signing_metadata():
     finally:
         shutil.rmtree(temp,ignore_errors=True)
 
+def test_android_apk_artifact_requires_manifest():
+    temp=Path(tempfile.mkdtemp(prefix='cd2-android-apk-artifact-'))
+    try:
+        apk=temp/'ClickDungeon2.apk'
+        with zipfile.ZipFile(apk,'w') as archive:
+            archive.writestr('classes.dex',b'dex')
+        result=subprocess.run([sys.executable,str(ROOT/'scripts'/'inspect-build-artifact.py'),'android-apk',str(temp)],capture_output=True,text=True)
+        output=result.stdout+result.stderr
+        if result.returncode==0 or 'AndroidManifest.xml' not in output:
+            print(output)
+            raise AssertionError('Android APK artifact inspection did not reject missing manifest')
+    finally:
+        shutil.rmtree(temp,ignore_errors=True)
+
 def test_android_signer_verifier_rejects_unsigned_bundle():
     temp=Path(tempfile.mkdtemp(prefix='cd2-android-signer-'))
     try:
@@ -88,8 +154,11 @@ def test_android_signer_verifier_rejects_unsigned_bundle():
 
 def main():
     test_nested_runtime_asset_requires_manifest_coverage()
+    test_gameplay_art_bindings_reject_unknown_item_id()
+    test_gameplay_art_bindings_require_every_hero_runtime_variant()
     test_release_artifacts_require_all_platform_outputs()
     test_android_artifact_requires_signing_metadata()
+    test_android_apk_artifact_requires_manifest()
     test_android_signer_verifier_rejects_unsigned_bundle()
     print('VALIDATOR TESTS PASSED')
 

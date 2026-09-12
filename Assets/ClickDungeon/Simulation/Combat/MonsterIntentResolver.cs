@@ -23,6 +23,7 @@ namespace ClickDungeon.Simulation.Combat
                 events.Add(new GameEvent("monster.intent.delayed", monster.Index, monster.ContentId));
                 ApplyPostIntentBehavior(monster,events);
                 AdvanceIntent(monster);
+                ConsumeTemporaryResponseBuffs(state);
                 return;
             }
 
@@ -60,12 +61,13 @@ namespace ClickDungeon.Simulation.Combat
                     TrySummon(state,monster,content,events);
                     break;
                 default:
-                    DealDamage(state, monster, content, events, Math.Max(monster.MonsterAttack, monster.IntentPower));
+                    DealDamage(state, monster, content, events, Math.Max(1, monster.IntentPower));
                     break;
             }
             ApplyVariantBehavior(state,monster,content,events);
             ApplyPostIntentBehavior(monster,events);
             AdvanceIntent(monster);
+            ConsumeTemporaryResponseBuffs(state);
         }
 
         private static void ApplyVariantBehavior(RunState state,TileState monster,GameContent content,List<GameEvent> events)
@@ -123,6 +125,20 @@ namespace ClickDungeon.Simulation.Combat
             if (monster.ContentId == "monster.goblin") monster.IntentKind = monster.MonsterTurn % 2 == 0 ? MonsterIntentKind.StealGold : MonsterIntentKind.Attack;
             else if (monster.ContentId == "monster.slime") monster.IntentKind = monster.MonsterTurn % 2 == 0 ? MonsterIntentKind.ApplyPoison : MonsterIntentKind.Attack;
             else if (monster.ContentId == "monster.golem") monster.IntentKind = monster.MonsterTurn % 2 == 0 ? MonsterIntentKind.HeavyAttack : MonsterIntentKind.Guard;
+        }
+
+        private static void ConsumeTemporaryResponseBuffs(RunState state)
+        {
+            if(state.TemporaryAttackResponsesRemaining>0)
+            {
+                state.TemporaryAttackResponsesRemaining--;
+                if(state.TemporaryAttackResponsesRemaining==0&&state.TemporaryAttackActionsRemaining<=0)state.TemporaryAttackBonus=0;
+            }
+            if(state.TemporaryDefenseResponsesRemaining>0)
+            {
+                state.TemporaryDefenseResponsesRemaining--;
+                if(state.TemporaryDefenseResponsesRemaining==0)state.TemporaryDefenseBonus=0;
+            }
         }
     }
 }

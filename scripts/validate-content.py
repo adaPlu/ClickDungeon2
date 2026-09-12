@@ -26,15 +26,17 @@ def ids(file,key):
 
 classes=ids('classes.json','classes');abilities=ids('abilities.json','abilities');monsters=ids('monsters.json','monsters');bosses=ids('bosses.json','bosses');biomes=ids('biomes.json','biomes');items=ids('items.json','items');affixes=ids('affixes.json','affixes');statuses=ids('statuses.json','statuses');archetypes=ids('floor_archetypes.json','archetypes');traps=ids('traps.json','traps');achievements=ids('achievements.json','achievements');variants=ids('monster_variants.json','variants')
 
+if data.get('classes.json',{}).get('revision')!=4: errors.append('classes.json revision must be 4')
+if data.get('abilities.json',{}).get('revision')!=3: errors.append('abilities.json revision must be 3')
 for a in data.get('abilities.json',{}).get('abilities',[]):
     if a.get('class_id') not in classes: errors.append(f"ability {a.get('id')} references missing class {a.get('class_id')}")
     if a.get('max_charges',0)<=0 or a.get('recharge_progress_required',0)<=0: errors.append(f"ability {a.get('id')} has invalid charge/recharge values")
 for c in classes:
     rows=sorted((a for a in data.get('abilities.json',{}).get('abilities',[]) if a.get('class_id')==c),key=lambda x:(x.get('unlock_mastery',0),x.get('id','')))
-    if len(rows) not in (1,5): errors.append(f'{c}: expected 5 abilities for production content (or 1 in early slice), got {len(rows)}')
+    if len(rows)!=5: errors.append(f'{c}: expected exactly 5 abilities for production content, got {len(rows)}')
     thresholds=[a.get('unlock_mastery',0) for a in rows]
-    if thresholds!=sorted(thresholds): errors.append(f'{c}: mastery thresholds are not monotonic')
-allowed_classes={'class.knight','class.ranger','class.thief','class.wizard'}
+    if thresholds!=[0,24,56,96,150]: errors.append(f'{c}: mastery thresholds must be exactly [0, 24, 56, 96, 150], got {thresholds}')
+allowed_classes={'class.knight','class.ranger','class.thief','class.wizard','class.paladin','class.berserker','class.engineer','class.cleric'}
 allowed_threats={'none','adjacent','cross_two','orthogonal_line','aura_two'}
 allowed_intents={'attack','heavy_attack','steal_gold','poison','guard','summon','hazard'}
 if classes!=allowed_classes: errors.append(f'classes.json class ids must be exactly {sorted(allowed_classes)}, found {sorted(classes)}')

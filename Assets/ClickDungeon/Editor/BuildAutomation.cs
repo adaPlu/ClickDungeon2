@@ -10,10 +10,11 @@ namespace ClickDungeon.EditorTools
     {
         private static readonly string[] Scenes={"Assets/ClickDungeon/Scenes/Boot.unity","Assets/ClickDungeon/Scenes/Main.unity","Assets/ClickDungeon/Scenes/Game.unity"};
         public static void BuildWindows()=>Build(BuildTarget.StandaloneWindows64,"Builds/Windows/ClickDungeon2.exe");
-        public static void BuildAndroid()=>Build(BuildTarget.Android,"Builds/Android/ClickDungeon2.aab");
+        public static void BuildAndroid()=>Build(BuildTarget.Android,"Builds/Android/ClickDungeon2.aab",true);
+        public static void BuildAndroidApk()=>Build(BuildTarget.Android,"Builds/AndroidApk/ClickDungeon2.apk",false);
         public static void BuildWeb()=>Build(BuildTarget.WebGL,"Builds/Web");
         public static void ExportIos()=>Build(BuildTarget.iOS,"Builds/iOS");
-        private static void Build(BuildTarget target,string path)
+        private static void Build(BuildTarget target,string path,bool androidAppBundle=true)
         {
             BuildPlayerSettings.Apply(target);
             TextMeshProResourceBootstrap.Ensure();
@@ -29,7 +30,7 @@ namespace ClickDungeon.EditorTools
             bool restoreAndroidSigning=false;
             if(target==BuildTarget.Android)
             {
-                EditorUserBuildSettings.buildAppBundle=true;
+                EditorUserBuildSettings.buildAppBundle=androidAppBundle;
                 signingState=BuildPlayerSettings.ApplyAndroidSigningFromEnvironment();
                 restoreAndroidSigning=true;
             }

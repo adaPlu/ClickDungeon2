@@ -1,0 +1,228 @@
+using System;
+using System.IO;
+using ClickDungeon.Presentation.Assets;
+using ClickDungeon.Simulation.Model;
+using NUnit.Framework;
+
+namespace ClickDungeon.Tests.PresentationEditMode
+{
+    public sealed class PresentationAssetIdMapperTests
+    {
+        [TestCase("hero_knight_core","hero.knight")]
+        [TestCase("monster_goblin_core","monster.goblin")]
+        [TestCase("biome_crypt_master","biome.crypt")]
+        [TestCase("chest_closed","chest.standard")]
+        [TestCase("chest_open","chest.open")]
+        [TestCase("small_key","key.small")]
+        [TestCase("big_key","key.big")]
+        [TestCase("trap_pitfall","trap.pitfall")]
+        public void ExistingCanonicalMappingsRemainStable(string file,string expected)
+        {
+            Assert.That(PresentationAssetIdMapper.SpriteId(file),Is.EqualTo(expected));
+        }
+
+        [TestCase("hero_ironheart_portrait","hero.ironheart.portrait")]
+        [TestCase("hero_ironheart_select","hero.ironheart.select")]
+        [TestCase("hero_clickington_portrait","hero.clickington.portrait")]
+        [TestCase("hero_clickington_select","hero.clickington.select")]
+        public void NamedHeroDerivedAssetsMapToIdentitySpecificKeys(string file,string expected)
+        {
+            Assert.That(PresentationAssetIdMapper.SpriteId(file),Is.EqualTo(expected));
+        }
+
+        [TestCase("dungeon_floor_stone","dungeon.floor.stone")]
+        [TestCase("dungeon_floor_cracked","dungeon.floor.cracked")]
+        [TestCase("dungeon_wall_top","dungeon.wall.top")]
+        [TestCase("dungeon_wall_left","dungeon.wall.left")]
+        [TestCase("dungeon_corner_tl","dungeon.corner.tl")]
+        [TestCase("dungeon_corner_br","dungeon.corner.br")]
+        [TestCase("dungeon_torch","dungeon.torch")]
+        [TestCase("dungeon_door_locked","dungeon.door.locked")]
+        [TestCase("dungeon_lock","dungeon.lock")]
+        [TestCase("dungeon_shadow","dungeon.shadow")]
+        [TestCase("trap_spikes","trap.spikes")]
+        public void ModularDungeonContractMapsToStablePresentationIds(string file,string expected)
+        {
+            Assert.That(PresentationAssetIdMapper.SpriteId(file),Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void TrapDisarmKitDoesNotCollideWithTrapPrefix()
+        {
+            Assert.That(PresentationAssetIdMapper.SpriteId("trap_disarm_kit"),Is.EqualTo("item.trap_disarm_kit"));
+        }
+
+        [Test]
+        public void InteractableResolverUsesGameplayStateInsteadOfFilenameGuessing()
+        {
+            Assert.That(ResolvePrimary(new TileState{Visibility=TileVisibility.Revealed,Resolution=TileResolution.Available,Content=TileContentKind.Chest,ContentId="chest.standard"}),Is.EqualTo("chest.standard"));
+            Assert.That(ResolvePrimary(new TileState{Visibility=TileVisibility.Revealed,Resolution=TileResolution.Resolved,Content=TileContentKind.Chest,ContentId="chest.standard"}),Is.EqualTo("chest.open"));
+            Assert.That(ResolvePrimary(new TileState{Visibility=TileVisibility.Revealed,Resolution=TileResolution.Available,Content=TileContentKind.SmallKey,ContentId="key.small"}),Is.EqualTo("key.small"));
+            Assert.That(ResolvePrimary(new TileState{Visibility=TileVisibility.Revealed,Resolution=TileResolution.Available,Content=TileContentKind.BigKey,ContentId="key.big"}),Is.EqualTo("key.big"));
+            Assert.That(ResolvePrimary(new TileState{Visibility=TileVisibility.Revealed,Resolution=TileResolution.Available,Content=TileContentKind.SealedVault,ContentId="vault.sealed"}),Is.EqualTo("vault.sealed"));
+            Assert.That(ResolvePrimary(new TileState{Visibility=TileVisibility.Revealed,Resolution=TileResolution.Resolved,Content=TileContentKind.SealedVault,ContentId="vault.sealed"}),Is.EqualTo(string.Empty));
+            Assert.That(ResolvePrimary(new TileState{Visibility=TileVisibility.Revealed,Resolution=TileResolution.Available,Content=TileContentKind.SafeExit,ContentId="exit.safe"}),Is.EqualTo("exit.safe"));
+            Assert.That(ResolvePrimary(new TileState{Visibility=TileVisibility.Revealed,Resolution=TileResolution.Available,Content=TileContentKind.ForbiddenExit,ContentId="exit.forbidden"}),Is.EqualTo("exit.forbidden"));
+        }
+
+        [TestCase("trap.fire")]
+        [TestCase("trap.poison")]
+        [TestCase("trap.acid")]
+        [TestCase("trap.freeze")]
+        [TestCase("trap.pitfall")]
+        public void CanonicalTrapVisualsTrackActiveHazardsOnly(string trapId)
+        {
+            Assert.That(ResolvePrimary(new TileState{Visibility=TileVisibility.Identified,Resolution=TileResolution.Available,Content=TileContentKind.Trap,ContentId=trapId}),Is.EqualTo(trapId));
+            Assert.That(ResolvePrimary(new TileState{Visibility=TileVisibility.Revealed,Resolution=TileResolution.Available,Content=TileContentKind.Trap,ContentId=trapId}),Is.EqualTo(trapId));
+            Assert.That(ResolvePrimary(new TileState{Visibility=TileVisibility.Revealed,Resolution=TileResolution.Resolved,Content=TileContentKind.Trap,ContentId=trapId}),Is.EqualTo(string.Empty));
+        }
+
+        [Test]
+        public void ResolverDoesNotLeakHiddenOrCluedContent()
+        {
+            Assert.That(ResolvePrimary(new TileState{Visibility=TileVisibility.Hidden,Content=TileContentKind.Trap,ContentId="trap.fire"}),Is.EqualTo(string.Empty));
+            Assert.That(ResolvePrimary(new TileState{Visibility=TileVisibility.Clued,Clue=ClueFamily.Danger,Content=TileContentKind.Trap,ContentId="trap.fire"}),Is.EqualTo("clue.danger"));
+            Assert.That(ResolvePrimary(new TileState{Visibility=TileVisibility.Clued,Clue=ClueFamily.Opportunity,Content=TileContentKind.Chest,ContentId="chest.standard"}),Is.EqualTo("clue.opportunity"));
+            Assert.That(ResolvePrimary(new TileState{Visibility=TileVisibility.Clued,Clue=ClueFamily.PassageArcane,Content=TileContentKind.SafeExit,ContentId="exit.safe"}),Is.EqualTo("clue.passage"));
+        }
+
+        [Test]
+        public void ModularRoomLayoutDefinesDeterministicReusableGeometry()
+        {
+            var assembly=typeof(PresentationAssetIdMapper).Assembly;
+            var layout=assembly.GetType("ClickDungeon.Presentation.Assets.DungeonRoomPresentationLayout");
+            Assert.That(layout,Is.Not.Null,"The runtime board needs one engine-free modular room layout contract.");
+
+            var floor=layout.GetMethod("FloorIdForCell");
+            Assert.That(floor,Is.Not.Null);
+            Assert.That(floor.Invoke(null,new object[]{0}),Is.EqualTo("dungeon.floor.stone"));
+            Assert.That(floor.Invoke(null,new object[]{6}),Is.EqualTo("dungeon.floor.cracked"));
+            Assert.That(floor.Invoke(null,new object[]{12}),Is.EqualTo("dungeon.floor.cracked"));
+            Assert.That(floor.Invoke(null,new object[]{24}),Is.EqualTo("dungeon.floor.stone"));
+
+            var edgeType=assembly.GetType("ClickDungeon.Presentation.Assets.DungeonRoomEdge");
+            var wallRotation=layout.GetMethod("WallRotationDegrees");
+            Assert.That(edgeType,Is.Not.Null);Assert.That(wallRotation,Is.Not.Null);
+            Assert.That(wallRotation.Invoke(null,new[]{Enum.Parse(edgeType,"Top")}),Is.EqualTo(0));
+            Assert.That(wallRotation.Invoke(null,new[]{Enum.Parse(edgeType,"Right")}),Is.EqualTo(90));
+            Assert.That(wallRotation.Invoke(null,new[]{Enum.Parse(edgeType,"Bottom")}),Is.EqualTo(180));
+            Assert.That(wallRotation.Invoke(null,new[]{Enum.Parse(edgeType,"Left")}),Is.EqualTo(270));
+
+            var torch=layout.GetMethod("HasTorchAtCell");
+            Assert.That(torch,Is.Not.Null);
+            Assert.That(torch.Invoke(null,new object[]{1}),Is.EqualTo(true));
+            Assert.That(torch.Invoke(null,new object[]{3}),Is.EqualTo(true));
+            Assert.That(torch.Invoke(null,new object[]{2}),Is.EqualTo(false));
+        }
+
+        [Test]
+        public void RuntimeBoardSourceConsumesModularRoomLayoutContract()
+        {
+            string source=RuntimeBoardSource();
+            Assert.That(source,Does.Contain("DungeonRoomPresentationLayout.FloorIdForCell(index)"));
+            Assert.That(source,Does.Contain("AddRoomDecorations"));
+            Assert.That(source,Does.Contain("DungeonRoomPresentationLayout.HasTorchAtCell(index)"));
+        }
+
+        [Test]
+        public void RuntimeBoardConsumesTilePresentationResolver()
+        {
+            string source=RuntimeBoardSource();
+            Assert.That(source,Does.Contain("TilePresentationAssetResolver.PrimaryAssetId(tile)"));
+            Assert.That(source,Does.Not.Contain("private static string AssetIdFor(TileState tile)"));
+        }
+
+        [Test]
+        public void HeroPresentationResolverKeepsIronheartAndClickingtonVisuallyDistinct()
+        {
+            var assembly=typeof(PresentationAssetIdMapper).Assembly;
+            var resolver=assembly.GetType("ClickDungeon.Presentation.Assets.HeroPresentationAssetResolver");
+            Assert.That(resolver,Is.Not.Null,"Named Knight identities need a presentation resolver so Sir Clickington cannot silently collapse to Ironheart or the legacy Knight core.");
+
+            var portrait=resolver.GetMethod("PortraitAssetId");
+            var selection=resolver.GetMethod("SelectionAssetId");
+            Assert.That(portrait,Is.Not.Null);Assert.That(selection,Is.Not.Null);
+            Assert.That(portrait.Invoke(null,new object[]{"ironheart"}),Is.EqualTo("hero.ironheart.portrait"));
+            Assert.That(portrait.Invoke(null,new object[]{"clickington"}),Is.EqualTo("hero.clickington.portrait"));
+            Assert.That(selection.Invoke(null,new object[]{"ironheart"}),Is.EqualTo("hero.ironheart.select"));
+            Assert.That(selection.Invoke(null,new object[]{"clickington"}),Is.EqualTo("hero.clickington.select"));
+            Assert.That(portrait.Invoke(null,new object[]{"ironheart"}),Is.Not.EqualTo(portrait.Invoke(null,new object[]{"clickington"})));
+        }
+
+        [Test]
+        public void RuntimeAndMenuUseIdentitySpecificHeroVisualKeys()
+        {
+            string runtime=RuntimeBoardSource();
+            Assert.That(runtime,Does.Contain("HeroPresentationAssetResolver.PortraitAssetId(_heroId)"));
+            Assert.That(runtime,Does.Not.Contain("s.HeroClass.ToString().ToLowerInvariant()"),"Runtime identity art must not silently fall back to the generic class core for Sir Clickington.");
+
+            string menu=MainMenuSource();
+            Assert.That(menu,Does.Contain("BuildHeroSelectionPage(card)"));
+            Assert.That(menu,Does.Contain("HeroCardPresentation.Describe(hero,mechanics)"),"Hero selection needs an identity-specific visual descriptor backed by canonical class mechanics.");
+            Assert.That(menu,Does.Contain("ResolveHeroCardSprite(card)"));
+            Assert.That(menu,Does.Not.Contain("prefix+\".master\""),"A prefix that already ends in '.' must not add another separator before hero visual variants.");
+        }
+
+        [Test]
+        public void MainMenuSourceMatchesApprovedLandscapeTitleScreenContract()
+        {
+            string menu=MainMenuSource();
+            Assert.That(menu,Does.Contain("TitleText=\"ClickDungeon\""),"The approved title is ClickDungeon with no numeric suffix.");
+            Assert.That(menu,Does.Contain("scaler.referenceResolution=new Vector2(1920,1080)"),"The approved title screen is a landscape 16:9 composition.");
+            Assert.That(menu,Does.Contain("BuildSelectedHeroPanel"));
+            Assert.That(menu,Does.Contain("BuildContinuePanel"));
+            Assert.That(menu,Does.Contain("BuildDailyRewardPanel"));
+            Assert.That(menu,Does.Contain("BuildBottomNavigation"));
+            Assert.That(menu,Does.Contain("\"PLAY\""));
+            Assert.That(menu,Does.Contain("\"HERO SELECT\""));
+            Assert.That(menu,Does.Contain("\"INVENTORY\""));
+            Assert.That(menu,Does.Contain("\"TALENTS\""));
+            Assert.That(menu,Does.Contain("\"SHOP\""));
+            Assert.That(menu,Does.Contain("\"SETTINGS\""));
+            Assert.That(menu,Does.Contain("\"QUIT\""));
+            Assert.That(menu,Does.Not.Contain("AddText(\"CLICKDUNGEON\""),"The old scrolling title implementation must be replaced, not layered underneath the new composition.");
+        }
+
+        [Test]
+        public void VisualRemasterBridgePreservesClickingtonIdentityForSharedKnightClass()
+        {
+            string bridge=VisualRemasterBridgeSource();
+            Assert.That(bridge,Does.Contain("string heroId = _game.HeroId;"),"The remaster bridge must consume the selected hero identity instead of reconstructing identity from HeroClassId; otherwise Knight-class Sir Clickington collapses to Ironheart.");
+            Assert.That(bridge,Does.Contain("HeroPresentationAssets.Portrait(_assets, heroId, heroClass)"));
+            Assert.That(bridge,Does.Contain("SpriteForState(heroId, heroClass, CurrentState())"));
+            Assert.That(bridge,Does.Contain("HeroPresentationAssets.HeroBaseId(heroId)"));
+            Assert.That(bridge,Does.Not.Contain("HeroPresentationAssets.Portrait(_assets, heroClass)"),"A class-only portrait call collapses Sir Clickington into Ironheart because both are Knights.");
+        }
+
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase("unapproved_unmapped_sprite")]
+        public void UnknownOrEmptyNamesAreNotAutoRegistered(string file)
+        {
+            Assert.That(PresentationAssetIdMapper.SpriteId(file),Is.EqualTo(string.Empty));
+        }
+
+        private static string ResolvePrimary(TileState tile)
+        {
+            var assembly=typeof(PresentationAssetIdMapper).Assembly;
+            var resolver=assembly.GetType("ClickDungeon.Presentation.Assets.TilePresentationAssetResolver");
+            Assert.That(resolver,Is.Not.Null,"Interactable and hazard visuals need one state-aware presentation resolver.");
+            var method=resolver.GetMethod("PrimaryAssetId");
+            Assert.That(method,Is.Not.Null);
+            return (string)method.Invoke(null,new object[]{tile});
+        }
+
+        private static string RuntimeBoardSource()=>SourceFile("Presentation","UI","RuntimeGameUI.cs");
+        private static string MainMenuSource()=>SourceFile("Presentation","Menu","MainMenuUI.cs");
+        private static string VisualRemasterBridgeSource()=>SourceFile("Presentation","UI","VisualRemasterRuntimeBridge.cs");
+
+        private static string SourceFile(params string[] relative)
+        {
+            string root=Directory.GetCurrentDirectory();
+            while(!File.Exists(Path.Combine(root,"ProjectSettings","ProjectVersion.txt"))&&Directory.GetParent(root)!=null)root=Directory.GetParent(root).FullName;
+            string path=Path.Combine(root,"Assets","ClickDungeon",Path.Combine(relative));
+            Assert.That(File.Exists(path),Is.True);
+            return File.ReadAllText(path);
+        }
+    }
+}

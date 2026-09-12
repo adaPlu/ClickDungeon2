@@ -1,9 +1,11 @@
+using System;
 using System.IO;
 using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 using ClickDungeon.Application.Content;
 using ClickDungeon.Simulation.Balance;
+using ClickDungeon.Simulation.Model;
 
 namespace ClickDungeon.Tests.EditMode
 {
@@ -22,8 +24,9 @@ namespace ClickDungeon.Tests.EditMode
 
             var first=new BalanceEvaluator(content).Evaluate(RunsPerCohort,MaxCommandsPerRun,SeedBase);
             var second=new BalanceEvaluator(content).Evaluate(RunsPerCohort,MaxCommandsPerRun,SeedBase);
-            Assert.AreEqual(16,first.Cohorts.Count);
-            Assert.AreEqual(16,second.Cohorts.Count);
+            int expectedCohorts=Enum.GetValues(typeof(HeroClassId)).Length*Enum.GetValues(typeof(BalancePolicy)).Length;
+            Assert.AreEqual(expectedCohorts,first.Cohorts.Count);
+            Assert.AreEqual(expectedCohorts,second.Cohorts.Count);
 
             for(int i=0;i<first.Cohorts.Count;i++)
             {

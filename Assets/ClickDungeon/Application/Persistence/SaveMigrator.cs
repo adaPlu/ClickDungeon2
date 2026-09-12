@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ClickDungeon.Application.State;
 using ClickDungeon.Application.Versioning;
+using ClickDungeon.Application.Heroes;
 using ClickDungeon.Simulation.Model;
 
 namespace ClickDungeon.Application.Persistence
@@ -32,6 +33,7 @@ namespace ClickDungeon.Application.Persistence
                 var current = root.ToObject<SaveDocument>(Serializer) ?? throw new JsonSerializationException("Save document invalid.");
                 if (current.simulation_version > GameVersionInfo.SimulationVersion) throw new InvalidOperationException($"Save requires newer simulation version {current.simulation_version}.");
                 if (current.content_revision > GameVersionInfo.ContentRevision) throw new InvalidOperationException($"Save requires newer content revision {current.content_revision}.");
+                current.original_payload_json=root["payload"]?.ToString(Formatting.None)??string.Empty;
                 return current;
             }
             if (schema > GameVersionInfo.SaveSchemaVersion) throw new InvalidOperationException($"Save requires newer schema {schema}.");
@@ -47,12 +49,14 @@ namespace ClickDungeon.Application.Persistence
                 Meta = new SlotMetaState
                 {
                     HeroClassId = run.HeroClass.ToString(),
+                    HeroId = HeroIdentityCatalog.StandardHeroId(run.HeroClass),
                     BestFloor = run.Floor,
                     CampaignCompleted = run.CampaignCompleted,
                     CreatedAt = now,
                     LastPlayedAt = now
                 }
             };
+            NormalizeHeroIdentity(payload);
             var migrated = new SaveDocument
             {
                 revision_number = root.Value<long?>("revision_number") ?? 0,
@@ -61,6 +65,28 @@ namespace ClickDungeon.Application.Persistence
             };
             migrated.checksum = ChecksumUtility.Sha256(JsonConvert.SerializeObject(migrated.payload, Formatting.None));
             return migrated;
+        }
+
+        public static void NormalizeHeroIdentity(SlotSavePayload payload)
+        {
+            if(payload==null)throw new ArgumentNullException(nameof(payload));
+            if(payload.Meta==null)payload.Meta=new SlotMetaState();
+
+            HeroClassId heroClass;
+            if(payload.ActiveRun!=null)
+            {
+                heroClass=payload.ActiveRun.HeroClass;
+                if(!Enum.IsDefined(typeof(HeroClassId),heroClass))
+                    throw new InvalidDataException($"Save contains unsupported hero class value {(int)heroClass}.");
+            }
+            else
+            {
+                if(!Enum.TryParse(payload.Meta.HeroClassId,true,out heroClass)||!Enum.IsDefined(typeof(HeroClassId),heroClass))
+                    throw new InvalidDataException($"Save contains unsupported hero class '{payload.Meta.HeroClassId}'.");
+            }
+
+            payload.Meta.HeroClassId=heroClass.ToString();
+            payload.Meta.HeroId=HeroIdentityCatalog.ResolveHeroId(heroClass,payload.Meta.HeroId);
         }
     }
 }

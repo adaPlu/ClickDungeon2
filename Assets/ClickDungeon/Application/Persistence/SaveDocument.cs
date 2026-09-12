@@ -1,4 +1,5 @@
 using System;
+using Newtonsoft.Json;
 using ClickDungeon.Application.State;
 using ClickDungeon.Application.Versioning;
 
@@ -15,5 +16,6 @@ namespace ClickDungeon.Application.Persistence
         public string updated_at = string.Empty;
         public string checksum = string.Empty;
         public SlotSavePayload payload;
+        [JsonIgnore] public string original_payload_json = string.Empty;
     }
 }

@@ -163,12 +163,14 @@ if artifact_inspector.exists():
     artifact_text=artifact_inspector.read_text()
     if 'signing metadata' not in artifact_text or 'META-INF/' not in artifact_text:
         errors.append('inspect-build-artifact.py does not verify Android signing metadata')
+    for token in ['android-apk','ClickDungeon2.apk','ANDROID APK ARTIFACT OK']:
+        if token not in artifact_text:errors.append(f'inspect-build-artifact.py missing Android APK inspection token {token}')
 else:errors.append('scripts/inspect-build-artifact.py is missing')
 android_signer=ROOT/'scripts/verify-android-signer.py'
 if not android_signer.exists():errors.append('scripts/verify-android-signer.py is missing')
 else:
     signer_text=android_signer.read_text()
-    for token in ['D8:11:9B:59:52:1A:7F:06:94:90:7C:00:BF:D1:F8:AA:9E:85:46:75:83:27:C9:15:95:0B:4A:E1:E7:14:36:64','keytool','jarsigner']:
+    for token in ['D8:11:9B:59:52:1A:7F:06:94:90:7C:00:BF:D1:F8:AA:9E:85:46:75:83:27:C9:15:95:0B:4A:E1:E7:14:36:64','keytool','apksigner','ANDROID_HOME','ANDROID_SDK_ROOT','jarsigner']:
         if token not in signer_text:errors.append(f'verify-android-signer.py missing upload certificate gate token {token}')
 android_secret_installer=ROOT/'scripts/install-android-signing-secrets.ps1'
 if not android_secret_installer.exists():errors.append('scripts/install-android-signing-secrets.ps1 is missing')
@@ -230,6 +232,9 @@ if unity_ci.exists():
     for token in ['ANDROID_KEYSTORE_BASE64','ANDROID_KEYSTORE_PASSWORD','ANDROID_KEY_ALIAS','ANDROID_KEY_PASSWORD','androidExportType: androidAppBundle','androidKeystoreName','androidKeystoreBase64','androidKeystorePass','androidKeyaliasName','androidKeyaliasPass','verify-android-signer.py']:
         if token not in unity_ci_text:
             errors.append(f'unity-platform-ci.yml missing Android release signer gate token {token}')
+    for token in ['android-apk:','Build Android APK through ClickDungeon BuildAutomation','androidExportType: androidPackage','BuildAndroidApk','ClickDungeon2-Android-APK','Builds/AndroidApk','ClickDungeon2.apk']:
+        if token not in unity_ci_text:
+            errors.append(f'unity-platform-ci.yml missing Android APK lane token {token}')
 
 for token in ['Abyss Depth','ShowInventory','ClickDungeonPresentationAssets','RefreshIntent']:
     if token not in runtime_ui:errors.append(f'Runtime presentation contract missing {token}')

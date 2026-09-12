@@ -48,6 +48,31 @@ namespace ClickDungeon.Simulation.Abilities
                 case "ability.wizard.chain_lightning": used=ChainLightning(state,events,abilityId); break;
                 case "ability.wizard.arcane_shield": state.ShieldPoints += 5; used=true; events.Add(new GameEvent("ability.arcane_shield",-1,abilityId,5)); break;
                 case "ability.wizard.meteor": used=Meteor(state,events,abilityId); break;
+
+                case "ability.paladin.radiant_strike": used=RadiantStrike(state,targetIndex,events,abilityId); break;
+                case "ability.paladin.lay_on_hands": used=Heal(state,5,events,abilityId); break;
+                case "ability.paladin.consecration": used=Consecration(state,events,abilityId); break;
+                case "ability.paladin.aegis_of_dawn": used=ApplyResponseBuff(state,6,0,1,2,events,abilityId); break;
+                case "ability.paladin.divine_bulwark": used=HealAndShield(state,6,8,events,abilityId); break;
+
+                case "ability.berserker.cleaving_blow": used=DamageAdjacentTarget(state,targetIndex,2,events,abilityId); break;
+                case "ability.berserker.bloodrush": used=Bloodrush(state,events,abilityId); break;
+                case "ability.berserker.war_cry": used=ModifyIntent(state,targetIndex,MonsterIntentKind.Attack,events,abilityId); break;
+                case "ability.berserker.frenzy": used=DamageAdjacentTarget(state,targetIndex,0,events,abilityId,true); break;
+                case "ability.berserker.ragequake": used=AttackAreaAroundPlayer(state,1,1,events,abilityId); break;
+
+                case "ability.engineer.shock_wrench": used=ShockWrench(state,targetIndex,events,abilityId); break;
+                case "ability.engineer.barrier_drone": state.ShieldPoints += 5; used=true; events.Add(new GameEvent("ability.barrier_drone",-1,abilityId,5)); break;
+                case "ability.engineer.snare_mine": used=RootTarget(state,targetIndex,2,events,abilityId); break;
+                case "ability.engineer.overclock": used=ApplyResponseBuff(state,0,1,1,3,events,abilityId); break;
+                case "ability.engineer.clockwork_barrage": used=ClockworkBarrage(state,events,abilityId); break;
+
+                case "ability.cleric.smite": used=DamageTargetWithinRange(state,targetIndex,1,2,events,abilityId); break;
+                case "ability.cleric.mend": used=Heal(state,5,events,abilityId); break;
+                case "ability.cleric.sanctuary": used=ApplyResponseBuff(state,5,0,1,2,events,abilityId); break;
+                case "ability.cleric.blessing": used=ApplyResponseBuff(state,0,1,1,3,events,abilityId); break;
+                case "ability.cleric.radiant_renewal": used=HealAndShield(state,8,5,events,abilityId); break;
+
                 default: rejection="ability.unsupported"; return false;
             }
 
@@ -55,6 +80,91 @@ namespace ClickDungeon.Simulation.Abilities
             charge.Charges--;
             events.Add(new GameEvent("ability.used",targetIndex,abilityId));
             return true;
+        }
+
+        private bool RadiantStrike(RunState state,int index,List<GameEvent> events,string abilityId)
+        {
+            if(!DamageAdjacentTarget(state,index,0,events,abilityId))return false;
+            state.ShieldPoints+=2;events.Add(new GameEvent("ability.shield",-1,abilityId,2));return true;
+        }
+
+        private bool Consecration(RunState state,List<GameEvent> events,string abilityId)
+        {
+            int hit=0;
+            for(int i=0;i<state.Tiles.Count;i++)
+            {
+                if(Manhattan(state.PlayerPosition,Position(i))>1||!TryLivingMonster(state,i,out var tile))continue;
+                int damage=Math.Min(2,tile.MonsterHp);tile.MonsterHp=Math.Max(0,tile.MonsterHp-2);hit++;events.Add(new GameEvent("ability.area_damage",i,abilityId,damage));ResolveDeath(state,tile,events);
+            }
+            state.ShieldPoints+=2;events.Add(new GameEvent("ability.shield",-1,abilityId,2));
+            return true;
+        }
+
+        private bool Bloodrush(RunState state,List<GameEvent> events,string abilityId)
+        {
+            int before=state.Hp;state.Hp=Math.Max(1,state.Hp-2);
+            state.TemporaryAttackBonus=2;state.TemporaryAttackActionsRemaining=2;state.TemporaryAttackResponsesRemaining=0;
+            events.Add(new GameEvent("ability.bloodrush",-1,abilityId,before-state.Hp));return true;
+        }
+
+        private bool ShockWrench(RunState state,int index,List<GameEvent> events,string abilityId)
+        {
+            if(!TryLivingMonster(state,index,out var tile)||!state.PlayerPosition.IsOrthogonallyAdjacent(Position(index)))return false;
+            int damage=DamageResolver.PlayerAttackDamage(state,tile,_content,0);tile.MonsterHp=Math.Max(0,tile.MonsterHp-damage);events.Add(new GameEvent("ability.damage",index,abilityId,damage));
+            if(tile.MonsterHp>0){tile.MonsterRootActions=Math.Max(tile.MonsterRootActions,1);events.Add(new GameEvent("ability.root",index,abilityId,1));}
+            ResolveDeath(state,tile,events);return true;
+        }
+
+        private bool ClockworkBarrage(RunState state,List<GameEvent> events,string abilityId)
+        {
+            var targets=Enumerable.Range(0,state.Tiles.Count).Where(i=>TryLivingMonster(state,i,out _)).OrderBy(i=>Manhattan(state.PlayerPosition,Position(i))).ThenBy(i=>i).Take(3).ToArray();
+            if(targets.Length==0)return false;
+            foreach(int i in targets)
+            {
+                var tile=state.Tiles[i];int damage=DamageResolver.PlayerAttackDamage(state,tile,_content);tile.MonsterHp=Math.Max(0,tile.MonsterHp-damage);events.Add(new GameEvent("ability.damage",i,abilityId,damage));ResolveDeath(state,tile,events);
+            }
+            return true;
+        }
+
+        private bool ApplyResponseBuff(RunState state,int shield,int attackBonus,int defenseBonus,int responses,List<GameEvent> events,string abilityId)
+        {
+            if(shield>0)state.ShieldPoints+=shield;
+            if(attackBonus>0){state.TemporaryAttackBonus=Math.Max(state.TemporaryAttackBonus,attackBonus);state.TemporaryAttackActionsRemaining=0;state.TemporaryAttackResponsesRemaining=responses;}
+            if(defenseBonus>0){state.TemporaryDefenseBonus=Math.Max(state.TemporaryDefenseBonus,defenseBonus);state.TemporaryDefenseResponsesRemaining=responses;}
+            events.Add(new GameEvent("ability.response_buff",-1,abilityId,responses));return true;
+        }
+
+        private bool Heal(RunState state,int amount,List<GameEvent> events,string abilityId)
+        {
+            int before=state.Hp;state.Hp=Math.Min(state.MaxHp,state.Hp+amount);events.Add(new GameEvent("ability.heal",-1,abilityId,state.Hp-before));return true;
+        }
+
+        private bool HealAndShield(RunState state,int heal,int shield,List<GameEvent> events,string abilityId)
+        {
+            Heal(state,heal,events,abilityId);state.ShieldPoints+=shield;events.Add(new GameEvent("ability.shield",-1,abilityId,shield));return true;
+        }
+
+        private bool DamageAdjacentTarget(RunState state,int index,int bonus,List<GameEvent> events,string abilityId,bool doubleHit=false)
+        {
+            if(!state.PlayerPosition.IsOrthogonallyAdjacent(PositionSafe(index)))return false;
+            return DamageTarget(state,index,bonus,events,abilityId,doubleHit);
+        }
+
+        private bool DamageTargetWithinRange(RunState state,int index,int bonus,int range,List<GameEvent> events,string abilityId)
+        {
+            if(index<0||index>=state.Tiles.Count||Manhattan(state.PlayerPosition,Position(index))>range)return false;
+            return DamageTarget(state,index,bonus,events,abilityId);
+        }
+
+        private bool AttackAreaAroundPlayer(RunState state,int radius,int bonus,List<GameEvent> events,string abilityId)
+        {
+            int hit=0;
+            for(int i=0;i<state.Tiles.Count;i++)
+            {
+                if(Manhattan(state.PlayerPosition,Position(i))>radius||!TryLivingMonster(state,i,out var tile))continue;
+                int damage=DamageResolver.PlayerAttackDamage(state,tile,_content,bonus);tile.MonsterHp=Math.Max(0,tile.MonsterHp-damage);hit++;events.Add(new GameEvent("ability.damage",i,abilityId,damage));ResolveDeath(state,tile,events);
+            }
+            return hit>0;
         }
 
         private bool DamageTarget(RunState state,int index,int bonus,List<GameEvent> events,string abilityId,bool doubleHit=false)
@@ -182,6 +292,7 @@ namespace ClickDungeon.Simulation.Abilities
             if(tile.MonsterHp>0){BossResolver.AfterDamage(state,tile,events);return;} tile.Occupancy=OccupancyKind.None; tile.Resolution=TileResolution.Resolved; state.MonstersDefeated++; state.TilesResolved++; if(tile.Content==TileContentKind.Boss) state.BossDefeated=true; events.Add(new GameEvent(tile.Content==TileContentKind.Boss?"boss.defeated":"monster.defeated",tile.Index,tile.ContentId));
         }
         private static GridPosition Position(int index)=>new GridPosition(index/RunState.BoardSize,index%RunState.BoardSize);
+        private static GridPosition PositionSafe(int index)=>index<0||index>=RunState.BoardSize*RunState.BoardSize?new GridPosition(-99,-99):Position(index);
         private static int Manhattan(GridPosition a,GridPosition b)=>Math.Abs(a.Row-b.Row)+Math.Abs(a.Col-b.Col);
     }
 }

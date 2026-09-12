@@ -1,0 +1,25 @@
+{
+  "schema": "clickdungeon.production_art_reconciliation.v1",
+  "game": "ClickDungeon",
+  "source_reference": "PLAN.png",
+  "source_reference_role": "User-approved visual direction only. No source pixels are embedded or cropped; assets are original deterministic pixel reconstructions.",
+  "generation": "Deterministic original pixel art created for the repository-wide art reconciliation pass.",
+  "assets": [
+    {"asset_id":"art.dungeon.floor.stone","filename":"dungeon_floor_stone.png","presentation_id":"dungeon.floor.stone","dimensions":[64,64],"sha256":"0b816cf8a056f297816e6f70afe4fb652dbc017132576080f10d5b586091c5ad","status":"production"},
+    {"asset_id":"art.dungeon.floor.cracked","filename":"dungeon_floor_cracked.png","presentation_id":"dungeon.floor.cracked","dimensions":[64,64],"sha256":"429aded6949f4698762a05ecbbc48e20afea42c158cbcbe33208bb1c16c88c98","status":"production"},
+    {"asset_id":"art.dungeon.wall.stone","filename":"dungeon_wall_top.png","presentation_id":"dungeon.wall.top","dimensions":[64,32],"sha256":"6007d2874b1b73290717a94de1fff9993cc306b1561942088ac4678c389a2e6d","status":"production"},
+    {"asset_id":"art.dungeon.corner.stone","filename":"dungeon_corner_tl.png","presentation_id":"dungeon.corner.tl","dimensions":[32,32],"sha256":"963d0feca46f9e9ff18bcfbd2474618a56bbe7ab4d21615fe8d735e86a0f6aa1","status":"production"},
+    {"asset_id":"art.dungeon.torch","filename":"dungeon_torch.png","presentation_id":"dungeon.torch","dimensions":[32,64],"sha256":"50869bbdb51ede8ecc426708482e6400d369f5a26ab968d0d4beee32fc880656","status":"production"},
+    {"asset_id":"art.dungeon.door.locked","filename":"dungeon_door_locked.png","presentation_id":"dungeon.door.locked","dimensions":[64,64],"sha256":"c2123be4a301554b5ad8a73cb7d463e8750b94f5444fc3cc557ea39daa3a77d2","status":"production"},
+    {"asset_id":"art.dungeon.lock","filename":"dungeon_lock.png","presentation_id":"dungeon.lock","dimensions":[32,32],"sha256":"796bad400c40c69797c2ab9731b1b35c08eb0bf18a5969a297f3a73a2dfb15ed","status":"production"},
+    {"asset_id":"art.dungeon.shadow","filename":"dungeon_shadow.png","presentation_id":"dungeon.shadow","dimensions":[64,64],"sha256":"e4dd5f6637412f0f7ff9f4e4fe79fe8c73410a9345ec648facdb9964db02719d","status":"production"},
+    {"asset_id":"art.trap.spikes","filename":"trap_spikes.png","presentation_id":"trap.spikes","dimensions":[64,64],"sha256":"1e7bfb4c56cda68e60086bc7fc5b6d4b6cb1330a9c6f449400311b2e9ff52fb1","status":"production"}
+  ],
+  "usage_terms": "Original ClickDungeon art created in-project; no third-party stock, trademarks, or copied external game art.",
+  "duplicate_policy": {
+    "wall": "Only dungeon_wall_top.png is stored; runtime rotates/reuses it for all four room edges.",
+    "corner": "Only dungeon_corner_tl.png is stored; runtime rotates/reuses it for all four corners.",
+    "floor": "Stone and cracked are the only stored floor variants in this first production batch.",
+    "bomb": "Not created in this batch; gameplay/content semantics remain unresolved between item and room-hazard roles."
+  }
+}

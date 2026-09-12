@@ -36,6 +36,8 @@ namespace ClickDungeon.Simulation.Generation
         {
             state.Floor = floor;
             state.RouteModifier = route;
+            state.PaladinHalfHpPassiveTriggered=false;
+            state.ClericShrinePassiveTriggered=false;
             state.BiomeId = state.Mode==RunMode.Abyss?_content.BiomeForFloor(((Math.Max(1,floor-_content.Balance.CampaignFloors)-1)%_content.Balance.CampaignFloors)+1):_content.BiomeForFloor(floor);
             state.ArchetypeId = SelectArchetype(state, floor);
             state.FloorSeed = SeedDerivation.Derive(state.RootSeed, $"floor:{floor}:{route}:{state.ArchetypeId}");
@@ -51,6 +53,7 @@ namespace ClickDungeon.Simulation.Generation
             ReplaceFirstEmpty(state.Tiles, displaced, start);
             for (int i = 0; i < state.Tiles.Count; i++) state.Tiles[i].Index = i;
             state.PlayerPosition = new GridPosition(2, 2);
+            ApplySpecialFeature(state,rng);
             InitializeMonsters(state);
             ApplyTerrain(state, rng);
             ApplyClues(state, rng);
@@ -88,6 +91,68 @@ namespace ClickDungeon.Simulation.Generation
                 if(index>=0){ list.RemoveAt(index); return; }
             }
             list.RemoveAt(list.Count-1);
+        }
+
+        private static void ApplySpecialFeature(RunState state,IRandomSource rng)
+        {
+            int feature=rng.NextInt(3);
+            var used=new HashSet<int>();
+            int first=TakeSpecialCandidate(state,rng,used);
+            if(first<0)return;
+
+            if(feature==0)
+            {
+                state.Tiles[first]=NewSpecialTile(first,"special.fountain.heal",5);
+                return;
+            }
+
+            if(feature==1)
+            {
+                int second=TakeSpecialCandidate(state,rng,used);
+                if(second<0)
+                {
+                    state.Tiles[first]=NewSpecialTile(first,"special.fountain.heal",5);
+                    return;
+                }
+                var a=NewSpecialTile(first,"special.teleport");
+                var b=NewSpecialTile(second,"special.teleport");
+                a.TeleportDestinationIndex=second;
+                b.TeleportDestinationIndex=first;
+                state.Tiles[first]=a;
+                state.Tiles[second]=b;
+                return;
+            }
+
+            var routes=state.Tiles.Where(t=>t.Content==TileContentKind.SafeExit||t.Content==TileContentKind.ForbiddenExit).OrderBy(t=>t.Index).ToArray();
+            if(routes.Length==0)
+            {
+                state.Tiles[first]=NewSpecialTile(first,"special.fountain.heal",5);
+                return;
+            }
+            var target=routes[rng.NextInt(routes.Length)];
+            target.Resolution=TileResolution.Disabled;
+            var plate=NewSpecialTile(first,"special.pressure_plate");
+            plate.LinkedTileIndex=target.Index;
+            state.Tiles[first]=plate;
+        }
+
+        private static int TakeSpecialCandidate(RunState state,IRandomSource rng,HashSet<int> used)
+        {
+            var priorities=new[]{TileContentKind.Empty,TileContentKind.Gold,TileContentKind.Chest,TileContentKind.Trap,TileContentKind.Monster};
+            foreach(var kind in priorities)
+            {
+                var candidates=state.Tiles.Where(t=>t.Index!=12&&!used.Contains(t.Index)&&t.Content==kind).Select(t=>t.Index).OrderBy(i=>i).ToArray();
+                if(candidates.Length==0)continue;
+                int chosen=candidates[rng.NextInt(candidates.Length)];
+                used.Add(chosen);
+                return chosen;
+            }
+            return -1;
+        }
+
+        private static TileState NewSpecialTile(int index,string id,int amount=0)
+        {
+            return new TileState{Index=index,Content=TileContentKind.SpecialEvent,ContentId=id,Amount=amount,Visibility=TileVisibility.Hidden,Resolution=TileResolution.Available,Occupancy=OccupancyKind.None};
         }
 
         private void InitializeMonsters(RunState state)
@@ -145,7 +210,6 @@ namespace ClickDungeon.Simulation.Generation
         private static void FisherYates(List<TileState> list,IRandomSource rng){for(int i=list.Count-1;i>0;i--){int j=rng.NextInt(i+1);var tmp=list[i];list[i]=list[j];list[j]=tmp;}}
         private static void ReplaceFirstEmpty(List<TileState> list,TileState displaced,int excluded){for(int i=0;i<list.Count;i++)if(i!=excluded&&list[i].Content==TileContentKind.Empty){list[i]=displaced;return;} for(int i=0;i<list.Count;i++)if(i!=excluded&&list[i].Content==TileContentKind.Gold){list[i]=displaced;return;}}
 
-
         private static void ApplyTerrain(RunState state,IRandomSource rng)
         {
             TerrainKind terrain;int count;
@@ -181,6 +245,15 @@ namespace ClickDungeon.Simulation.Generation
             {
                 var candidates=state.Tiles.Where(t=>t.Visibility==TileVisibility.Hidden && ClueFor(t.Content)!=ClueFamily.None).ToList();
                 if(candidates.Count>0){var tile=candidates[rng.NextInt(candidates.Count)];tile.Clue=ClueFor(tile.Content);tile.Visibility=TileVisibility.Clued;}
+            }
+            else if(state.HeroClass==HeroClassId.Engineer)
+            {
+                var target=state.Tiles
+                    .Where(t=>t.Content==TileContentKind.Monster&&t.Resolution==TileResolution.Available&&(t.Visibility==TileVisibility.Hidden||t.Visibility==TileVisibility.Clued))
+                    .OrderBy(t=>Math.Abs(state.PlayerPosition.Row-(t.Index/RunState.BoardSize))+Math.Abs(state.PlayerPosition.Col-(t.Index%RunState.BoardSize)))
+                    .ThenBy(t=>t.Index)
+                    .FirstOrDefault();
+                if(target!=null){target.Clue=ClueFamily.Danger;target.Visibility=TileVisibility.Identified;}
             }
         }
 
