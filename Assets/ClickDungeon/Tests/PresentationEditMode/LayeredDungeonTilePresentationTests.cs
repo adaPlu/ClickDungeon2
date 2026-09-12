@@ -71,6 +71,14 @@ namespace ClickDungeon.Tests.PresentationEditMode
             Assert.That(source,Does.Contain("TilePresentationAssetResolver.StructuralAssetId(tile)"));
         }
 
+        [Test]
+        public void RuntimeGameplayHudUsesPlayerFacingClickDungeonBrand()
+        {
+            string source=RuntimeBoardSource();
+            Assert.That(source,Does.Contain("CreateText(\"Brand\",_topHud,\"ClickDungeon\""));
+            Assert.That(source,Does.Not.Contain("CreateText(\"Brand\",_topHud,\"ClickDungeon2\""));
+        }
+
         private static string RuntimeBoardSource()
         {
             string root=Directory.GetCurrentDirectory();
