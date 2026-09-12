@@ -12,7 +12,7 @@ namespace ClickDungeon.Tests.EditMode
         {
             var evaluator=new BalanceEvaluator(GameContent.CreateDevelopmentFallback());
             var first=evaluator.Evaluate(2,120,900u);var second=evaluator.Evaluate(2,120,900u);
-            Assert.AreEqual(16,first.Cohorts.Count);Assert.AreEqual(16,second.Cohorts.Count);
+            Assert.AreEqual(32,first.Cohorts.Count);Assert.AreEqual(32,second.Cohorts.Count);
             for(int i=0;i<first.Cohorts.Count;i++)
             {
                 Assert.AreEqual(first.Cohorts[i].HeroClass,second.Cohorts[i].HeroClass);
@@ -35,6 +35,10 @@ namespace ClickDungeon.Tests.EditMode
             Assert.AreEqual(1,result.Find(HeroClassId.Ranger,BalancePolicy.HardRoute).Runs);
             Assert.AreEqual(1,result.Find(HeroClassId.Thief,BalancePolicy.HardRoute).Runs);
             Assert.AreEqual(1,result.Find(HeroClassId.Wizard,BalancePolicy.HardRoute).Runs);
+            Assert.AreEqual(1,result.Find(HeroClassId.Paladin,BalancePolicy.HardRoute).Runs);
+            Assert.AreEqual(1,result.Find(HeroClassId.Berserker,BalancePolicy.HardRoute).Runs);
+            Assert.AreEqual(1,result.Find(HeroClassId.Engineer,BalancePolicy.HardRoute).Runs);
+            Assert.AreEqual(1,result.Find(HeroClassId.Cleric,BalancePolicy.HardRoute).Runs);
         }
     }
 }

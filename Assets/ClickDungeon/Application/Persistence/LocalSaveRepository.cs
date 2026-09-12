@@ -22,6 +22,7 @@ namespace ClickDungeon.Application.Persistence
             if(slot<1||slot>4) throw new ArgumentOutOfRangeException(nameof(slot));
             if(payload==null) throw new ArgumentNullException(nameof(payload));
             Directory.CreateDirectory(_directory);
+            SaveMigrator.NormalizeHeroIdentity(payload);
             payload.Meta.LastPlayedAt=DateTimeOffset.UtcNow.ToString("O");
             var doc=new SaveDocument{revision_number=revision,updated_at=payload.Meta.LastPlayedAt,payload=payload};
             string payloadJson=JsonConvert.SerializeObject(doc.payload,Settings);
@@ -37,7 +38,13 @@ namespace ClickDungeon.Application.Persistence
             foreach(string path in new[]{primary,backup})
             {
                 if(!File.Exists(path)) continue;
-                try { var doc=SaveMigrator.DeserializeAndMigrate(File.ReadAllText(path,Encoding.UTF8)); Validate(doc); return doc; }
+                try
+                {
+                    var doc=SaveMigrator.DeserializeAndMigrate(File.ReadAllText(path,Encoding.UTF8));
+                    Validate(doc);
+                    SaveMigrator.NormalizeHeroIdentity(doc.payload);
+                    return doc;
+                }
                 catch(Exception ex) { last=ex; }
             }
             if(last!=null) throw new InvalidDataException("No valid save copy available.",last);
@@ -77,7 +84,8 @@ namespace ClickDungeon.Application.Persistence
             if(doc.schema_version!=GameVersionInfo.SaveSchemaVersion) throw new InvalidDataException($"Unsupported schema {doc.schema_version}.");
             if(doc.simulation_version>GameVersionInfo.SimulationVersion) throw new InvalidDataException($"Save requires newer simulation version {doc.simulation_version}.");
             if(doc.content_revision>GameVersionInfo.ContentRevision) throw new InvalidDataException($"Save requires newer content revision {doc.content_revision}.");
-            string expected=ChecksumUtility.Sha256(JsonConvert.SerializeObject(doc.payload,Settings));
+            string payloadJson=string.IsNullOrEmpty(doc.original_payload_json)?JsonConvert.SerializeObject(doc.payload,Settings):doc.original_payload_json;
+            string expected=ChecksumUtility.Sha256(payloadJson);
             if(!string.Equals(expected,doc.checksum,StringComparison.OrdinalIgnoreCase)) throw new InvalidDataException("Checksum mismatch.");
         }
     }

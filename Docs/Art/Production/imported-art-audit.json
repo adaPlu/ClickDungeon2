@@ -1,0 +1,39 @@
+{
+  "schema": "clickdungeon.visual_remaster.import_audit.v1",
+  "branch": "feature/visual-remaster-production",
+  "import_commit": "2c9c34d4364d6bad65db6822814d1af2e99cf045",
+  "combined_bundle_sha256": "32d37840c7c2a77910abfb8d7870a190b928e48ba9b05302c7da4dc65a58f3b4",
+  "candidate_bundle_sha256": "64d6af64cf5f45e3a6dc06cf1cfafac5b6e677f746d09cef0dae8ea75d8bf579",
+  "counts": {
+    "manifest_required": 182,
+    "hero": 81,
+    "monster_boss": 100,
+    "iron_sword": 1,
+    "dungeon_extras": 8,
+    "candidate_png": 190,
+    "candidate_meta": 190,
+    "canonical_items": 212,
+    "item_png": 636,
+    "item_meta": 640,
+    "combined_png": 826,
+    "combined_meta": 830
+  },
+  "landing": {
+    "workflow_run_id": 34170437970,
+    "workflow_job_id": 101889564912,
+    "conclusion": "success",
+    "transport_archive_committed": false,
+    "one_shot_import_workflow_removed": true
+  },
+  "post_landing_spot_checks": {
+    "hero_ironheart_meta": "present; Unity TextureImporter spriteMode=1; guid=427febb1d55f0b4b914af79c2a0c1611",
+    "monster_crowned_slime_meta": "present; Unity TextureImporter spriteMode=1; guid=31707e183a8c5a28c6b23e56cfa58428",
+    "canonical_item_manifest": "contains art.item.weapon.dragonslayer in the existing Assets/ClickDungeon/Art/Source/asset_manifest.json",
+    "temporary_import_workflow": "absent after successful self-removal"
+  },
+  "unity_import_validation": "pending",
+  "presentation_generation": "pending",
+  "gaudit": "pending",
+  "graph_repair": "pending",
+  "notes": "Exact verified candidate restored and extracted; canonical item records merged into the existing asset_manifest.json. This checkpoint exists to trigger and anchor post-import validation on the landed tree; it does not claim Unity import/runtime validation complete."
+}

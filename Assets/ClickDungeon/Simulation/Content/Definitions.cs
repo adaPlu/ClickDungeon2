@@ -6,6 +6,7 @@ namespace ClickDungeon.Simulation.Content
     {
         public HeroClassId ClassId;
         public string DisplayName = string.Empty;
+        public string ClassDisplayName => ClassId.ToString();
         public string Identity = string.Empty;
         public string BoardPassive = string.Empty;
         public int BaseHp;

@@ -7,7 +7,17 @@ namespace ClickDungeon.Simulation.Model
     public enum ClueFamily { None, Danger, Opportunity, PassageArcane }
     public enum RouteModifier { Standard, Forbidden }
     public enum RunMode { Campaign, Abyss }
-    public enum HeroClassId { Knight, Ranger, Thief, Wizard }
+    public enum HeroClassId
+    {
+        Knight = 0,
+        Ranger = 1,
+        Thief = 2,
+        Wizard = 3,
+        Paladin = 4,
+        Berserker = 5,
+        Engineer = 6,
+        Cleric = 7
+    }
     public enum ThreatPattern { None, Adjacent, CrossTwo, OrthogonalLine, AuraTwo }
     public enum MonsterIntentKind { Attack, HeavyAttack, StealGold, ApplyPoison, Guard, Summon, Hazard }
     public enum DamageType { Physical, Fire, Frost, Lightning, Poison, Arcane, Shadow }

@@ -4,6 +4,8 @@ import hashlib, json, struct, wave, sys
 ROOT=Path(sys.argv[1]).resolve() if len(sys.argv)>1 else Path(__file__).resolve().parents[1]
 errors=[]
 art=ROOT/'Assets'/'ClickDungeon'/'Art'; audio=ROOT/'Assets'/'ClickDungeon'/'Audio'
+HERO_IDS=('ironheart','clickington','dawnward','rageclaw','gearspark','windsong','lightbringer','emberwisp','shadowcut')
+HERO_VARIANTS=('master','portrait','roster','gameplay','idle','attack','hit','victory','defeat')
 
 def png_size(path):
     try:
@@ -52,10 +54,26 @@ monster_files=sorted(p for p in (art/'Runtime').glob('monster_*_core*.png') if '
 if len(monster_files)!=23: errors.append(f'expected 23 monster core sheets, found {len(monster_files)}')
 for p in monster_files:
     if png_size(p)!=(256,192): errors.append(f'{p.name}: monster core must be 256x192 (12 frames at 64x64)')
-hero_files=sorted(p for p in (art/'Runtime').glob('hero_*_core*.png') if '_core' in p.stem)
-if len(hero_files)!=4: errors.append(f'expected 4 hero core sheets, found {len(hero_files)}')
-for p in hero_files:
+legacy_hero_files=sorted(p for p in (art/'Runtime').glob('hero_*_core*.png') if '_core' in p.stem)
+if len(legacy_hero_files)!=4: errors.append(f'expected 4 legacy hero core sheets, found {len(legacy_hero_files)}')
+for p in legacy_hero_files:
     if png_size(p)!=(256,256): errors.append(f'{p.name}: hero core must be 256x256 (4x4 at 64x64)')
+
+hero_identity_files=[]
+for hero_id in HERO_IDS:
+    for variant in HERO_VARIANTS:
+        filename=f'hero_{hero_id}_{variant}.png'
+        path=art/'Runtime'/filename
+        if not path.exists():
+            errors.append(f'{hero_id}: required hero runtime file missing: {filename}')
+            continue
+        if png_size(path) is None:
+            errors.append(f'{filename}: required hero runtime asset is not a valid PNG')
+            continue
+        hero_identity_files.append(path)
+if len(hero_identity_files)!=81:
+    errors.append(f'expected 81 hero identity runtime PNGs, found {len(hero_identity_files)}')
+
 boss_files=sorted(p for p in (art/'Runtime').glob('boss_*_core*.png') if '_core' in p.stem)
 if len(boss_files)!=5: errors.append(f'expected 5 boss core sheets, found {len(boss_files)}')
 for p in boss_files:
@@ -91,4 +109,4 @@ except Exception as e: errors.append(f'canonical audio coverage validation faile
 
 if errors:
     print('ASSET VALIDATION FAILED'); [print(' -',e) for e in errors]; sys.exit(1)
-print(f'ASSET VALIDATION PASSED: {len(monster_files)} monsters, {len(hero_files)} heroes, {len(boss_files)} bosses, {len(biome_files)} biomes, {len(wav_files)} audio files')
+print(f'ASSET VALIDATION PASSED: {len(monster_files)} monsters, {len(legacy_hero_files)} legacy hero sheets, {len(hero_identity_files)} hero identity PNGs, {len(boss_files)} bosses, {len(biome_files)} biomes, {len(wav_files)} audio files')

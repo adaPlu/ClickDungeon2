@@ -24,44 +24,35 @@ namespace ClickDungeon.EditorTools
         public static void Configure(string path)
         {
             var importer=AssetImporter.GetAtPath(path) as TextureImporter;if(importer==null)return;
-            importer.textureType=TextureImporterType.Sprite;importer.mipmapEnabled=false;importer.alphaIsTransparency=true;
+            importer.GetSourceTextureWidthAndHeight(out int sourceWidth,out int sourceHeight);
+            bool highDefinition=sourceWidth>=512||sourceHeight>=512;
+            importer.textureType=TextureImporterType.Sprite;
+            importer.mipmapEnabled=false;
+            importer.filterMode=highDefinition?FilterMode.Bilinear:FilterMode.Point;
+            importer.textureCompression=highDefinition?TextureImporterCompression.CompressedHQ:TextureImporterCompression.Uncompressed;
+            importer.alphaIsTransparency=true;
+
             string file=Path.GetFileNameWithoutExtension(path);
-
-            if(IsDerivedHeroAsset(file))
+            if(file.StartsWith("monster_",StringComparison.Ordinal)&&IsCoreSheet(file))ConfigureCoreSheet(importer,sourceWidth,sourceHeight,new[]{"Attack","Defend","Move"});
+            else if(file.StartsWith("hero_",StringComparison.Ordinal)&&IsCoreSheet(file))ConfigureCoreSheet(importer,sourceWidth,sourceHeight,new[]{"Idle","Move","Attack","Defend"});
+            else if(file.StartsWith("boss_",StringComparison.Ordinal)&&IsCoreSheet(file))ConfigureCoreSheet(importer,sourceWidth,sourceHeight,new[]{"Attack","Defend","Move"});
+            else
             {
-                ConfigureDerivedHero(importer,file);importer.SaveAndReimport();return;
+                importer.spritePixelsPerUnit=highDefinition?128:64;
+                importer.spriteImportMode=SpriteImportMode.Single;
             }
-
-            importer.filterMode=FilterMode.Point;importer.textureCompression=TextureImporterCompression.Uncompressed;importer.spritePixelsPerUnit=64;
-            if(file.StartsWith("monster_",StringComparison.Ordinal)&&IsCoreSheet(file))Slice(importer,256,192,64,new[]{"Attack","Defend","Move"},4);
-            else if(file.StartsWith("hero_",StringComparison.Ordinal)&&IsCoreSheet(file))Slice(importer,256,256,64,new[]{"Idle","Move","Attack","Defend"},4);
-            else if(file.StartsWith("boss_",StringComparison.Ordinal)&&IsCoreSheet(file)){importer.spritePixelsPerUnit=128;Slice(importer,512,384,128,new[]{"Attack","Defend","Move"},4);}
-            else importer.spriteImportMode=SpriteImportMode.Single;
             importer.SaveAndReimport();
         }
 
-        private static void ConfigureDerivedHero(TextureImporter importer,string file)
+        private static void ConfigureCoreSheet(TextureImporter importer,int width,int height,string[] rows)
         {
-            importer.spriteImportMode=SpriteImportMode.Single;
-            importer.filterMode=FilterMode.Bilinear;
-            importer.textureCompression=TextureImporterCompression.Compressed;
-            importer.spritePixelsPerUnit=100;
-            importer.maxTextureSize=DerivedHeroMaxSize(file);
-        }
-
-        private static bool IsDerivedHeroAsset(string file)
-        {
-            if(!file.StartsWith("hero_",StringComparison.OrdinalIgnoreCase)||IsCoreSheet(file))return false;
-            foreach(string variant in HeroDerivedVariants)if(file.EndsWith("_"+variant,StringComparison.OrdinalIgnoreCase))return true;
-            return false;
-        }
-
-        private static int DerivedHeroMaxSize(string file)
-        {
-            if(file.EndsWith("_select",StringComparison.OrdinalIgnoreCase))return 1024;
-            if(file.EndsWith("_roster",StringComparison.OrdinalIgnoreCase))return 256;
-            if(file.EndsWith("_portrait",StringComparison.OrdinalIgnoreCase))return 512;
-            return 512;
+            const int columns=4;
+            if(width<=0||height<=0||width%columns!=0)throw new InvalidDataException($"Core sheet must have four equal columns, got {width}x{height}.");
+            int frame=width/columns;
+            int expectedHeight=frame*rows.Length;
+            if(height!=expectedHeight)throw new InvalidDataException($"Core sheet must be {columns}x{rows.Length} square frames, got {width}x{height}; expected height {expectedHeight}.");
+            importer.spritePixelsPerUnit=frame;
+            Slice(importer,width,height,frame,rows,columns);
         }
 
         private static bool IsCoreSheet(string file)=>file.EndsWith("_core",StringComparison.Ordinal)||file.Contains("_core_",StringComparison.Ordinal);

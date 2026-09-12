@@ -59,6 +59,44 @@ namespace ClickDungeon.Tests.ApplicationEditMode
             }
         }
 
+        [Test]
+        public void CanonicalHeroesPreserveStableClassIdsAndExposeApprovedHeroIdentities()
+        {
+            string contentDir=FindContentDirectory();
+            GameContent content=new JsonContentCatalogLoader().LoadFromDirectory(contentDir);
+
+            AssertHeroIdentity(content,HeroClassId.Knight,"Ironheart","Knight","control_danger");
+            AssertHeroIdentity(content,HeroClassId.Thief,"Shadowcut","Thief","control_information");
+            AssertHeroIdentity(content,HeroClassId.Wizard,"Emberwisp","Wizard","control_board");
+            AssertHeroIdentity(content,HeroClassId.Ranger,"Windsong","Ranger","control_distance");
+        }
+
+        [Test]
+        public void CanonicalCatalogExposesExactlyEightHeroClassesAndResolvesEveryAbility()
+        {
+            string contentDir=FindContentDirectory();
+            GameContent content=new JsonContentCatalogLoader().LoadFromDirectory(contentDir);
+            var classes=((HeroClassId[])Enum.GetValues(typeof(HeroClassId)));
+
+            Assert.That(classes.Length,Is.EqualTo(8));
+            foreach(HeroClassId cls in classes)
+            {
+                var hero=content.Hero(cls);
+                Assert.That(hero.AbilityIds.Length,Is.EqualTo(5),$"{cls} canonical ability count");
+                foreach(string abilityId in hero.AbilityIds)
+                    Assert.DoesNotThrow(()=>content.Ability(abilityId),$"{cls} missing ability {abilityId}");
+            }
+        }
+
+        private static void AssertHeroIdentity(GameContent content,HeroClassId classId,string heroName,string className,string identity)
+        {
+            var hero=content.Hero(classId);
+            Assert.AreEqual(classId,hero.ClassId,$"{classId} stable class id");
+            Assert.AreEqual(heroName,hero.DisplayName,$"{classId} approved hero identity");
+            Assert.AreEqual(className,hero.ClassDisplayName,$"{classId} class display name");
+            Assert.AreEqual(identity,hero.Identity,$"{classId} gameplay identity");
+        }
+
         private static void AssertRange(BalanceRangeDefinition range,int min,int max,string label)
         {
             Assert.NotNull(range,label);Assert.AreEqual(min,range.Min,label+" min");Assert.AreEqual(max,range.Max,label+" max");
