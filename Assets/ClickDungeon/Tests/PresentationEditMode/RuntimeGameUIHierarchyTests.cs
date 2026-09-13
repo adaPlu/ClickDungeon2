@@ -43,5 +43,29 @@ namespace ClickDungeon.Tests.PresentationEditMode
                 var canvas=GameObject.Find("ClickDungeonCanvas");if(canvas!=null)Object.DestroyImmediate(canvas);
             }
         }
+
+        [Test]
+        public void GameplayHudUsesPlayerFacingClickDungeonBrand()
+        {
+            var host=new GameObject("RuntimeGameUIBrandTestHost");
+            try
+            {
+                var ui=host.AddComponent<RuntimeGameUI>();
+                var build=typeof(RuntimeGameUI).GetMethod("BuildUi",BindingFlags.Instance|BindingFlags.NonPublic);
+                Assert.That(build,Is.Not.Null);
+                build.Invoke(ui,null);
+
+                var brand=host.transform.Find("ClickDungeonCanvas/SafeRoot/TopHud/Brand");
+                Assert.That(brand,Is.Not.Null);
+                var label=brand.GetComponent<TMPro.TMP_Text>();
+                Assert.That(label,Is.Not.Null);
+                Assert.That(label.text,Is.EqualTo("ClickDungeon"));
+            }
+            finally
+            {
+                Object.DestroyImmediate(host);
+                var canvas=GameObject.Find("ClickDungeonCanvas");if(canvas!=null)Object.DestroyImmediate(canvas);
+            }
+        }
     }
 }

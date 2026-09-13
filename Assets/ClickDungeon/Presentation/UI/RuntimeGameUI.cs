@@ -104,7 +104,7 @@ namespace ClickDungeon.Presentation.UI
             var portraitRt=CreateRect("HeroPortrait",_topHud);SetAnchors(portraitRt,new Vector2(.012f,.10f),new Vector2(.075f,.90f),2);
             _heroPortrait=portraitRt.gameObject.AddComponent<Image>();_heroPortrait.preserveAspect=true;_heroPortrait.raycastTarget=false;
 
-            var brand=CreateText("Brand",_topHud,"ClickDungeon2",30,TextAlignmentOptions.Center);SetAnchors(brand.rectTransform,new Vector2(.078f,.10f),new Vector2(.19f,.90f),2);
+            var brand=CreateText("Brand",_topHud,"ClickDungeon",30,TextAlignmentOptions.Center);SetAnchors(brand.rectTransform,new Vector2(.078f,.10f),new Vector2(.19f,.90f),2);
 
             var hpPanel=CreateRect("Health",_topHud);SetAnchors(hpPanel,new Vector2(.20f,.22f),new Vector2(.48f,.78f),2);AddPanelImage(hpPanel,new Color(.10f,.10f,.13f,.96f));
             var hpFillRt=CreateRect("Fill",hpPanel);Stretch(hpFillRt);_hpFill=hpFillRt.gameObject.AddComponent<Image>();_hpFill.color=new Color(.72f,.12f,.13f,.96f);_hpFill.raycastTarget=false;
