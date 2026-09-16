@@ -35,9 +35,10 @@ The roster provides baseline melee, defensive melee, ranged pressure, mobility, 
 ### 2.3 Run length
 
 - Five floors total.
-- Floors 1-4 use normal room generation and may contain pits if a lower floor exists.
+- Floors 1-4 use normal room generation and may contain pits because a lower floor exists.
 - Floor 5 is the final Goblin King floor and may never contain pits.
 - All five floors belong to one evolving stone-dungeon biome.
+- Defeating the Goblin King on Floor 5 ends the vertical-slice run in victory; no additional stair interaction is required after the boss defeat.
 
 ## 3. Core Board Model
 
@@ -82,7 +83,8 @@ This is the selectable optional mode.
 
 - Move reaches one adjacent tile.
 - Adjacent includes up, down, left, right, and all four diagonals.
-- Dash reaches up to two tiles.
+- Dash reaches any destination within two king-move steps, equivalent to Chebyshev distance 2 or less from the hero, excluding the current tile.
+- Intervening tiles and contents do not block Dash.
 - Nothing acts as path-blocking geometry; the movement rule only limits legal destination distance.
 
 ### 4.3 Implementation architecture constraint
@@ -92,7 +94,7 @@ The intended gameplay architecture is one shared game loop with pluggable moveme
 Conceptually:
 
 - `FreeClickMovement` validates unrestricted 5x5 destinations.
-- `TacticalMovement` validates one-tile Move and two-tile Dash destinations.
+- `TacticalMovement` validates one-tile Move and up-to-two-tile Dash destinations.
 - Combat, reveal, enemy turns, loot, traps, floor state, and HUD behavior remain shared.
 
 ## 5. Turn and Enemy-Response Rules
@@ -121,9 +123,11 @@ Resolution order:
 6. Resolve damage, status, defeat, victory, or floor transition.
 7. Refresh board and HUD state and return control to the player.
 
-A monster revealed by the current player action is active during that same enemy-response phase unless a future enemy-specific rule explicitly says otherwise.
+A monster revealed by the current player action is active during that same enemy-response phase.
 
 Position still matters for attack legality and telegraphing even though it does not block movement. For example, a Goblin Raider must satisfy its melee range while a Fire Imp may use a ranged attack.
+
+An invalid action that fails validation does not consume a player action and does not trigger an enemy-response phase; it only produces invalid-action feedback.
 
 ## 6. Pit Trap Rules
 
@@ -176,6 +180,7 @@ Opening a chest while enemies are active is intentionally a risk/reward choice.
 - Opens immediately once the valid key is used.
 - Does not use repeated tap buildup after key validation.
 - The key use itself is a player action and therefore participates in the standard enemy-response flow.
+- Special Keys are not ordinary random floor loot in this vertical slice. They are acquired through the existing shop/reward path outside room generation; the production-art scope covers their shop/inventory/use presentation, not a dungeon-floor pickup.
 
 ### 7.3 Mimic
 
@@ -193,9 +198,10 @@ The vertical slice needs gameplay-ready art for:
 - gems
 - potion
 - equipment pickup
-- Special Key
 - reward burst
 - pickup sparkle/confirmation
+
+Special Key art is covered separately as shop/inventory/use UI and premium-chest interaction art.
 
 ## 8. Stairs and Floor Completion
 
@@ -204,7 +210,8 @@ The vertical slice needs gameplay-ready art for:
 - The player may continue exploring the current 5x5 room.
 - Choosing to use the stairs advances exactly one floor.
 - A pit is the involuntary one-floor descent alternative.
-- Floor 5 resolves to the slice victory state after the Goblin King encounter and required completion conditions.
+- Floors 1-4 use stairs for voluntary descent.
+- Floor 5 ends in victory immediately after the Goblin King is defeated.
 
 ## 9. Vertical-Slice Enemy Roles
 
@@ -232,9 +239,10 @@ Production needs:
 - alert
 - melee attack
 - guard/block
-- guard-break feedback if used
 - hit
 - defeat
+
+No separate guard-break mechanic or guard-break art is introduced by this slice.
 
 ### 9.3 Fire Imp
 
@@ -293,7 +301,7 @@ Production needs:
 
 ### 9.7 Goblin King
 
-Final-floor boss with a larger health pool and at least two visually distinct attack patterns.
+Final-floor boss with a larger health pool and two visually distinct attack patterns.
 
 Production needs:
 
@@ -304,12 +312,13 @@ Production needs:
 - attack pattern 2
 - attack telegraphs
 - hit
-- optional stagger if implemented
 - defeat
 - boss portrait
 - boss health frame and fill
 - boss warning treatment
 - victory presentation
+
+The slice does not add a separate boss-stagger mechanic.
 
 ## 10. Sir Clickington Production Set
 
@@ -513,7 +522,7 @@ The slice requires:
 - defeat effects
 - tile reveal burst
 
-Any critical-hit or strong-hit treatment is only required if the current gameplay implementation uses that mechanic.
+Critical-hit and strong-hit systems are not added by this vertical-slice art pass.
 
 ## 16. Production Generation Batches
 
@@ -549,7 +558,7 @@ Generate:
 - Rare 3-tap chest
 - Epic 4-tap chest
 - Premium chest
-- Special Key
+- Special Key shop/inventory/use art
 - loot and reward effects
 
 ### Batch 5: 5x5 composition checkpoint
@@ -628,6 +637,7 @@ Validation must confirm:
 - every regular chest quality has a clearly readable 2/3/4-tap progression
 - each chest tap can be visually understood as a discrete player action
 - premium chest art clearly communicates Special Key gating and immediate keyed opening
+- Special Key art does not imply ordinary random dungeon-floor drops
 - pit art clearly communicates 20 HP damage plus one-floor descent
 - Floor 5 contains no pit presentation in generation or authored layouts
 - newly revealed enemies can visually enter the same response phase cleanly
@@ -645,6 +655,7 @@ This design does not require:
 - eight-direction sprites
 - full release-game progression
 - full late-game equipment content
+- guard-break, boss-stagger, critical-hit, or strong-hit systems not already part of the approved slice
 - unrelated menu redesigns
 - expansion of the five-floor slice into a complete campaign
 
