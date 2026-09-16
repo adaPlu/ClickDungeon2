@@ -2,672 +2,621 @@
 
 Date: 2026-09-15
 Status: Written design awaiting user review
-Scope: Polished 5x5 vertical slice only
+Scope: Complete polished 5x5 playable vertical slice only
+Branch: `superpowers/vertical-slice-production-art-spec`
 
 ## 1. Purpose
 
-This design defines the gameplay-facing rules, visual constraints, production-art coverage, and generation order required to complete a polished ClickDungeon2 5x5 vertical slice.
+This design defines how ClickDungeon2 will complete the missing production art required for one polished, end-to-end 5x5 vertical slice while preserving verified existing assets and Unity metadata wherever possible.
 
-The supplied ClickDungeon2 reference boards remain the visual bible. Existing presentation boards are references, not automatically shippable Unity sprites. The production workflow will create clean gameplay assets first, validate them in the 5x5 board context, and only then build matching presentation and encyclopedia sheets from the approved production assets.
+The approved playable path is:
 
-This design intentionally does not expand into the full release game's later biomes, complete hero roster, complete monster encyclopedia, or long-form metagame systems.
+`title/start presentation -> 5x5 dungeon run -> encounter/boss resolution -> exit/resolution -> victory/reward/end-of-run presentation`
 
-## 2. Approved Vertical-Slice Content
+The supplied reference images are the visual bible. They define character identity, material language, palette, painterly/chibi treatment, UI tone, dungeon mood, and presentation hierarchy. They are not automatically shippable runtime sprites. The runtime set is built first as isolated transparent assets, validated in Unity, and only then used to produce polished reference sheets.
 
-### 2.1 Playable hero
+This design intentionally does not expand the vertical slice into the full release game, later heroes, later enemies, extra biomes, or unrelated progression systems.
 
-- Sir Clickington
+## 2. Approved Decisions
 
-### 2.2 Encounter roster
+The following decisions are fixed for this design:
 
-The slice uses this exact roster:
+- Deliverable order: **A then B**.
+  - **Phase A:** implementation-ready runtime art.
+  - **Phase B:** polished composite/reference sheets derived from the validated Phase A assets.
+- Animation strategy: **hybrid**.
+  - Key-pose sprites for most states.
+  - Full frame sequences only for high-value motion where transforms alone would look inadequate.
+- Fidelity rule: **production-normalized fidelity**.
+  - Preserve reference designs and style.
+  - Normalize runtime-facing scale, canvas bounds, pivots, transparency, lighting direction, outline/readability treatment, and VFX intensity so the set behaves coherently in-game.
+- Encounter scope: **core slice only**.
+  - Sir Clickington
+  - Goblin Raider
+  - Slime
+  - Mimic Chest
+  - Lord Blobert
+- Existing-art rule: **preserve-and-fill**.
+  - Keep every existing runtime asset that already meets the approved visual and technical standard.
+  - Preserve existing paths and Unity `.meta` GUIDs whenever technically safe.
+  - Generate or repair only assets that are missing, incomplete, or visibly below the approved quality bar.
+- Playable-path scope: **complete slice path**, not only the board.
+- Production approach: **contract-first preserve-and-fill**.
 
-- Goblin Raider
-- Skeleton
-- Fire Imp
-- Cave Spider
-- Crowned Slime
-- Mimic Chest
-- Goblin King
+## 3. Source of Truth and Architecture
 
-The roster provides baseline melee, defensive melee, ranged pressure, mobility, swarm/control, deception, and boss behavior without requiring the full monster catalog.
+The art pass is a production asset system, not a collection of disconnected images.
 
-### 2.3 Run length
+The authoritative flow is:
 
-- Five floors total.
-- Floors 1-4 use normal room generation and may contain pits because a lower floor exists.
-- Floor 5 is the final Goblin King floor and may never contain pits.
-- All five floors belong to one evolving stone-dungeon biome.
-- Defeating the Goblin King on Floor 5 ends the vertical-slice run in victory; no additional stair interaction is required after the boss defeat.
+`reference images -> runtime asset contract -> existing-asset audit -> KEEP/REPAIR/CREATE manifest -> implementation-ready assets -> Unity validation -> Phase B reference sheets`
 
-## 3. Core Board Model
+The runtime asset set is the source of truth. Composite boards, mockups, and encyclopedia-style sheets are documentation outputs and may not override or drift from the validated runtime files.
 
-The game board is a 5x5 grid. Tile contents are hidden by a cover tile until selected and revealed.
+The work must follow existing repository boundaries rather than inventing a parallel presentation system. Relevant existing contracts include:
 
-### 3.1 Concealment tiles
+- `Assets/ClickDungeon/Presentation/Assets/HeroPresentationAssets.cs`
+- `Assets/ClickDungeon/Presentation/Assets/MonsterPresentationAssets.cs`
+- `Assets/ClickDungeon/Presentation/Assets/DungeonRoomPresentationLayout.cs`
+- `Assets/ClickDungeon/Presentation/Assets/GameplayScreenPresentationLayout.cs`
+- `Assets/ClickDungeon/Presentation/Assets/PresentationAssetDatabase.cs`
+- `Assets/ClickDungeon/Presentation/Menu/MainMenuUI.cs`
+- `Assets/ClickDungeon/Presentation/Menu/HeroCardPresentation.cs`
+- `Assets/ClickDungeon/Presentation/Menu/MenuOverlayFactory.cs`
+- `Assets/ClickDungeon/Art/Runtime/`
 
-A wall-looking tile is not physical collision geometry. It is a concealment cap used to hide the tile's contents.
+The implementation plan may add narrowly scoped presentation bindings or validation helpers when required, but it must not replace the existing presentation architecture simply to accommodate new art.
 
-Rules:
+## 4. KEEP / REPAIR / CREATE Manifest
 
-- Nothing on the board blocks movement.
-- Covered tiles may hide empty floor, enemies, chests, traps, pits, stairs, loot, or other supported encounter content.
-- All covered tiles on the same floor must look identical before reveal.
-- There must be no visual tell for chest rarity, Mimics, traps, enemies, pits, stairs, or loot before reveal.
-- The cover style may evolve cosmetically from floor to floor, but all 25 covered tiles on a given floor share the same hidden-state appearance.
+Before new production art is generated, every asset required by the approved vertical slice must receive exactly one disposition:
 
-Required cover states:
+### KEEP
 
-- covered
-- selected
-- cracking/opening
-- revealed
+Use the existing asset unchanged when it already meets the visual and technical contract.
 
-## 4. Movement Modes
+Requirements:
 
-Movement mode is chosen in Options before a run begins. It cannot be changed during an active run.
+- preserve current file path;
+- preserve current `.meta` GUID;
+- preserve presentation ID mapping;
+- do not regenerate merely for stylistic uniformity if the asset already works at runtime quality.
 
-### 4.1 Free-click movement
+### REPAIR
 
-This is the default mode and the normal out-of-box behavior.
+Use the existing identity/content but correct a production defect such as:
 
-- The player may click any legal tile on the 5x5 board.
-- Destination distance does not matter.
-- Intervening tiles do not block movement.
-- Revealed monsters, chests, traps, walls/covers, and other board contents do not act as path blockers.
-- All other reveal, combat, chest, trap, and enemy-response rules are unchanged.
+- opaque or dirty background;
+- poor crop or padding;
+- incorrect scale;
+- inconsistent pivot/contact point;
+- weak board-scale readability;
+- missing required state coverage;
+- import configuration that prevents correct use.
 
-### 4.2 Tactical movement
+For a repaired asset, preserve the existing path and `.meta` GUID whenever technically safe. If a repair requires replacement that cannot safely retain the metadata relationship, the implementation must explicitly document the reason before changing the GUID.
 
-This is the selectable optional mode.
+### CREATE
 
-- Move reaches one adjacent tile.
-- Adjacent includes up, down, left, right, and all four diagonals.
-- Dash reaches any destination within two king-move steps, equivalent to Chebyshev distance 2 or less from the hero, excluding the current tile.
-- Intervening tiles and contents do not block Dash.
-- Nothing acts as path-blocking geometry; the movement rule only limits legal destination distance.
+Create a new asset only when no adequate runtime asset exists for a required state, interaction, UI role, VFX role, or presentation slot.
 
-### 4.3 Implementation architecture constraint
+### Manifest fields
 
-The intended gameplay architecture is one shared game loop with pluggable movement validation rather than duplicated game modes.
+Each required asset entry must record at minimum:
 
-Conceptually:
+- canonical runtime asset ID;
+- file path or planned file path;
+- category;
+- intended runtime role;
+- reference identity/source;
+- `KEEP`, `REPAIR`, or `CREATE`;
+- exact canvas dimensions after the family contract is locked;
+- pivot/contact convention;
+- animation sequence membership when applicable;
+- expected Unity import settings;
+- expected presentation/database binding;
+- validation status.
 
-- `FreeClickMovement` validates unrestricted 5x5 destinations.
-- `TacticalMovement` validates one-tile Move and up-to-two-tile Dash destinations.
-- Combat, reveal, enemy turns, loot, traps, floor state, and HUD behavior remain shared.
+The manifest is the completeness checklist. No required asset may remain unclassified when Phase A begins production generation.
 
-## 5. Turn and Enemy-Response Rules
+## 5. Runtime File Contract
 
-Every successful player action advances the enemy-response phase once.
+### 5.1 Runtime files
 
-Examples of player actions include:
+Implementation-ready source assets are isolated transparent PNG files wherever transparency is appropriate.
 
-- Move
-- Dash
-- Slash
-- Shield
-- Potion
-- chest tap
-- premium chest key use
-- door or object interaction
-- other successful gameplay interactions that consume an action
+Runtime PNGs must not contain:
 
-Resolution order:
+- sheet backgrounds;
+- captions;
+- filenames rendered into the image;
+- decorative presentation frames;
+- callout text;
+- reference-sheet chrome.
 
-1. Validate the chosen player action.
-2. Execute the action.
-3. Reveal and resolve any selected tile content or interaction result.
-4. Add any newly revealed enemy to the active revealed-enemy set.
-5. Resolve one response opportunity for every revealed enemy that is able to act.
-6. Resolve damage, status, defeat, victory, or floor transition.
-7. Refresh board and HUD state and return control to the player.
+Composite atlases may be produced later for optimization, but the stable semantic runtime files and IDs remain authoritative.
 
-A monster revealed by the current player action is active during that same enemy-response phase.
+### 5.2 Static states
 
-Position still matters for attack legality and telegraphing even though it does not block movement. For example, a Goblin Raider must satisfy its melee range while a Fire Imp may use a ranged attack.
+A static state is represented by one transparent PNG unless the existing runtime pipeline already uses an equivalent stable representation.
 
-An invalid action that fails validation does not consume a player action and does not trigger an enemy-response phase; it only produces invalid-action feedback.
+### 5.3 Animated states
 
-## 6. Pit Trap Rules
+Frame sequences use deterministic numbered filenames and one fixed canvas/pivot contract for the entire sequence, for example:
 
-A pit is a revealed trap that causes immediate damage and downward floor transition.
+- `attack_01`
+- `attack_02`
+- `attack_03`
 
-Rules:
+No frame in one sequence may silently change canvas dimensions, pivot, character scale, or contact point.
 
-- Clicking/revealing a pit triggers the pit.
-- The hero immediately takes exactly 20 HP of fixed damage.
-- The hero then drops exactly one floor lower.
-- Remaining HP, resources, and status effects carry to the lower floor.
-- The lower floor begins in its normal newly generated starting state; there is no special pit-arrival room.
-- If no valid floor exists below, the generator must not place a pit on the current floor.
-- Therefore Floor 5 contains no pits.
-- Pit tiles never function as movement blockers.
+### 5.4 Character canvas rules
 
-Required pit presentation:
+Each scale class uses a shared normalized character canvas rather than arbitrary pose-by-pose cropping.
 
-- hidden through the normal identical cover tile
-- reveal effect
-- open-pit asset
-- 20 HP damage feedback
-- fall animation/VFX
-- one-floor descent transition
+For grounded characters:
 
-## 7. Chest, Key, Loot, and Mimic Rules
+- the foot/contact point remains stable across idle, attack, hit, and defeat transitions where the pose allows it;
+- visual state swaps may not cause unintended tile-position jumping;
+- the silhouette must remain readable at actual gameplay size.
 
-### 7.1 Regular chest quality
+Large bosses may use a larger scale class, but must still fit the board presentation without obscuring critical tile information.
 
-Regular chest opening requires repeated taps. Each tap is a complete player action and therefore triggers the full revealed-enemy response phase.
+### 5.5 Effects separation
 
-Tap counts are fixed by chest quality:
+Reusable effects should remain separate from character art wherever practical. Examples include:
 
-- Common Chest: 2 taps
-- Rare Chest: 3 taps
-- Epic Chest: 4 taps
+- sword slash arc;
+- damage spark;
+- shield flash;
+- selection ring;
+- heal glow;
+- pickup sparkle;
+- reward burst;
+- boss attack effect;
+- trap warning overlay.
 
-Example Rare Chest sequence:
+Painted frame animation is reserved for silhouette-changing motion or interactions where a transform-only solution would visibly fail.
 
-1. Tap 1 advances progress to 1/3, then revealed enemies respond.
-2. Tap 2 advances progress to 2/3, then revealed enemies respond.
-3. Tap 3 opens the chest and resolves loot, then revealed enemies respond.
+## 6. Fidelity and Style Contract
 
-Opening a chest while enemies are active is intentionally a risk/reward choice.
+The approved style rule is production-normalized fidelity.
 
-### 7.2 Premium/Special chest
+The following reference characteristics must be preserved:
 
-- Requires one valid Special Key.
-- Consumes the key.
-- Opens immediately once the valid key is used.
-- Does not use repeated tap buildup after key validation.
-- The key use itself is a player action and therefore participates in the standard enemy-response flow.
-- Special Keys are not ordinary random floor loot in this vertical slice. They are acquired through the existing shop/reward path outside room generation; the production-art scope covers their shop/inventory/use presentation, not a dungeon-floor pickup.
+- character identity;
+- costume and equipment identity;
+- major palette relationships;
+- silhouette and recognizable shape language;
+- dark-fantasy chibi/painterly rendering direction;
+- gold-trimmed, jewel-like UI language where appropriate;
+- dungeon material identity;
+- overall product tone.
 
-### 7.3 Mimic
+Normalization is allowed only to improve runtime cohesion and usability, including:
 
-- Initially presents as a normal chest.
-- Before first interaction it must not have a reliable visual tell.
-- The first tap reveals the Mimic immediately instead of advancing regular chest progress.
-- That first tap is the player's action.
-- The newly revealed Mimic joins the same enemy-response phase and may act immediately if its attack rules allow it.
+- consistent board-scale character proportions;
+- stable canvas padding;
+- stable pivots/contact points;
+- coherent lighting direction;
+- coherent outline/readability treatment;
+- consistent transparency cleanup;
+- controlled VFX brightness and footprint;
+- sufficient silhouette separation from floor art.
 
-### 7.4 Loot presentation
+Normalization must not redesign a supplied identity into a different character or substitute another hero/monster's art because it shares mechanics.
 
-The vertical slice needs gameplay-ready art for:
+## 7. Approved Runtime Character and Encounter Set
 
-- coins
-- gems
-- potion
-- equipment pickup
-- reward burst
-- pickup sparkle/confirmation
+No additional encounter roster is introduced by this art pass.
 
-Special Key art is covered separately as shop/inventory/use UI and premium-chest interaction art.
+### 7.1 Sir Clickington
 
-## 8. Stairs and Floor Completion
+Required coverage:
 
-- Stairs begin hidden under the same cover system as other tile contents.
-- Revealing stairs does not force an immediate exit.
-- The player may continue exploring the current 5x5 room.
-- Choosing to use the stairs advances exactly one floor.
-- A pit is the involuntary one-floor descent alternative.
-- Floors 1-4 use stairs for voluntary descent.
-- Floor 5 ends in victory immediately after the Goblin King is defeated.
+- master/showcase art where the current presentation uses it;
+- gameplay art;
+- portrait;
+- roster/card art where the current presentation uses it;
+- idle;
+- hit;
+- victory;
+- defeat;
+- short frame-animated primary sword attack.
 
-## 9. Vertical-Slice Enemy Roles
+Additional interaction or shield/block poses are added only if the current approved slice visibly invokes them and existing presentation cannot communicate them cleanly with the base states plus VFX.
 
-### 9.1 Goblin Raider
+Identity requirements include the supplied lucky crown, adventurer scarf, sword, royal shield, palette, and overall mascot silhouette.
 
-Baseline melee enemy.
+### 7.2 Goblin Raider
 
-Production needs:
+Required coverage:
 
-- idle
-- movement/reposition
-- alert
-- melee attack
-- hit
-- defeat
+- gameplay art;
+- portrait/master only where a current presentation slot requires it;
+- spawn where visible;
+- idle;
+- attack;
+- hit;
+- defeat;
+- alert treatment through a reusable overlay/VFX when possible.
 
-### 9.2 Skeleton
+The attack defaults to a key pose plus Unity motion/VFX unless runtime review proves that a short painted sequence is necessary.
 
-Durable guard-style melee enemy.
+### 7.3 Slime
 
-Production needs:
+Required coverage:
 
-- idle
-- movement/reposition
-- alert
-- melee attack
-- guard/block
-- hit
-- defeat
+- spawn where visible;
+- idle;
+- attack/body-impact pose;
+- hit;
+- defeat.
 
-No separate guard-break mechanic or guard-break art is introduced by this slice.
+Simple bounce and squash/stretch should be driven by Unity transforms where that produces an acceptable result rather than multiplying painted frames.
 
-### 9.3 Fire Imp
+### 7.4 Mimic Chest
 
-Ranged pressure enemy.
+Required coverage:
 
-Production needs:
+- chest disguise;
+- suspicious/transition state if needed for timing;
+- frame-animated reveal;
+- idle monster state;
+- frame-animated bite/tongue attack;
+- hit;
+- defeat/opened-remains state.
 
-- idle
-- movement/reposition
-- alert
-- cast
-- projectile
-- projectile impact
-- hit
-- defeat
+The reveal and bite are mandatory high-value hybrid-animation sequences because silhouette transformation is central to the encounter's readability.
 
-### 9.4 Cave Spider
+### 7.5 Lord Blobert
 
-Fast mobility/pounce enemy.
+Required coverage:
 
-Production needs:
+- master/showcase or boss portrait where the current boss presentation requires it;
+- gameplay art;
+- spawn/entrance if visible;
+- idle;
+- hit;
+- defeat;
+- at least one signature frame-animated attack sequence;
+- separate signature VFX where practical.
 
-- idle
-- scuttle/reposition
-- alert
-- pounce telegraph
-- pounce attack
-- hit
-- defeat
+Boss scale may be larger than standard enemies, but cannot hide the information needed to understand the 5x5 board.
 
-### 9.5 Crowned Slime
+## 8. Dungeon and Interactable Contract
 
-Simple swarm/control pressure enemy.
+`DungeonRoomPresentationLayout` already defines the canonical 5x5 tile vocabulary. The art pass preserves that vocabulary rather than adding new simulation concepts merely to create more art.
 
-Production needs:
+The canonical environment set includes the existing identities for:
 
-- idle
-- bounce/reposition
-- alert
-- attack
-- hit/squash
-- defeat/splat
+- stone floor;
+- cracked floor;
+- moss floor;
+- water;
+- lava;
+- shadow;
+- pit trap;
+- bomb trap;
+- spike trap;
+- pressure plate;
+- teleport;
+- healing fountain;
+- stair up;
+- locked stair up;
+- stair down;
+- locked stair down;
+- wall;
+- wall corner;
+- key;
+- closed chest;
+- open chest;
+- locked door;
+- open door;
+- torch.
 
-### 9.6 Mimic Chest
+Existing approved tile art should be kept. New art is created only when a required identity is missing, visibly inadequate, or when the current gameplay exposes a distinct visual state that the existing asset set cannot communicate.
 
-Deception encounter.
+Required interaction/presentation states for the slice include, where actually exercised by the current flow:
 
-Production needs:
+- normal chest closed/open;
+- Mimic disguise/reveal states;
+- key/inventory/use presentation;
+- locked/unlocked door or stair state;
+- exit/resolution presentation;
+- switch/pressure-plate state when used;
+- trap telegraph and triggered state when used;
+- selected/target/danger overlays.
 
-- chest disguise
-- first-tap reveal transition
-- alert
-- attack
-- hit
-- defeat
+No additional environmental gameplay system is added solely because a supplied reference board depicts one.
 
-### 9.7 Goblin King
+## 9. UI, HUD, and Flow-Screen Contract
 
-Final-floor boss with a larger health pool and two visually distinct attack patterns.
+The current normalized gameplay layout remains authoritative. New art must fit the existing HUD, board, action-bar, and footer hierarchy in supported orientations rather than forcing a screen-layout rewrite.
 
-Production needs:
+### 9.1 Title/start presentation
 
-- idle
-- movement/reposition
-- encounter introduction/alert
-- attack pattern 1
-- attack pattern 2
-- attack telegraphs
-- hit
-- defeat
-- boss portrait
-- boss health frame and fill
-- boss warning treatment
-- victory presentation
+The complete slice includes production-quality art needed for the existing title/start flow, including as actually used:
 
-The slice does not add a separate boss-stagger mechanic.
+- ClickDungeon title treatment;
+- dungeon backdrop;
+- Sir Clickington showcase/master presentation;
+- hero portrait/card treatment;
+- Continue/Play presentation;
+- Daily Reward presentation;
+- bottom-navigation icons/panels;
+- modal/panel chrome;
+- button visual states needed by current controls.
 
-## 10. Sir Clickington Production Set
+The art pass skins and completes the existing menu architecture. It does not invent a separate menu navigation system.
 
-Gameplay character art uses a fixed 3/4 top-down camera.
+### 9.2 Gameplay HUD and actions
 
-Direction coverage:
+Required gameplay-facing coverage includes, where present in the approved slice:
 
-- front
-- back
-- left
-- right
+- attack/slash;
+- movement/interact;
+- shield/block if active in the current flow;
+- potion/heal;
+- key/open/interact;
+- hero health;
+- monster/boss health;
+- coins;
+- gems if displayed;
+- Special Key if displayed;
+- selected/hovered/targetable state;
+- blocked/disabled state;
+- tile selection;
+- danger/target highlight;
+- enemy alert.
 
-Diagonal movement reuses the nearest directional animation. The slice does not require an eight-direction art set.
+No UI icon is generated simply because it appeared in an earlier concept board if the current playable slice does not expose that action or resource.
 
-Required hero states:
+### 9.3 Victory/reward/end-of-run presentation
 
-- idle
-- move
-- dash
-- slash
-- shield
-- potion/heal
-- hurt
-- defeat
-- pit fall
+The approved complete slice includes:
 
-Required separate VFX:
+- victory title/treatment;
+- Sir Clickington victory pose;
+- reward chest/container states where used;
+- coin/gem/key/loot icons actually awarded or displayed;
+- reward burst;
+- continue/return controls;
+- panel frame/background needed by the current reward flow.
 
-- slash arc
-- shield/block impact
-- dash trail
-- healing/potion effect
-- hero hit feedback
+## 10. Reusable VFX and Overlays
 
-## 11. Art Direction and Technical Standards
+Phase A must provide or preserve the effects required to make the slice readable and polished at runtime.
 
-### 11.1 Camera and readability
+Expected categories include:
 
-- Fixed 3/4 top-down gameplay view matching the 5x5 board.
-- Chibi/stylized proportions remain consistent with existing ClickDungeon2 references.
-- Silhouettes must remain readable at actual board scale, not only at encyclopedia-sheet scale.
+- sword slash arc;
+- attack impact;
+- hit flash/damage burst;
+- shield/block flash if used;
+- heal glow;
+- pickup sparkle;
+- unlock pulse;
+- chest-opening burst;
+- Mimic reveal effect;
+- Lord Blobert signature effect;
+- defeat/fade support;
+- tile selection highlight;
+- enemy alert marker;
+- trap warning/trigger effect;
+- victory/reward burst.
 
-### 11.2 Sprite consistency
+Effects must remain subordinate to board information. They may not obscure critical tile state or make selection/target information unreadable.
 
-- Consistent feet position and pivot across character animation frames.
-- Consistent scale for all standard enemies relative to Sir Clickington.
-- Boss scale may be larger but must remain compatible with the 5x5 presentation.
-- Transparent backgrounds for gameplay sprites, VFX, icons, and UI elements where applicable.
+## 11. Hybrid Animation Rules
 
-### 11.3 Lighting
+Key poses are the default. Full painted sequences are used only where they materially improve the approved slice.
 
-- Character sprites should not bake in floor-specific environmental lighting strongly enough to prevent reuse.
-- Torch/light overlays and floor mood should primarily come from environment presentation.
+Mandatory sequence candidates are:
 
-### 11.4 Effects separation
+- Sir Clickington primary sword attack;
+- Mimic reveal;
+- Mimic bite/tongue attack;
+- Lord Blobert signature attack;
+- chest/reward opening where a static state change plus VFX is visibly insufficient.
 
-Where practical, telegraphs, slash trails, projectile effects, hit flashes, healing effects, and similar transient effects are separate assets rather than permanently baked into character sprites.
+A sequence is accepted only if:
 
-### 11.5 Master and export sizes
+- every frame uses one stable canvas;
+- every frame uses one stable pivot/contact convention;
+- character identity does not drift across frames;
+- anticipation, impact, and recovery are readable at gameplay scale;
+- transparent edges are clean;
+- reusable VFX are not unnecessarily baked into character frames.
 
-- Create large master art at approximately 1024x1024 where appropriate.
-- Typical Unity gameplay derivatives should target 256x256 or 512x512 depending on on-screen size and animation needs.
-- Large boss or full-screen VFX assets may use 512x512 or 1024x1024 exports.
-- Final import settings are determined during implementation based on actual Unity board-scale validation.
+Everything else should prefer key poses plus Unity-driven motion, timing, squash/stretch, fades, flashes, or reusable VFX.
 
-### 11.6 Naming convention
+## 12. Phase A Production Order
 
-Use lowercase snake_case with a system or character prefix.
+Phase A proceeds in small validated batches.
 
-Examples:
+### Batch 1: Audit and manifest
 
-- `hero_clickington_attack_front_01.png`
-- `enemy_goblin_raider_idle_left_01.png`
-- `chest_rare_progress_02.png`
-- `tile_cover_floor_03.png`
-- `vfx_fire_imp_projectile_impact_01.png`
-
-## 12. Five-Floor Visual Progression
-
-All floors stay within one stone-dungeon biome.
-
-### Floor 1
-
-- cleanest stonework
-- warm torches
-- simple banners
-- sparse debris
-
-### Floor 2
-
-- more cracks
-- chains
-- broken masonry
-- bones
-- slightly darker lighting
-
-### Floor 3
-
-- heavier wear
-- more rubble
-- cobwebs
-- darker torch pools
-- stronger hazard dressing
-
-### Floor 4
-
-- oppressive lighting
-- damaged walls
-- more skulls and chains
-- stronger red/purple accents
-- pre-boss tension
-
-### Floor 5
-
-- Goblin King boss presentation
-- throne/arena motifs
-- larger banners
-- stronger gold/red accents
-- dramatic lighting
-- no pits
-
-The biome changes in intensity, not identity. This slice does not introduce multiple independent biomes.
-
-## 13. Environment Production Set
-
-Required environment assets include:
-
-- base revealed floor tiles and variants
-- floor-specific cover tiles for Floors 1-5
-- selected-cover state
-- crack/reveal states
-- reveal burst
-- Free-click target highlight
-- Tactical legal-move highlight
-- Tactical invalid-move feedback
-- Dash destination highlight
-- stairs idle/selected/activated
-- pit open/reveal/fall presentation
-- rubble
-- bones
-- chains
-- banners
-- cobwebs
-- torch/light overlays
-- Floor 5 boss-room dressing
-
-## 14. HUD and Options Production Set
-
-### 14.1 Pre-run Options
-
-The movement option must clearly communicate:
-
-Free-click, default:
-
-- click any board tile
-- distance and intervening contents do not block movement
-
-Tactical, optional:
-
-- Move one tile in any of eight directions
-- Dash up to two tiles
-
-The option is locked for the duration of the active run.
-
-### 14.2 Gameplay HUD
-
-Required gameplay-facing UI art includes:
-
-- hero HP
-- potion
-- coins
-- gems
-- Special Keys
-- floor indicator from Floor 1/5 through Floor 5/5
-- enemy HP bars
-- Goblin King boss HP treatment
-- enemy-response/turn feedback
-- invalid-action feedback
-- chest progress meter
-- movement target highlights
-- damage numbers
-- 20 HP pit-damage presentation
-- attack telegraphs
-
-## 15. Combat and Readability VFX
-
-The slice requires:
-
-- melee slash arc
-- shield/block impact
-- dash trail
-- heal/potion effect
-- player and enemy hit flash
-- damage numbers
-- enemy alert marker
-- attack-range/telegraph overlays
-- Fire Imp projectile and impact
-- Cave Spider pounce cue
-- Skeleton guard effect
-- Goblin King boss telegraphs and attack VFX
-- defeat effects
-- tile reveal burst
-
-Critical-hit and strong-hit systems are not added by this vertical-slice art pass.
-
-## 16. Production Generation Batches
-
-Large-scale art generation should proceed in dependency order rather than as one blind batch.
-
-### Batch 1: Board and reveal system
-
-Generate and validate:
-
-- base floor
-- cover tiles
-- cover selection/reveal
-- movement highlights
-- stairs
-- pit presentation
-- environment dressing
-
-This batch establishes scale, camera, color, tile readability, and hidden-information integrity.
+- enumerate the full approved slice asset contract;
+- map existing runtime files and presentation IDs;
+- assign exactly one of `KEEP`, `REPAIR`, or `CREATE`;
+- record current `.meta` GUIDs for every existing asset that may be touched;
+- lock exact canvas, pivot, naming, frame-count, and import rules per asset family before generation for that family begins.
 
 ### Batch 2: Sir Clickington
 
-Generate four-direction gameplay states and separate core VFX.
+- complete required character states;
+- complete primary attack sequence;
+- complete any required character-specific VFX;
+- validate at actual board scale and menu/reward presentation scale.
 
-### Batch 3: Baseline enemy proof
+### Batch 3: Core encounters
 
-Generate Goblin Raider first and validate it in the real 5x5 composition with Sir Clickington before expanding the roster.
+- Goblin Raider;
+- Slime;
+- Mimic;
+- Lord Blobert.
 
-### Batch 4: Chest and reveal interactions
+Validate each encounter in the actual 5x5 composition before downstream UI polish is considered final.
 
-Generate:
+### Batch 4: Interactables and board overlays
 
-- Common 2-tap chest
-- Rare 3-tap chest
-- Epic 4-tap chest
-- Premium chest
-- Special Key shop/inventory/use art
-- loot and reward effects
+- fill only missing/inadequate canonical environment and interaction art;
+- complete chest/key/lock/exit presentation required by the slice;
+- complete selection, target, danger, trap, and interaction overlays.
 
-### Batch 5: 5x5 composition checkpoint
+### Batch 5: HUD and reusable VFX
 
-Before generating the full remaining roster, confirm:
+- action/resource icons actually used;
+- health/status presentation;
+- alert and targeting feedback;
+- reusable combat and interaction VFX.
 
-- character scale
-- direction readability
-- cover-tile secrecy
-- move and Dash highlight readability
-- chest-progress readability
-- enemy telegraphs
-- visual hierarchy under actual gameplay conditions
+### Batch 6: Title/start and victory/reward presentation
 
-Any style, scale, or perspective problem discovered here is corrected before downstream asset expansion.
+- complete the start-side production art;
+- complete end-of-run production art;
+- verify that both screens visibly belong to the same product as the 5x5 dungeon board.
 
-### Batch 6: Remaining common enemies
+### Batch 7: Integrated validation
 
-Generate Skeleton, Fire Imp, Cave Spider, and Crowned Slime.
+Run the complete slice and all technical gates before Phase B begins.
 
-### Batch 7: Mimic
+## 13. Phase A Validation and Failure Handling
 
-Generate the disguise-to-reveal interaction and verify that its unrevealed state does not provide a reliable tell.
+Phase A is accepted only when it is visually correct, contract-complete, deterministic, and safe for the existing Unity project.
 
-### Batch 8: Goblin King
+### 13.1 Manifest completeness
 
-Generate boss gameplay art, boss telegraphs, boss HUD, and final-floor dressing.
+Hard failures include:
 
-### Batch 9: HUD, VFX, and flow screens
+- missing required asset ID;
+- duplicate aliases for one semantic identity;
+- unresolved manifest entries;
+- orphaned animation frames;
+- inconsistent sequence dimensions;
+- inconsistent pivot conventions;
+- accidental opaque background where transparency is required;
+- missing binding for a required runtime role.
 
-Generate remaining gameplay UI, action feedback, floor descent, pit fall, defeat, and Floor 5 victory presentation.
+### 13.2 Existing asset protection
 
-### Batch 10: Presentation sheets
+Any asset marked `KEEP` must retain:
 
-Only after production gameplay art is accepted, build matching documentation boards:
+- file path;
+- `.meta` GUID;
+- presentation identity;
+- current valid import behavior.
 
-1. 5x5 Dungeon Environment Production Sheet
-2. Sir Clickington Gameplay Animation Sheet
-3. Core Enemy Production Sheet
-4. Chest / Loot / Special Key System Sheet
-5. Mimic Encounter Sheet
-6. Goblin King Boss Sheet
-7. Combat VFX and Telegraph Sheet
-8. HUD + Movement Modes Sheet
-9. Five-Floor Visual Progression Sheet
-10. Complete Vertical Slice Art Bible
+Uncertain generated art must not overwrite verified art. If a proposed replacement is weaker, inconsistent, misframed, incorrectly transparent, or does not preserve the reference identity, it stays out of the runtime set and the manifest remains unresolved until corrected.
 
-Presentation sheets must document the approved gameplay assets rather than introducing conflicting replacement designs.
+### 13.3 Deterministic Unity import
 
-## 17. Flow Screens in Scope
+After import and validation, the working tree may contain only expected asset, metadata, manifest, test, and presentation-binding changes.
 
-The slice requires only the flow art necessary to prove the run:
+A second import/validation pass must produce no unexpected tracked-file mutations.
 
-- run-start transition
-- normal floor-descent transition
-- pit-fall transition
-- defeat presentation
-- Floor 5 victory presentation
-- return-to-menu result treatment
+Unexpected Unity mutation is a failure that must be understood and repaired rather than normalized as acceptable noise.
 
-Full-release progression screens outside the vertical slice are not part of this production-art pass.
+### 13.4 Runtime slice verification
 
-## 18. Validation Requirements
+The complete approved flow must be exercised:
 
-The production-art pass is not complete merely because individual assets look polished.
+`title/start -> 5x5 run -> Goblin Raider/Slime/Mimic encounters -> Lord Blobert -> exit/resolution -> victory/reward`
 
-Validation must confirm:
+Verify that:
 
-- all concealed tiles on a floor are visually indistinguishable before reveal
-- no Mimic tell exists before first interaction
-- Sir Clickington and every enemy remain readable at gameplay scale
-- all four directional character states maintain consistent scale and pivots
-- Free-click and Tactical destination states are visually distinct and understandable
-- Tactical mode communicates 1-tile Move and up-to-2-tile Dash reach correctly
-- movement art never implies physical collision where the rules have none
-- every regular chest quality has a clearly readable 2/3/4-tap progression
-- each chest tap can be visually understood as a discrete player action
-- premium chest art clearly communicates Special Key gating and immediate keyed opening
-- Special Key art does not imply ordinary random dungeon-floor drops
-- pit art clearly communicates 20 HP damage plus one-floor descent
-- Floor 5 contains no pit presentation in generation or authored layouts
-- newly revealed enemies can visually enter the same response phase cleanly
-- attack telegraphs distinguish melee, ranged, pounce, guard, and boss behaviors
-- the evolving floor treatment remains one coherent biome
-- final presentation sheets match the approved production assets
+- state changes do not cause unintended position jumps;
+- animation frames do not clip or scale inconsistently;
+- characters do not obscure critical neighboring tiles;
+- selection/target/danger overlays remain legible;
+- hazards/interactables are distinguishable at a glance after they are meant to be visible;
+- VFX do not overpower board information;
+- title, gameplay, boss, and reward presentation read as one coherent product;
+- supported orientations preserve the existing HUD/board/action/footer hierarchy.
 
-## 19. Explicit Non-Goals
+### 13.5 Visual identity acceptance
 
-This design does not require:
+The slice must preserve:
 
-- the complete hero roster
-- every monster from the encyclopedia/reference collection
-- multiple biomes
-- eight-direction sprites
-- full release-game progression
-- full late-game equipment content
-- guard-break, boss-stagger, critical-hit, or strong-hit systems not already part of the approved slice
-- unrelated menu redesigns
-- expansion of the five-floor slice into a complete campaign
+- Sir Clickington as the unmistakable supplied mascot identity;
+- Goblin Raider as the approved goblin identity;
+- the approved Slime identity;
+- the Mimic's deceptive chest-to-monster identity;
+- Lord Blobert as the approved boss identity.
 
-## 20. Definition of Done for the Art Design
+Production normalization may not become redesign.
 
-The vertical-slice production-art program is design-complete when:
+## 14. Existing Test and Verification Boundaries
 
-- the above gameplay rules are represented without contradiction
-- every required gameplay-facing asset category has an explicit place in the batch plan
-- the 5x5 composition checkpoint is passed before broad asset expansion
-- gameplay production art is approved before presentation sheets are generated
-- presentation sheets accurately document final production assets
-- no unapproved full-game scope has been pulled into the slice
+The implementation should extend existing verification rather than create a disconnected test harness. Relevant existing coverage includes presentation tests around:
 
-Implementation planning begins only after the user reviews and approves this written design.
+- canonical dungeon tile registry;
+- layered tile presentation;
+- gameplay screen layout;
+- hero presentation contracts;
+- menu routing.
+
+The implementation plan should add focused tests only where needed to prove new asset-contract behavior, manifest completeness, presentation IDs, or deterministic import assumptions.
+
+The final implementation must also pass the repository's normal compile/test/Unity validation gates that are applicable to the changed files.
+
+## 15. Phase B Reference-Sheet Deliverables
+
+Phase B may start only after Phase A is green.
+
+Phase B produces five polished documentation/reference outputs derived from the validated runtime set:
+
+1. Sir Clickington character sheet.
+2. Core enemy/boss sheet for Goblin Raider, Slime, Mimic, and Lord Blobert.
+3. Dungeon/interactable sheet.
+4. UI/VFX sheet.
+5. Complete vertical-slice presentation sheet showing the coherent start-to-reward product language.
+
+These sheets are documentation and presentation artifacts. They are not runtime dependencies and may not introduce new gameplay scope or undocumented production identities.
+
+The previously created composite concept sheets for special chest/key, common encounters, and core ability/consumable UI remain concept/reference material only. They do not count as implementation-ready assets because they are composite boards rather than isolated transparent runtime sprites.
+
+## 16. Explicit Non-Goals
+
+This art pass does not include:
+
+- Goblin Bomber;
+- Goblin Key Warden;
+- Skeleton Warrior;
+- Fire Imp;
+- Cave Spider;
+- Crowned Slime;
+- Armored Boar;
+- Bat Swarm Leader;
+- Spooky Spellbook;
+- Theater Curtain Demon;
+- later boss/monster encyclopedia content;
+- later hero identities such as Ironheart, Emberwisp, Shadowcut, Lightbringer, Dawnward, Rageclaw, Gearspark, or Windsong;
+- new biomes;
+- a full-game art refresh;
+- unrelated gameplay-system redesign;
+- replacement of verified runtime art solely to make everything newly generated;
+- a new menu/navigation architecture;
+- composite reference boards as runtime sprite sources.
+
+Future work may cover those areas in separate specs after this vertical slice is complete.
+
+## 17. Completion Criteria
+
+The production-art effort is complete only when all of the following are true:
+
+- the approved complete slice path is visually production-ready from title/start through reward/end-of-run;
+- the required Sir Clickington, Goblin Raider, Slime, Mimic, and Lord Blobert art is complete;
+- required environment, interactable, UI, HUD, overlay, and VFX assets are complete;
+- every required asset has a resolved manifest status;
+- existing good assets and GUIDs have been preserved wherever technically safe;
+- runtime assets are isolated implementation-ready files, not composite boards;
+- hybrid sequences pass fixed-canvas/fixed-pivot checks;
+- Unity import is deterministic with no unexplained tracked-file mutation;
+- existing presentation contracts remain intact or are extended narrowly and explicitly;
+- actual board-scale visual review passes;
+- the full approved runtime path passes validation;
+- only after that, the five Phase B reference sheets are produced from the shipping asset set.
+
+The governing quality rules are: **faithful to references, preserve-first, implementation-ready, deterministic in Unity, and complete for the approved playable slice without expanding into later-game content.**
