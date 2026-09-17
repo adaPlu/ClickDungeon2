@@ -1,0 +1,52 @@
+assetId,path,disposition,expectedGuid,referenceKey
+hero.clickington.master,Assets/ClickDungeon/Art/Runtime/hero_clickington_master.png,KEEP,cf741c0e15eee54a95f1e6d20cfce14a,runtime:hero_clickington_master.png
+hero.clickington.gameplay,Assets/ClickDungeon/Art/Runtime/hero_clickington_gameplay.png,KEEP,d8b303db0a57c3d022fe55fe0ac2faa0,runtime:hero_clickington_gameplay.png
+hero.clickington.portrait,Assets/ClickDungeon/Art/Runtime/hero_clickington_portrait.png,KEEP,c26fe785edf95fe4ad0efdcdb346356d,runtime:hero_clickington_portrait.png
+hero.clickington.roster,Assets/ClickDungeon/Art/Runtime/hero_clickington_roster.png,KEEP,712b68d49ec7f09c6e98a06aebb9b1e4,runtime:hero_clickington_roster.png
+hero.clickington.idle,Assets/ClickDungeon/Art/Runtime/hero_clickington_idle.png,KEEP,f07d0715d827fb4f247deca42d71f70f,runtime:hero_clickington_idle.png
+hero.clickington.attack,Assets/ClickDungeon/Art/Runtime/hero_clickington_attack.png,KEEP,06274e19c31359e0d006319467bcc8d7,runtime:hero_clickington_attack.png
+hero.clickington.hit,Assets/ClickDungeon/Art/Runtime/hero_clickington_hit.png,KEEP,82014026aac054443c43c9a90d98c2f1,runtime:hero_clickington_hit.png
+hero.clickington.victory,Assets/ClickDungeon/Art/Runtime/hero_clickington_victory.png,KEEP,70c8f992a481b499d7bff638b90167f7,runtime:hero_clickington_victory.png
+hero.clickington.defeat,Assets/ClickDungeon/Art/Runtime/hero_clickington_defeat.png,KEEP,8ac9cb7303afc614d874536590c7b896,runtime:hero_clickington_defeat.png
+monster.goblin_raider.gameplay,Assets/ClickDungeon/Art/Runtime/monster_goblin_raider_gameplay.png,CREATE,,runtime-source:monster_goblin_core.png + approved Goblin Raider reference
+monster.goblin_raider.idle,Assets/ClickDungeon/Art/Runtime/monster_goblin_raider_idle.png,CREATE,,runtime-source:monster_goblin_core.png + approved Goblin Raider reference
+monster.goblin_raider.attack,Assets/ClickDungeon/Art/Runtime/monster_goblin_raider_attack.png,CREATE,,runtime-source:monster_goblin_core.png + approved Goblin Raider reference
+monster.goblin_raider.hit,Assets/ClickDungeon/Art/Runtime/monster_goblin_raider_hit.png,CREATE,,runtime-source:monster_goblin_core.png + approved Goblin Raider reference
+monster.goblin_raider.defeat,Assets/ClickDungeon/Art/Runtime/monster_goblin_raider_defeat.png,CREATE,,runtime-source:monster_goblin_core.png + approved Goblin Raider reference
+monster.slime.gameplay,Assets/ClickDungeon/Art/Runtime/monster_slime_gameplay.png,CREATE,,runtime-source:monster_slime_core.png + approved Slime reference
+monster.slime.idle,Assets/ClickDungeon/Art/Runtime/monster_slime_idle.png,CREATE,,runtime-source:monster_slime_core.png + approved Slime reference
+monster.slime.attack,Assets/ClickDungeon/Art/Runtime/monster_slime_attack.png,CREATE,,runtime-source:monster_slime_core.png + approved Slime reference
+monster.slime.hit,Assets/ClickDungeon/Art/Runtime/monster_slime_hit.png,CREATE,,runtime-source:monster_slime_core.png + approved Slime reference
+monster.slime.defeat,Assets/ClickDungeon/Art/Runtime/monster_slime_defeat.png,CREATE,,runtime-source:monster_slime_core.png + approved Slime reference
+monster.mimic_chest.gameplay,Assets/ClickDungeon/Art/Runtime/monster_mimic_chest_gameplay.png,KEEP,1db50a6fa037d8161a35d30eb04e8aba,runtime:monster_mimic_chest_gameplay.png
+monster.mimic_chest.idle,Assets/ClickDungeon/Art/Runtime/monster_mimic_chest_idle.png,KEEP,aad778b93fd2568c1df2d2450892b73a,runtime:monster_mimic_chest_idle.png
+monster.mimic_chest.attack,Assets/ClickDungeon/Art/Runtime/monster_mimic_chest_attack.png,KEEP,abe3483d17220eb339f751768fc3db09,runtime:monster_mimic_chest_attack.png
+monster.mimic_chest.hit,Assets/ClickDungeon/Art/Runtime/monster_mimic_chest_hit.png,KEEP,c98287a72363ac4f344ad29bfd959e72,runtime:monster_mimic_chest_hit.png
+monster.mimic_chest.defeat,Assets/ClickDungeon/Art/Runtime/monster_mimic_chest_defeat.png,KEEP,7e041f582dc22b89b57d4bb44d7d191c,runtime:monster_mimic_chest_defeat.png
+boss.lord_blobert.gameplay,Assets/ClickDungeon/Art/Runtime/boss_lord_blobert_gameplay.png,CREATE,,approved-reference:lord_blobert
+boss.lord_blobert.idle,Assets/ClickDungeon/Art/Runtime/boss_lord_blobert_idle.png,CREATE,,approved-reference:lord_blobert
+boss.lord_blobert.attack,Assets/ClickDungeon/Art/Runtime/boss_lord_blobert_attack.png,CREATE,,approved-reference:lord_blobert
+boss.lord_blobert.hit,Assets/ClickDungeon/Art/Runtime/boss_lord_blobert_hit.png,CREATE,,approved-reference:lord_blobert
+boss.lord_blobert.defeat,Assets/ClickDungeon/Art/Runtime/boss_lord_blobert_defeat.png,CREATE,,approved-reference:lord_blobert
+hero.clickington.attack.frame_01,Assets/ClickDungeon/Art/Runtime/anim_clickington_attack_01.png,CREATE,,approved-reference:hero.clickington.attack
+hero.clickington.attack.frame_02,Assets/ClickDungeon/Art/Runtime/anim_clickington_attack_02.png,CREATE,,approved-reference:hero.clickington.attack
+hero.clickington.attack.frame_03,Assets/ClickDungeon/Art/Runtime/anim_clickington_attack_03.png,CREATE,,approved-reference:hero.clickington.attack
+hero.clickington.attack.frame_04,Assets/ClickDungeon/Art/Runtime/anim_clickington_attack_04.png,CREATE,,approved-reference:hero.clickington.attack
+hero.clickington.attack.frame_05,Assets/ClickDungeon/Art/Runtime/anim_clickington_attack_05.png,CREATE,,approved-reference:hero.clickington.attack
+monster.mimic_chest.reveal.frame_01,Assets/ClickDungeon/Art/Runtime/anim_mimic_chest_reveal_01.png,CREATE,,approved-reference:monster.mimic_chest.reveal
+monster.mimic_chest.reveal.frame_02,Assets/ClickDungeon/Art/Runtime/anim_mimic_chest_reveal_02.png,CREATE,,approved-reference:monster.mimic_chest.reveal
+monster.mimic_chest.reveal.frame_03,Assets/ClickDungeon/Art/Runtime/anim_mimic_chest_reveal_03.png,CREATE,,approved-reference:monster.mimic_chest.reveal
+monster.mimic_chest.reveal.frame_04,Assets/ClickDungeon/Art/Runtime/anim_mimic_chest_reveal_04.png,CREATE,,approved-reference:monster.mimic_chest.reveal
+monster.mimic_chest.reveal.frame_05,Assets/ClickDungeon/Art/Runtime/anim_mimic_chest_reveal_05.png,CREATE,,approved-reference:monster.mimic_chest.reveal
+monster.mimic_chest.reveal.frame_06,Assets/ClickDungeon/Art/Runtime/anim_mimic_chest_reveal_06.png,CREATE,,approved-reference:monster.mimic_chest.reveal
+monster.mimic_chest.bite.frame_01,Assets/ClickDungeon/Art/Runtime/anim_mimic_chest_bite_01.png,CREATE,,approved-reference:monster.mimic_chest.bite
+monster.mimic_chest.bite.frame_02,Assets/ClickDungeon/Art/Runtime/anim_mimic_chest_bite_02.png,CREATE,,approved-reference:monster.mimic_chest.bite
+monster.mimic_chest.bite.frame_03,Assets/ClickDungeon/Art/Runtime/anim_mimic_chest_bite_03.png,CREATE,,approved-reference:monster.mimic_chest.bite
+monster.mimic_chest.bite.frame_04,Assets/ClickDungeon/Art/Runtime/anim_mimic_chest_bite_04.png,CREATE,,approved-reference:monster.mimic_chest.bite
+monster.mimic_chest.bite.frame_05,Assets/ClickDungeon/Art/Runtime/anim_mimic_chest_bite_05.png,CREATE,,approved-reference:monster.mimic_chest.bite
+boss.lord_blobert.attack.frame_01,Assets/ClickDungeon/Art/Runtime/anim_lord_blobert_attack_01.png,CREATE,,approved-reference:boss.lord_blobert.attack
+boss.lord_blobert.attack.frame_02,Assets/ClickDungeon/Art/Runtime/anim_lord_blobert_attack_02.png,CREATE,,approved-reference:boss.lord_blobert.attack
+boss.lord_blobert.attack.frame_03,Assets/ClickDungeon/Art/Runtime/anim_lord_blobert_attack_03.png,CREATE,,approved-reference:boss.lord_blobert.attack
+boss.lord_blobert.attack.frame_04,Assets/ClickDungeon/Art/Runtime/anim_lord_blobert_attack_04.png,CREATE,,approved-reference:boss.lord_blobert.attack
+boss.lord_blobert.attack.frame_05,Assets/ClickDungeon/Art/Runtime/anim_lord_blobert_attack_05.png,CREATE,,approved-reference:boss.lord_blobert.attack
+boss.lord_blobert.attack.frame_06,Assets/ClickDungeon/Art/Runtime/anim_lord_blobert_attack_06.png,CREATE,,approved-reference:boss.lord_blobert.attack
